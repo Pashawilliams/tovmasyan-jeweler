@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" role="img" aria-labelledby="title desc">
+  <title id="title">Цепочка Rope</title>
+  <desc id="desc">Premium black and gold jewelry artwork for Цепочка Rope.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#2b1a08"/>
+      <stop offset="56%" stop-color="#090706"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .52  0 0 .25 0 .12  0 0 0 .75 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="800" height="620" rx="44" fill="url(#bg)"/>
+  <g opacity=".82">
+      <path d="M-40 220 C 225 235, 515 255, 840 185" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.18"/>
+      <path d="M-40 234 C 237 250, 495 247, 840 199" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.30"/>
+      <path d="M-40 303 C 254 349, 562 297, 840 338" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.30"/>
+      <path d="M-40 317 C 266 364, 542 289, 840 352" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.42"/>
+      <path d="M-40 386 C 173 463, 609 339, 840 351" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.42"/>
+      <path d="M-40 400 C 185 478, 589 331, 840 365" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.54"/>
+      <path d="M-40 469 C 202 417, 506 531, 840 504" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.24"/>
+      <path d="M-40 483 C 214 432, 486 523, 840 518" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.36"/>
+      <path d="M-40 122 C 231 101, 553 143, 840 87" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.36"/>
+      <path d="M-40 136 C 243 116, 533 135, 840 101" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.48"/>
+  </g>
+  <ellipse cx="400" cy="346" rx="300" ry="226" fill="none" stroke="#d69a45" stroke-width="2" opacity=".18"/>
+  <ellipse cx="400" cy="346" rx="228" ry="172" fill="none" stroke="#ffe0a3" stroke-width="1" opacity=".18"/>
+  
+      <g filter="url(#glow)" fill="none" stroke="url(#gold)" stroke-linecap="round">
+        <path d="M150 285 C250 160 442 138 574 230 C670 297 676 426 584 498" stroke-width="18"/>
+        <path d="M200 320 C284 218 434 204 532 270 C600 316 604 400 546 452" stroke="#fff0bd" stroke-width="5" opacity=".62"/>
+        <ellipse cx="220" cy="238" rx="32" ry="19" transform="rotate(-28 220 238)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="265" cy="252" rx="32" ry="19" transform="rotate(-20 265 252)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="310" cy="261" rx="32" ry="19" transform="rotate(-12 310 261)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="355" cy="259" rx="32" ry="19" transform="rotate(-4 355 259)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="400" cy="248" rx="32" ry="19" transform="rotate(4 400 248)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="445" cy="234" rx="32" ry="19" transform="rotate(12 445 234)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="490" cy="220" rx="32" ry="19" transform="rotate(20 490 220)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="535" cy="215" rx="32" ry="19" transform="rotate(28 535 215)" fill="none" stroke="url(#gold)" stroke-width="9"/><ellipse cx="580" cy="219" rx="32" ry="19" transform="rotate(36 580 219)" fill="none" stroke="url(#gold)" stroke-width="9"/>
+      </g>
+  <g><circle cx="131" cy="513" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="228" cy="124" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="325" cy="195" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="422" cy="266" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="519" cy="337" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="616" cy="408" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="93" cy="479" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/></g>
+  <g opacity=".92">
+    <text x="46" y="548" fill="#ffe4a8" font-family="Georgia, serif" font-size="24" letter-spacing="3">TOVMASYAN</text>
+    <text x="46" y="580" fill="#c98a31" font-family="Arial, sans-serif" font-size="13" letter-spacing="5">ЦЕПОЧКИ</text>
+  </g>
+</svg>

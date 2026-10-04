@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620">
+  <defs><radialGradient id="b" cx="50%" cy="45%" r="64%"><stop stop-color="#281908"/><stop offset=".6" stop-color="#080606"/><stop offset="1" stop-color="#030303"/></radialGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/></linearGradient><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="800" height="620" rx="44" fill="url(#b)"/>
+  <path d="M53 154 C180 224 240 167 361 237 C481 306 524 256 646 318 C706 349 743 398 774 455" fill="none" stroke="#a66a26" stroke-width="4" opacity=".45"/><path d="M47 172 C180 244 239 187 363 256 C482 324 526 274 650 338 C716 372 752 418 778 476" fill="none" stroke="#ffdc9c" stroke-width="1.5" opacity=".65"/>
+  <g filter="url(#glow)" fill="none" stroke="url(#g)" stroke-width="18" stroke-linecap="round">
+    <path d="M171 226 C272 146 421 133 535 204 C643 271 674 392 595 474"/>
+    <path d="M207 260 C292 198 409 191 499 244 C583 293 609 381 551 441" stroke-width="5" opacity=".72"/>
+  </g>
+  <g filter="url(#glow)">
+    <ellipse cx="244" cy="235" rx="30" ry="18" transform="rotate(-30 244 235)" fill="none" stroke="url(#g)" stroke-width="9"/>
+    <ellipse cx="303" cy="209" rx="30" ry="18" transform="rotate(-12 303 209)" fill="none" stroke="url(#g)" stroke-width="9"/>
+    <ellipse cx="367" cy="203" rx="30" ry="18" transform="rotate(8 367 203)" fill="none" stroke="url(#g)" stroke-width="9"/>
+    <ellipse cx="431" cy="215" rx="30" ry="18" transform="rotate(22 431 215)" fill="none" stroke="url(#g)" stroke-width="9"/>
+    <ellipse cx="492" cy="247" rx="30" ry="18" transform="rotate(38 492 247)" fill="none" stroke="url(#g)" stroke-width="9"/>
+    <path d="M592 148 L600 172 L625 180 L600 188 L592 214 L584 188 L559 180 L584 172 Z" fill="url(#g)"/>
+  </g>
+</svg>

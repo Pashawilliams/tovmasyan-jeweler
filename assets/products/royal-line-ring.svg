@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" role="img" aria-labelledby="title desc">
+  <title id="title">Кольцо Royal Line</title>
+  <desc id="desc">Premium black and gold jewelry artwork for Кольцо Royal Line.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#2b1a08"/>
+      <stop offset="56%" stop-color="#090706"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .52  0 0 .25 0 .12  0 0 0 .75 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="800" height="620" rx="44" fill="url(#bg)"/>
+  <g opacity=".82">
+      <path d="M-40 243 C 236 231, 562 271, 840 208" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.42"/>
+      <path d="M-40 257 C 248 246, 542 263, 840 222" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.54"/>
+      <path d="M-40 326 C 265 345, 609 313, 840 361" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.24"/>
+      <path d="M-40 340 C 277 360, 589 305, 840 375" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.36"/>
+      <path d="M-40 409 C 184 459, 506 355, 840 374" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.36"/>
+      <path d="M-40 423 C 196 474, 486 347, 840 388" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.48"/>
+      <path d="M-40 492 C 213 413, 553 547, 840 527" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.18"/>
+      <path d="M-40 506 C 225 428, 533 539, 840 541" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.30"/>
+      <path d="M-40 145 C 242 97, 600 159, 840 110" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.30"/>
+      <path d="M-40 159 C 254 112, 580 151, 840 124" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.42"/>
+  </g>
+  <ellipse cx="400" cy="346" rx="300" ry="226" fill="none" stroke="#d69a45" stroke-width="2" opacity=".18"/>
+  <ellipse cx="400" cy="346" rx="228" ry="172" fill="none" stroke="#ffe0a3" stroke-width="1" opacity=".18"/>
+  
+      <g filter="url(#glow)" transform="translate(0 3)">
+        <ellipse cx="400" cy="386" rx="154" ry="118" fill="none" stroke="url(#gold)" stroke-width="34"/>
+        <ellipse cx="400" cy="386" rx="94" ry="66" fill="none" stroke="#fff0bd" stroke-width="3" opacity=".72"/>
+        <path d="M302 230 L350 178 H450 L498 230 L400 338 Z" fill="#0d0906" stroke="url(#gold)" stroke-width="9" stroke-linejoin="round"/>
+        <path d="M350 178 L376 230 L400 178 L424 230 L450 178 M302 230 H498 M376 230 L400 338 M424 230 L400 338" fill="none" stroke="#fff0bd" stroke-width="4" opacity=".9"/>
+        <path d="M530 150 L540 179 L570 189 L540 199 L530 230 L520 199 L490 189 L520 179 Z" fill="url(#gold)"/>
+      </g>
+  <g><circle cx="700" cy="500" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="177" cy="111" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="274" cy="182" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="371" cy="253" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="468" cy="324" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="565" cy="395" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="662" cy="466" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/></g>
+  <g opacity=".92">
+    <text x="46" y="548" fill="#ffe4a8" font-family="Georgia, serif" font-size="24" letter-spacing="3">TOVMASYAN</text>
+    <text x="46" y="580" fill="#c98a31" font-family="Arial, sans-serif" font-size="13" letter-spacing="5">КОЛЬЦА</text>
+  </g>
+</svg>

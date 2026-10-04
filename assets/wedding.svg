@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620">
+  <defs><radialGradient id="b" cx="50%" cy="45%" r="65%"><stop stop-color="#281908"/><stop offset=".6" stop-color="#080606"/><stop offset="1" stop-color="#030303"/></radialGradient><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/></linearGradient><filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+  <rect width="800" height="620" rx="44" fill="url(#b)"/>
+  <path d="M40 160 C144 211 209 173 315 232 C440 302 491 256 604 318 C684 361 713 433 778 458" fill="none" stroke="#a66a26" stroke-width="4" opacity=".42"/><path d="M35 177 C144 230 210 189 317 251 C440 322 491 276 607 335 C691 378 719 449 778 475" fill="none" stroke="#ffdc9c" stroke-width="1.5" opacity=".66"/>
+  <g filter="url(#glow)" fill="none" stroke="url(#g)" stroke-linecap="round">
+    <ellipse cx="348" cy="350" rx="145" ry="116" stroke-width="28" transform="rotate(-12 348 350)"/>
+    <ellipse cx="470" cy="344" rx="145" ry="116" stroke-width="28" transform="rotate(15 470 344)" opacity=".92"/>
+    <ellipse cx="348" cy="350" rx="91" ry="68" stroke-width="4" opacity=".65" transform="rotate(-12 348 350)"/>
+    <ellipse cx="470" cy="344" rx="91" ry="68" stroke-width="4" opacity=".65" transform="rotate(15 470 344)"/>
+  </g>
+  <g fill="url(#g)" filter="url(#glow)"><path d="M400 132 L412 169 L451 181 L412 193 L400 233 L388 193 L349 181 L388 169 Z"/><path d="M580 229 L588 254 L614 262 L588 270 L580 297 L572 270 L546 262 L572 254 Z" opacity=".8"/></g>
+</svg>

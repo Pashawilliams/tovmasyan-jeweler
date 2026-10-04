@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://example.com/index.html</loc></url>
+  <url><loc>https://example.com/catalog.html</loc></url>
+  <url><loc>https://example.com/custom.html</loc></url>
+  <url><loc>https://example.com/care.html</loc></url>
+  <url><loc>https://example.com/about.html</loc></url>
+  <url><loc>https://example.com/contacts.html</loc></url>
+  <url><loc>https://example.com/products/aurora-ring.html</loc></url>
+  <url><loc>https://example.com/products/diamond-halo-ring.html</loc></url>
+  <url><loc>https://example.com/products/classic-band-ring.html</loc></url>
+  <url><loc>https://example.com/products/royal-line-ring.html</loc></url>
+  <url><loc>https://example.com/products/stella-earrings.html</loc></url>
+  <url><loc>https://example.com/products/grace-drop-earrings.html</loc></url>
+  <url><loc>https://example.com/products/minimal-gold-earrings.html</loc></url>
+  <url><loc>https://example.com/products/evening-spark-earrings.html</loc></url>
+  <url><loc>https://example.com/products/monaco-bracelet.html</loc></url>
+  <url><loc>https://example.com/products/tennis-glow-bracelet.html</loc></url>
+  <url><loc>https://example.com/products/chain-classic-bracelet.html</loc></url>
+  <url><loc>https://example.com/products/signature-bracelet.html</loc></url>
+  <url><loc>https://example.com/products/figaro-chain.html</loc></url>
+  <url><loc>https://example.com/products/anchor-chain.html</loc></url>
+  <url><loc>https://example.com/products/rope-chain.html</loc></url>
+  <url><loc>https://example.com/products/cuban-chain.html</loc></url>
+  <url><loc>https://example.com/products/diamond-star-pendant.html</loc></url>
+  <url><loc>https://example.com/products/initial-pendant.html</loc></url>
+  <url><loc>https://example.com/products/gold-cross-pendant.html</loc></url>
+  <url><loc>https://example.com/products/heart-pendant.html</loc></url>
+  <url><loc>https://example.com/products/eternity-wedding-rings.html</loc></url>
+  <url><loc>https://example.com/products/classic-pair-wedding-rings.html</loc></url>
+  <url><loc>https://example.com/products/roman-wedding-rings.html</loc></url>
+  <url><loc>https://example.com/products/bespoke-sketch.html</loc></url>
+</urlset>

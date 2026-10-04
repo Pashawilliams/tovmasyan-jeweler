@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">TOVMASYAN Jeweler logo</title>
+  <desc id="desc">Luxury black and gold round emblem with diamond symbol and TOVMASYAN Jeweler text.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="62%">
+      <stop offset="0%" stop-color="#27211a"/>
+      <stop offset="50%" stop-color="#0d0b09"/>
+      <stop offset="100%" stop-color="#010101"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="6%" y1="8%" x2="95%" y2="94%">
+      <stop offset="0%" stop-color="#8a551a"/>
+      <stop offset="16%" stop-color="#ffe7a7"/>
+      <stop offset="32%" stop-color="#c98d31"/>
+      <stop offset="48%" stop-color="#fff2bd"/>
+      <stop offset="65%" stop-color="#b06a20"/>
+      <stop offset="82%" stop-color="#ffce73"/>
+      <stop offset="100%" stop-color="#7a4212"/>
+    </linearGradient>
+    <linearGradient id="goldSoft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fff2c6"/>
+      <stop offset="40%" stop-color="#d59a3a"/>
+      <stop offset="100%" stop-color="#6e3e12"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="1 0 0 0 1  0 .65 0 0 .55  0 0 .25 0 .15  0 0 0 .8 0"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="marble">
+      <feTurbulence type="fractalNoise" baseFrequency="0.016" numOctaves="4" seed="8"/>
+      <feColorMatrix type="matrix" values="0.16 0 0 0 0.02  0 0.13 0 0 0.015  0 0 0.10 0 0.01  0 0 0 .7 0"/>
+      <feBlend in="SourceGraphic" mode="screen"/>
+    </filter>
+    <clipPath id="circleClip"><circle cx="256" cy="256" r="228"/></clipPath>
+  </defs>
+
+  <rect width="512" height="512" fill="#020202"/>
+  <g clip-path="url(#circleClip)">
+    <circle cx="256" cy="256" r="232" fill="url(#bg)" filter="url(#marble)"/>
+    <path d="M-20 386 C80 330 126 363 198 292 C283 208 326 244 401 153 C455 88 518 96 546 52" fill="none" stroke="#b9792d" stroke-width="3" opacity=".62"/>
+    <path d="M-24 418 C72 358 138 392 222 314 C311 232 357 256 424 192 C474 145 514 144 540 119" fill="none" stroke="#ffd18a" stroke-width="1.2" opacity=".85"/>
+    <path d="M-10 114 C72 160 134 144 205 185 C280 229 307 192 376 225 C438 255 462 322 535 316" fill="none" stroke="#8c571e" stroke-width="3" opacity=".45"/>
+    <path d="M14 121 C88 159 141 153 214 196 C278 235 311 203 378 236 C438 266 474 328 538 330" fill="none" stroke="#ffd694" stroke-width="1.1" opacity=".72"/>
+    <path d="M52 486 C126 420 192 470 273 392 C338 329 393 356 472 272" fill="none" stroke="#f4b760" stroke-width="2" opacity=".55"/>
+  </g>
+
+  <circle cx="256" cy="256" r="238" fill="none" stroke="url(#gold)" stroke-width="10" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="219" fill="none" stroke="#f2c578" stroke-width="2" opacity=".92"/>
+  <circle cx="256" cy="256" r="151" fill="none" stroke="url(#goldSoft)" stroke-width="3" opacity=".78"/>
+  <path d="M167 185 C205 151 307 151 345 185" fill="none" stroke="url(#gold)" stroke-width="5" stroke-linecap="round" opacity=".88"/>
+  <path d="M256 76 L266 112 L302 122 L266 132 L256 168 L246 132 L210 122 L246 112 Z" fill="url(#gold)" filter="url(#glow)"/>
+
+  <g filter="url(#glow)">
+    <path d="M154 188 L199 143 H313 L358 188 L256 289 Z" fill="none" stroke="url(#gold)" stroke-width="7" stroke-linejoin="round"/>
+    <path d="M199 143 L225 188 L256 143 L287 188 L313 143" fill="none" stroke="#fff1bd" stroke-width="3" opacity=".9"/>
+    <path d="M154 188 H358 M199 143 L204 188 L256 289 M313 143 L308 188 L256 289 M225 188 L256 289 M287 188 L256 289" fill="none" stroke="url(#goldSoft)" stroke-width="3" opacity=".88"/>
+    <path d="M327 126 L335 148 L357 156 L335 164 L327 187 L319 164 L297 156 L319 148 Z" fill="#fff5c8" opacity=".95"/>
+  </g>
+
+  <text x="256" y="368" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="55" letter-spacing="5" fill="url(#gold)" font-weight="700" filter="url(#glow)">TOVMASYAN</text>
+  <text x="256" y="415" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="30" letter-spacing="12" fill="#f9d99b" font-weight="600">JEWELER</text>
+  <path d="M95 393 H180 M332 393 H417" stroke="url(#gold)" stroke-width="4" stroke-linecap="round"/>
+  <text x="256" y="462" text-anchor="middle" font-family="Arial, sans-serif" font-size="15" letter-spacing="8" fill="#f7dfb4" opacity=".9">TIMELESS BEAUTY</text>
+</svg>

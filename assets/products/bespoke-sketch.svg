@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" role="img" aria-labelledby="title desc">
+  <title id="title">Индивидуальный эскиз</title>
+  <desc id="desc">Premium black and gold jewelry artwork for Индивидуальный эскиз.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#2b1a08"/>
+      <stop offset="56%" stop-color="#090706"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .52  0 0 .25 0 .12  0 0 0 .75 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="800" height="620" rx="44" fill="url(#bg)"/>
+  <g opacity=".82">
+      <path d="M-40 123 C 176 131, 572 191, 840 88" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.42"/>
+      <path d="M-40 137 C 188 146, 552 183, 840 102" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.54"/>
+      <path d="M-40 206 C 205 245, 619 233, 840 241" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.24"/>
+      <path d="M-40 220 C 217 260, 599 225, 840 255" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.36"/>
+      <path d="M-40 289 C 234 359, 516 275, 840 254" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.36"/>
+      <path d="M-40 303 C 246 374, 496 267, 840 268" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.48"/>
+      <path d="M-40 372 C 263 313, 563 317, 840 407" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.18"/>
+      <path d="M-40 386 C 275 328, 543 309, 840 421" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.30"/>
+      <path d="M-40 455 C 182 427, 610 509, 840 420" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.30"/>
+      <path d="M-40 469 C 194 442, 590 501, 840 434" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.42"/>
+  </g>
+  <ellipse cx="400" cy="346" rx="300" ry="226" fill="none" stroke="#d69a45" stroke-width="2" opacity=".18"/>
+  <ellipse cx="400" cy="346" rx="228" ry="172" fill="none" stroke="#ffe0a3" stroke-width="1" opacity=".18"/>
+  
+      <g filter="url(#glow)">
+        <rect x="178" y="178" width="444" height="286" rx="28" fill="#0b0806" stroke="url(#gold)" stroke-width="10"/>
+        <path d="M236 244 H474 M236 306 H565 M236 368 H420" stroke="url(#gold)" stroke-width="8" stroke-linecap="round" opacity=".78"/>
+        <path d="M526 142 L636 252 L456 432 L368 454 L392 366 Z" fill="#100b07" stroke="url(#gold)" stroke-width="10" stroke-linejoin="round"/>
+        <path d="M392 366 L456 432 M526 142 L454 222 L564 332 L636 252" fill="none" stroke="#fff0bd" stroke-width="4" opacity=".82"/>
+        <path d="M272 110 L282 141 L314 151 L282 161 L272 195 L262 161 L230 151 L262 141 Z" fill="url(#gold)"/>
+      </g>
+  <g><circle cx="680" cy="440" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="157" cy="511" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="254" cy="122" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="351" cy="193" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="448" cy="264" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="545" cy="335" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="642" cy="406" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/></g>
+  <g opacity=".92">
+    <text x="46" y="548" fill="#ffe4a8" font-family="Georgia, serif" font-size="24" letter-spacing="3">TOVMASYAN</text>
+    <text x="46" y="580" fill="#c98a31" font-family="Arial, sans-serif" font-size="13" letter-spacing="5">ПОД ЗАКАЗ</text>
+  </g>
+</svg>

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" role="img" aria-labelledby="title desc">
+  <title id="title">Golden diamond jewelry artwork</title>
+  <desc id="desc">Decorative golden jewelry illustration for TOVMASYAN Jeweler website.</desc>
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="42%" r="58%"><stop stop-color="#ffdfa2" stop-opacity=".55"/><stop offset=".32" stop-color="#c8842f" stop-opacity=".16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#6e3c13"/><stop offset=".16" stop-color="#ffefbd"/><stop offset=".32" stop-color="#c98d31"/><stop offset=".54" stop-color="#fff5ce"/><stop offset=".75" stop-color="#a9611d"/><stop offset="1" stop-color="#f3be64"/></linearGradient>
+    <linearGradient id="deep" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#251609"/><stop offset="1" stop-color="#070402"/></linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .55  0 0 .25 0 .1  0 0 0 .8 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="900" height="700" fill="none"/>
+  <ellipse cx="452" cy="356" rx="390" ry="300" fill="url(#halo)"/>
+  <ellipse cx="455" cy="606" rx="260" ry="38" fill="#000" opacity=".5" filter="url(#soft)"/>
+
+  <g opacity=".85" fill="none" stroke="url(#gold)" stroke-width="3">
+    <ellipse cx="450" cy="367" rx="296" ry="296" transform="rotate(-18 450 367)"/>
+    <ellipse cx="450" cy="367" rx="236" ry="236" transform="rotate(24 450 367)" opacity=".45"/>
+    <path d="M146 356 C226 214 331 144 459 137 C590 130 709 199 768 314" opacity=".8"/>
+  </g>
+
+  <g filter="url(#glow)">
+    <path d="M244 330 L340 235 H560 L656 330 L450 562 Z" fill="url(#deep)" stroke="url(#gold)" stroke-width="10" stroke-linejoin="round"/>
+    <path d="M340 235 L394 330 L450 235 L506 330 L560 235" fill="none" stroke="#fff0b3" stroke-width="5" opacity=".92"/>
+    <path d="M244 330 H656 M340 235 L352 330 L450 562 M560 235 L548 330 L450 562 M394 330 L450 562 M506 330 L450 562" fill="none" stroke="url(#gold)" stroke-width="5" opacity=".86"/>
+    <path d="M341 235 H560 L450 562 Z" fill="#ffffff" opacity=".04"/>
+  </g>
+
+  <g fill="url(#gold)" filter="url(#glow)">
+    <path d="M680 167 L693 205 L733 218 L693 231 L680 270 L667 231 L627 218 L667 205 Z"/>
+    <path d="M202 173 L211 199 L239 208 L211 217 L202 245 L193 217 L165 208 L193 199 Z" opacity=".8"/>
+    <path d="M732 431 L740 456 L766 464 L740 472 L732 498 L724 472 L698 464 L724 456 Z" opacity=".65"/>
+    <circle cx="282" cy="492" r="5"/>
+    <circle cx="613" cy="126" r="4"/>
+    <circle cx="150" cy="360" r="4" opacity=".7"/>
+  </g>
+</svg>

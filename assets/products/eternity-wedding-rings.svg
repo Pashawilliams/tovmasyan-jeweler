@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" role="img" aria-labelledby="title desc">
+  <title id="title">Обручальные Eternity</title>
+  <desc id="desc">Premium black and gold jewelry artwork for Обручальные Eternity.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#2b1a08"/>
+      <stop offset="56%" stop-color="#090706"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .52  0 0 .25 0 .12  0 0 0 .75 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="800" height="620" rx="44" fill="url(#bg)"/>
+  <g opacity=".82">
+      <path d="M-40 442 C 229 399, 503 399, 840 407" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.24"/>
+      <path d="M-40 456 C 241 414, 483 391, 840 421" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.36"/>
+      <path d="M-40 95 C 258 83, 550 161, 840 130" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.36"/>
+      <path d="M-40 109 C 270 98, 530 153, 840 144" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.48"/>
+      <path d="M-40 178 C 177 197, 597 203, 840 143" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.18"/>
+      <path d="M-40 192 C 189 212, 577 195, 840 157" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.30"/>
+      <path d="M-40 261 C 206 311, 494 245, 840 296" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.30"/>
+      <path d="M-40 275 C 218 326, 474 237, 840 310" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.42"/>
+      <path d="M-40 344 C 235 265, 541 287, 840 309" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.42"/>
+      <path d="M-40 358 C 247 280, 521 279, 840 323" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.54"/>
+  </g>
+  <ellipse cx="400" cy="346" rx="300" ry="226" fill="none" stroke="#d69a45" stroke-width="2" opacity=".18"/>
+  <ellipse cx="400" cy="346" rx="228" ry="172" fill="none" stroke="#ffe0a3" stroke-width="1" opacity=".18"/>
+  
+      <g filter="url(#glow)" fill="none" stroke="url(#gold)" stroke-linecap="round">
+        <ellipse cx="342" cy="350" rx="148" ry="116" stroke-width="28" transform="rotate(-13 342 350)"/>
+        <ellipse cx="470" cy="344" rx="148" ry="116" stroke-width="28" transform="rotate(15 470 344)" opacity=".94"/>
+        <ellipse cx="342" cy="350" rx="90" ry="66" stroke="#fff0bd" stroke-width="4" opacity=".62" transform="rotate(-13 342 350)"/>
+        <ellipse cx="470" cy="344" rx="90" ry="66" stroke="#fff0bd" stroke-width="4" opacity=".62" transform="rotate(15 470 344)"/>
+      </g>
+      <path d="M400 126 L413 165 L452 178 L413 191 L400 232 L387 191 L348 178 L387 165 Z" fill="url(#gold)" filter="url(#glow)"/>
+  <g><circle cx="497" cy="311" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="594" cy="382" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="691" cy="453" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="168" cy="524" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="265" cy="135" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="362" cy="206" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="459" cy="277" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/></g>
+  <g opacity=".92">
+    <text x="46" y="548" fill="#ffe4a8" font-family="Georgia, serif" font-size="24" letter-spacing="3">TOVMASYAN</text>
+    <text x="46" y="580" fill="#c98a31" font-family="Arial, sans-serif" font-size="13" letter-spacing="5">ОБРУЧАЛЬНЫЕ</text>
+  </g>
+</svg>

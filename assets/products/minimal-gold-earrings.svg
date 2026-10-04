@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" role="img" aria-labelledby="title desc">
+  <title id="title">Серьги Minimal Gold</title>
+  <desc id="desc">Premium black and gold jewelry artwork for Серьги Minimal Gold.</desc>
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#2b1a08"/>
+      <stop offset="56%" stop-color="#090706"/>
+      <stop offset="100%" stop-color="#020202"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#74410f"/><stop offset=".18" stop-color="#fff0bb"/><stop offset=".42" stop-color="#c98a31"/><stop offset=".66" stop-color="#fff1c2"/><stop offset="1" stop-color="#925617"/>
+    </linearGradient>
+    <filter id="glow" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="5" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 1  0 .7 0 0 .52  0 0 .25 0 .12  0 0 0 .75 0"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <rect width="800" height="620" rx="44" fill="url(#bg)"/>
+  <g opacity=".82">
+      <path d="M-40 354 C 183 393, 481 343, 840 319" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.30"/>
+      <path d="M-40 368 C 195 408, 461 335, 840 333" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.42"/>
+      <path d="M-40 437 C 212 507, 528 385, 840 472" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.42"/>
+      <path d="M-40 451 C 224 522, 508 377, 840 486" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.54"/>
+      <path d="M-40 520 C 241 461, 575 577, 840 485" fill="none" stroke="#d69a45" stroke-width="1.0" opacity="0.24"/>
+      <path d="M-40 534 C 253 476, 555 569, 840 499" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.36"/>
+      <path d="M-40 173 C 160 145, 472 189, 840 208" fill="none" stroke="#d69a45" stroke-width="1.7" opacity="0.36"/>
+      <path d="M-40 187 C 172 160, 452 181, 840 222" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.48"/>
+      <path d="M-40 256 C 189 259, 519 231, 840 221" fill="none" stroke="#d69a45" stroke-width="2.4" opacity="0.18"/>
+      <path d="M-40 270 C 201 274, 499 223, 840 235" fill="none" stroke="#ffe0a3" stroke-width=".8" opacity="0.30"/>
+  </g>
+  <ellipse cx="400" cy="346" rx="300" ry="226" fill="none" stroke="#d69a45" stroke-width="2" opacity=".18"/>
+  <ellipse cx="400" cy="346" rx="228" ry="172" fill="none" stroke="#ffe0a3" stroke-width="1" opacity=".18"/>
+  
+      <g filter="url(#glow)" fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M292 132 C250 164 244 222 270 260" stroke-width="15"/>
+        <path d="M508 132 C550 164 556 222 530 260" stroke-width="15"/>
+        <ellipse cx="292" cy="358" rx="70" ry="120" stroke-width="20"/>
+        <ellipse cx="508" cy="358" rx="70" ry="120" stroke-width="20"/>
+        <path d="M292 224 L292 258 M508 224 L508 258" stroke-width="11"/>
+      </g>
+      <g fill="url(#gold)" filter="url(#glow)"><path d="M292 263 L316 309 L292 356 L268 309 Z"/><path d="M508 263 L532 309 L508 356 L484 309 Z"/></g>
+  <g><circle cx="263" cy="169" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="360" cy="240" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="457" cy="311" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="554" cy="382" r="2.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="651" cy="453" r="2.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="128" cy="524" r="3.0" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/>
+      <circle cx="225" cy="135" r="3.5" fill="#ffe4a8" opacity=".75" filter="url(#glow)"/></g>
+  <g opacity=".92">
+    <text x="46" y="548" fill="#ffe4a8" font-family="Georgia, serif" font-size="24" letter-spacing="3">TOVMASYAN</text>
+    <text x="46" y="580" fill="#c98a31" font-family="Arial, sans-serif" font-size="13" letter-spacing="5">СЕРЬГИ</text>
+  </g>
+</svg>
