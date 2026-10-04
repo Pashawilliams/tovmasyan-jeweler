@@ -25,7 +25,7 @@
             <p class="eyebrow">Firebase setup</p>
             <h2>Система регистрации установлена, осталось активировать Firebase</h2>
             <p>Код входа через Google, личный кабинет, избранное и заявки уже добавлены на сайт. Для реальной авторизации нужно вставить <code>firebaseConfig</code> в файл <code>firebase-config.js</code> и добавить домен <code>pashawilliams.github.io</code> в Firebase Authorized domains.</p>
-            <div class="account-actions"><a class="btn btn--gold" href="FIREBASE_SETUP.md">Открыть инструкцию</a><button class="btn btn--glass" data-auth-open>Проверить вход</button></div>
+            <div class="account-actions"><button class="btn btn--gold" data-auth-open>Проверить вход</button><a class="btn btn--glass" href="contacts.html">Связаться</a></div>
           </section>`;
       }
       return `
