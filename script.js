@@ -101,6 +101,10 @@ if (orderForm) {
       'Подскажите, пожалуйста, детали и стоимость.'
     ].filter(Boolean);
 
+    document.dispatchEvent(new CustomEvent('tovmasyan:order-request', {
+      detail: { name, interest, message }
+    }));
+
     window.open(whatsappUrl(lines.join('\n')), '_blank', 'noopener');
   });
 }

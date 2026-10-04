@@ -26,13 +26,14 @@
         <a class="product-card__media" href="products/${product.id}.html" aria-label="Открыть ${product.name}">
           <img src="${image}" alt="${product.name} — TOVMASYAN Jeweler" loading="lazy" decoding="async" width="560" height="360">
         </a>
+        <button class="favorite-btn product-card__favorite" type="button" data-favorite-product="${product.id}" aria-label="Добавить ${product.name} в избранное">☆</button>
         <div class="product-card__body">
           <span class="product-card__tag">${product.categoryLabel} · ${product.collection}</span>
           <h3><a href="products/${product.id}.html">${product.name}</a></h3>
           <p>${product.short}</p>
           <div class="product-tags">${tags}</div>
           <dl class="mini-specs"><div><dt>Материал</dt><dd>${product.material}</dd></div><div><dt>Наличие</dt><dd>${product.availability}</dd></div></dl>
-          <div class="product-card__bottom"><span>${product.price}</span><a href="${whatsappUrl(message)}" target="_blank" rel="noopener" class="order-link">Заказать</a></div>
+          <div class="product-card__bottom"><span>${product.price}</span><a href="${whatsappUrl(message)}" target="_blank" rel="noopener" class="order-link" data-save-order="${product.id}">Заказать</a></div>
         </div>
       </article>`;
   };

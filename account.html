@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Личный кабинет — TOVMASYAN Jeweler</title>
+  <meta name="description" content="Личный кабинет TOVMASYAN Jeweler: вход через Google, избранные изделия, заявки и заказы.">
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" href="assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page-glow" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
+
+  <header class="site-header" data-header>
+    <a class="brand" href="index.html" aria-label="TOVMASYAN Jeweler — главная">
+      <img class="brand__logo" src="assets/brand-logo.webp" alt="TOVMASYAN Jeweler logo">
+      <span class="brand__text"><span>TOVMASYAN</span><small>Jeweler</small></span>
+    </a>
+    <nav class="main-nav" data-nav aria-label="Главное меню">
+      <a href="catalog.html">Каталог</a>
+      <a href="custom.html">На заказ</a>
+      <a href="care.html">Уход</a>
+      <a href="about.html">О бренде</a>
+      <a href="contacts.html">Контакты</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-link" href="https://www.instagram.com/tovmasyan_jeweler/" target="_blank" rel="noopener">Instagram</a>
+      <a class="btn btn--small btn--gold" href="#" data-whatsapp="Здравствуйте! Хочу получить консультацию TOVMASYAN Jeweler.">WhatsApp</a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Открыть меню" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero account-hero">
+      <div class="container page-hero__grid">
+        <div class="reveal is-visible">
+          <p class="eyebrow">Account</p>
+          <h1>Личный кабинет клиента</h1>
+          <p>Вход через Google, избранные украшения, заявки и будущая история заказов — всё подготовлено для реальной авторизации через Firebase.</p>
+        </div>
+        <div class="page-hero__logo reveal is-visible"><img src="assets/brand-logo.webp" alt="TOVMASYAN Jeweler"></div>
+      </div>
+    </section>
+
+    <section class="section account-section-page">
+      <div class="container" data-account-root>
+        <div class="account-panel"><p>Загрузка кабинета...</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <a class="footer-brand" href="index.html"><img src="assets/brand-logo.webp" alt="TOVMASYAN Jeweler logo"><span>TOVMASYAN Jeweler</span></a>
+      <p>Продажа и изготовление изделий из золота. Украшения под заказ в Ереване.</p>
+      <div class="footer-links"><a href="tel:+37477105163">+374 77 105 163</a><a href="https://www.instagram.com/tovmasyan_jeweler/" target="_blank" rel="noopener">Instagram</a><a href="contacts.html">Контакты</a></div>
+    </div>
+    <div class="container footer-bottom"><span>© <span data-year></span> TOVMASYAN Jeweler</span><span>Account powered by Firebase</span></div>
+  </footer>
+
+  <a class="floating-whatsapp" href="#" data-whatsapp="Здравствуйте! Хочу задать вопрос TOVMASYAN Jeweler." aria-label="Написать в WhatsApp"><span>WhatsApp</span></a>
+
+  <script src="data/products.js"></script>
+  <script src="script.js"></script>
+  <script src="firebase-config.js"></script>
+  <script type="module" src="auth.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>
