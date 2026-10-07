@@ -187,7 +187,9 @@
       el.dataset.authToast = '';
       document.body.appendChild(el);
     }
-    el.textContent = message;
+    const icon = tone === 'success' ? '★' : tone === 'error' ? '!' : tone === 'warning' ? '!' : '◆';
+    el.innerHTML = `<span class="auth-toast__icon">${icon}</span><span class="auth-toast__text"></span>`;
+    el.querySelector('.auth-toast__text').textContent = message;
     el.dataset.tone = tone;
     el.classList.add('is-visible');
     clearTimeout(el._timer);
@@ -508,37 +510,68 @@
     };
   }
 
+  // Firestore may be unavailable (database not created yet, offline, rules).
+  // Every cloud call falls back to local storage so the UI always responds.
+  function withTimeout(promise, ms = 6000) {
+    return Promise.race([
+      promise,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+    ]);
+  }
+
+  function localAddFavorite(item) {
+    const list = localGet(favKey(), []).filter((x) => x.productId !== item.productId);
+    list.unshift({ ...item, savedAt: Date.now() });
+    localSet(favKey(), list);
+  }
+
   async function addFavorite(product) {
     const item = productSnapshot(product);
-    if (currentUser && db) {
-      await firebase.setDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId), {
-        ...item, savedAt: firebase.serverTimestamp()
-      }, { merge: true });
-    } else {
-      const list = localGet(favKey(), []).filter((x) => x.productId !== item.productId);
-      list.unshift({ ...item, savedAt: Date.now() });
-      localSet(favKey(), list);
-    }
+    localAddFavorite(item);               // optimistic, always works
     updateFavoriteButtons();
     toast('Добавлено в избранное', 'success');
+    if (currentUser && db) {
+      try {
+        await withTimeout(firebase.setDoc(
+          firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId),
+          { ...item, savedAt: firebase.serverTimestamp() }, { merge: true }
+        ));
+      } catch (error) {
+        console.warn('Favorite saved locally only:', error?.message || error);
+      }
+    }
   }
 
   async function removeFavorite(productId) {
-    if (currentUser && db) {
-      await firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', productId));
-    } else {
-      localSet(favKey(), localGet(favKey(), []).filter((x) => x.productId !== productId));
-    }
+    localSet(favKey(), localGet(favKey(), []).filter((x) => x.productId !== productId));
     updateFavoriteButtons();
     toast('Удалено из избранного', 'info');
+    if (currentUser && db) {
+      try {
+        await withTimeout(firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', productId)));
+      } catch (error) {
+        console.warn('Favorite removed locally only:', error?.message || error);
+      }
+    }
   }
 
   async function listFavorites() {
+    const local = localGet(favKey(), []);
     if (currentUser && db) {
-      const snap = await firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'favorites'));
-      return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      try {
+        const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'favorites')));
+        const cloud = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const merged = [...cloud];
+        local.forEach((item) => {
+          if (!merged.some((c) => (c.productId || c.id) === (item.productId || item.id))) merged.push(item);
+        });
+        localSet(favKey(), merged);
+        return merged;
+      } catch (error) {
+        console.warn('Favorites from local cache:', error?.message || error);
+      }
     }
-    return localGet(favKey(), []);
+    return local;
   }
 
   async function isFavorite(productId) {
@@ -550,29 +583,46 @@
     const id = product.id || product.productId;
     if (!id) return;
     if (configured && !currentUser) { openModal(); return; }
-    const exists = await isFavorite(id);
+    const exists = localGet(favKey(), []).some((x) => (x.productId || x.id) === id);
+    // paint the star immediately, before any network work
+    document.querySelectorAll(`[data-favorite-product="${CSS.escape(id)}"]`).forEach((btn) => {
+      btn.classList.toggle('is-active', !exists);
+      btn.classList.add('is-pulsing');
+      btn.innerHTML = exists ? '☆' : '★';
+      setTimeout(() => btn.classList.remove('is-pulsing'), 420);
+    });
     if (exists) await removeFavorite(id); else await addFavorite(product);
   }
 
   async function saveOrder(order) {
     const item = { ...order, status: 'new', createdAtLocal: Date.now(), page: window.location.href };
+    const list = localGet(ordKey(), []);
+    list.unshift(item);
+    localSet(ordKey(), list.slice(0, 50));
     if (currentUser && db) {
-      await firebase.addDoc(firebase.collection(db, 'users', currentUser.uid, 'orders'), {
-        ...item, createdAt: firebase.serverTimestamp()
-      });
-    } else {
-      const list = localGet(ordKey(), []);
-      list.unshift(item);
-      localSet(ordKey(), list.slice(0, 50));
+      try {
+        await withTimeout(firebase.addDoc(firebase.collection(db, 'users', currentUser.uid, 'orders'), {
+          ...item, createdAt: firebase.serverTimestamp()
+        }));
+      } catch (error) {
+        console.warn('Order saved locally only:', error?.message || error);
+      }
     }
   }
 
   async function listOrders() {
+    const local = localGet(ordKey(), []);
     if (currentUser && db) {
-      const snap = await firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders'));
-      return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
+      try {
+        const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders')));
+        const cloud = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+        const merged = [...cloud, ...local.filter((l) => !cloud.some((c) => c.createdAtLocal === l.createdAtLocal))];
+        return merged.sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
+      } catch (error) {
+        console.warn('Orders from local cache:', error?.message || error);
+      }
     }
-    return localGet(ordKey(), []);
+    return local;
   }
 
   function findProduct(productId) {

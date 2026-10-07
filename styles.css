@@ -3031,3 +3031,136 @@ body.auth-pending .site-header { opacity: .6; }
 .account-items--pending { display: grid; gap: 12px; }
 @keyframes skshine { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
 @media (prefers-reduced-motion: reduce) { .sk { animation: none; } }
+
+/* ============ v4 fixes: logo alignment, mobile taps, favorites feedback ============ */
+
+/* --- logo: the emblem is a perfect centered circle, so fill the circle exactly --- */
+.brand__logo,
+.footer-brand img,
+.auth-gate__brand img,
+.auth-modal__brand img,
+.account-avatar {
+  object-fit: cover !important;
+  object-position: center center !important;
+  aspect-ratio: 1 / 1;
+  display: block;
+}
+
+/* large decorative logos keep their frame and are never cropped */
+.hero__logo,
+.page-hero__logo img,
+.about-visual__frame img {
+  object-fit: contain !important;
+  object-position: center center !important;
+}
+.brand__logo {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.auth-gate__brand {
+  display: flex;
+  justify-content: center;
+}
+.auth-gate__brand img {
+  width: clamp(84px, 20vw, 108px);
+  height: clamp(84px, 20vw, 108px);
+  border-radius: 50%;
+  margin: 0 auto;
+}
+.auth-modal__brand img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.footer-brand img { width: 44px; height: 44px; border-radius: 50%; }
+@media (max-width: 760px) {
+  .brand__logo { width: 46px; height: 46px; flex-basis: 46px; }
+}
+@media (max-width: 430px) {
+  .brand__logo { width: 42px; height: 42px; flex-basis: 42px; }
+}
+
+/* --- touch devices: no hover states (they cause the "first tap does nothing" bug) --- */
+@media (hover: none) {
+  .product-card:hover { transform: none; }
+  .product-card:hover .product-card__media img { transform: none; }
+  .product-card:hover .product-card__media::after { transform: translateX(-120%); }
+  .favorite-btn:hover { transform: none; background: rgba(8, 6, 5, .78); color: var(--gold-2); }
+  .favorite-btn.is-active:hover { background: var(--gold-gradient); color: #160d05; }
+  .user-chip:hover { box-shadow: none; }
+  .gsi-material-button:not(:disabled):hover { box-shadow: none; }
+}
+
+/* --- make the whole card media reliably tappable --- */
+.product-card__media { display: block; -webkit-tap-highlight-color: transparent; }
+.product-card__media::after { pointer-events: none; }
+.product-card__media img { pointer-events: none; }
+.product-card h3 a { display: inline-block; padding: 2px 0; }
+.product-card__favorite { touch-action: manipulation; }
+.cursor-glow { pointer-events: none !important; }
+
+/* --- favourite star: clear visual state + pulse --- */
+.favorite-btn {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  will-change: transform;
+}
+.favorite-btn.is-active {
+  background: var(--gold-gradient);
+  color: #160d05;
+  border-color: rgba(255, 225, 165, .85);
+  box-shadow: 0 10px 28px rgba(219, 156, 60, .38);
+}
+.favorite-btn.is-pulsing { animation: favPulse .42s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes favPulse {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .favorite-btn.is-pulsing { animation: none; } }
+
+/* --- toast: small notification at the top, visible on every screen --- */
+.auth-toast {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -16px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: max-content;
+  max-width: min(92vw, 420px);
+  padding: 11px 18px 11px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 225, 165, .34);
+  background: rgba(10, 8, 7, .96);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, .55);
+  backdrop-filter: blur(8px);
+  font-size: 14px;
+  z-index: 5000;
+}
+.auth-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+.auth-toast__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--gold-gradient);
+  color: #160d05;
+  font-size: 13px;
+  font-weight: 900;
+  flex: none;
+}
+.auth-toast[data-tone="error"] .auth-toast__icon { background: linear-gradient(135deg, #e86a5c, #f0968c); color: #fff; }
+.auth-toast[data-tone="warning"] .auth-toast__icon { background: linear-gradient(135deg, #e8b14f, #f3d68a); }
+.auth-toast[data-tone="info"] .auth-toast__icon { background: rgba(255, 225, 165, .22); color: var(--gold-2); }
+.auth-toast__text { line-height: 1.35; }
+@media (max-width: 430px) {
+  .auth-toast { font-size: 13px; padding: 10px 14px 10px 11px; }
+}
