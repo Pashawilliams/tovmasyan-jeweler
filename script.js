@@ -1,6 +1,7 @@
 const WHATSAPP_NUMBER = '37477105163';
 
 const whatsappUrl = (message) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+window.TOVMASYAN_WHATSAPP = whatsappUrl;
 
 const defaultMessage = 'Здравствуйте! Пишу с сайта TOVMASYAN Jeweler. Хочу получить консультацию.';
 
@@ -67,7 +68,7 @@ const products = document.querySelectorAll('[data-category]');
 function setFilter(filter) {
   chips.forEach((chip) => chip.classList.toggle('is-active', chip.dataset.filter === filter));
   products.forEach((product) => {
-    const categories = product.dataset.category.split(' ');
+    const categories = String(product.dataset.category || '').split(' ');
     const visible = filter === 'all' || categories.includes(filter);
     product.classList.toggle('is-hidden', !visible);
   });
@@ -110,7 +111,7 @@ if (orderForm) {
 }
 
 const cursorGlow = document.querySelector('.cursor-glow');
-if (cursorGlow && window.matchMedia('(pointer: fine)').matches) {
+if (cursorGlow && typeof window.matchMedia === 'function' && window.matchMedia('(pointer: fine)').matches) {
   window.addEventListener('pointermove', (event) => {
     document.body.classList.add('has-cursor');
     cursorGlow.style.left = `${event.clientX}px`;

@@ -14,10 +14,35 @@
   let initError = null;
   const listeners = new Set();
 
-  const localFavoritesKey = 'tovmasyan_local_favorites';
-  const localOrdersKey = 'tovmasyan_local_orders';
+  const LEGACY_KEYS = ['tovmasyan_local_favorites', 'tovmasyan_local_orders'];
   const langKey = 'tovmasyan_lang';
   const langAskedKey = 'tovmasyan_lang_asked';
+  const sessionHintKey = 'tovmasyan_session_hint';
+  const lastUidKey = 'tovmasyan_last_uid';
+  let justLoggedIn = false;
+
+  function scope() {
+    return currentUser ? currentUser.uid : 'guest';
+  }
+  function favKey() { return `tovmasyan_fav_${scope()}`; }
+  function ordKey() { return `tovmasyan_ord_${scope()}`; }
+
+  function purgeGuestData() {
+    try {
+      localStorage.removeItem('tovmasyan_fav_guest');
+      localStorage.removeItem('tovmasyan_ord_guest');
+      LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
+    } catch (e) { /* ignore */ }
+  }
+
+  function purgeAllUserData() {
+    try {
+      Object.keys(localStorage)
+        .filter((k) => k.startsWith('tovmasyan_fav_') || k.startsWith('tovmasyan_ord_'))
+        .forEach((k) => localStorage.removeItem(k));
+      LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
+    } catch (e) { /* ignore */ }
+  }
 
   /* ---------------------------------------------------------------- i18n */
 
@@ -279,12 +304,17 @@
     if (btnLabel) btnLabel.textContent = lang === 'hy' ? 'Մուտք Google-ով' : 'Войти через Google';
     gate.querySelectorAll('[data-lang-option]').forEach((b) => b.classList.toggle('is-active', b.dataset.langOption === lang));
 
-    const locked = !currentUser;
+    const hasSessionHint = localStorage.getItem(sessionHintKey) === '1';
+    // While Firebase restores the session we must not flash the gate at a user
+    // who is already signed in — only brand-new visitors see it immediately.
+    const locked = !currentUser && (authResolved || !hasSessionHint);
     gate.classList.toggle('is-open', locked);
     gate.classList.toggle('is-checking', locked && !authResolved);
     document.body.classList.toggle('auth-locked', locked);
+    document.body.classList.toggle('auth-pending', !currentUser && !authResolved && hasSessionHint);
     if (locked && !authResolved) setAuthMessage(t('checking'), 'info');
     else if (locked) setAuthMessage('', 'info');
+    else setAuthMessage('', 'info');
   }
 
   function openModal() {
@@ -334,9 +364,15 @@
 
   function maybeAskLanguage() {
     if (!currentUser) return;
-    if (localStorage.getItem(langAskedKey) === '1') return;
+    if (localStorage.getItem(langKey) === 'ru' || localStorage.getItem(langKey) === 'hy') return;
+    if (localStorage.getItem(langAskedKey) === '1' && !justLoggedIn) return;
+    localStorage.setItem(langAskedKey, '1');
     createLangDialog();
-    requestAnimationFrame(() => document.querySelector('[data-lang-dialog]')?.classList.add('is-open'));
+    // show only after the gate is fully closed, never before login
+    setTimeout(() => {
+      if (!currentUser) return;
+      document.querySelector('[data-lang-dialog]')?.classList.add('is-open');
+    }, 420);
   }
 
   function closeLangDialog() {
@@ -363,12 +399,21 @@
       firebase.setPersistence?.(auth, firebase.browserLocalPersistence).catch(() => {});
       firebase.getRedirectResult(auth).catch((error) => console.warn('Redirect auth:', error));
       firebase.onAuthStateChanged(auth, async (user) => {
-        const wasAnonymous = !currentUser;
+        const previousUid = localStorage.getItem(lastUidKey);
         currentUser = user;
         authResolved = true;
         if (user) {
+          if (previousUid && previousUid !== user.uid) purgeAllUserData();
+          purgeGuestData();
+          localStorage.setItem(lastUidKey, user.uid);
+          localStorage.setItem(sessionHintKey, '1');
           ensureUserDocument(user).catch(() => {});
-          if (wasAnonymous) maybeAskLanguage();
+          closeModal();
+          maybeAskLanguage();
+          justLoggedIn = false;
+        } else {
+          localStorage.removeItem(sessionHintKey);
+          localStorage.removeItem(lastUidKey);
         }
         emit();
       });
@@ -406,6 +451,7 @@
     if (!loaded) return false;
     try {
       setAuthMessage('', 'info');
+      justLoggedIn = true;
       const provider = new firebase.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await firebase.signInWithPopup(auth, provider);
@@ -430,9 +476,21 @@
   }
 
   async function logout() {
-    if (auth && firebaseLoaded) await firebase.signOut(auth);
+    try {
+      if (auth && firebaseLoaded) await firebase.signOut(auth);
+    } catch (error) {
+      console.warn('Sign out:', error);
+    }
     currentUser = null;
+    authResolved = true;
+    justLoggedIn = false;
+    purgeAllUserData();
+    try {
+      localStorage.removeItem(sessionHintKey);
+      localStorage.removeItem(lastUidKey);
+    } catch (e) { /* ignore */ }
     closeUserMenu();
+    closeLangDialog();
     emit();
     toast(t('loggedOut'), 'info');
   }
@@ -457,9 +515,9 @@
         ...item, savedAt: firebase.serverTimestamp()
       }, { merge: true });
     } else {
-      const list = localGet(localFavoritesKey, []).filter((x) => x.productId !== item.productId);
+      const list = localGet(favKey(), []).filter((x) => x.productId !== item.productId);
       list.unshift({ ...item, savedAt: Date.now() });
-      localSet(localFavoritesKey, list);
+      localSet(favKey(), list);
     }
     updateFavoriteButtons();
     toast('Добавлено в избранное', 'success');
@@ -469,7 +527,7 @@
     if (currentUser && db) {
       await firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', productId));
     } else {
-      localSet(localFavoritesKey, localGet(localFavoritesKey, []).filter((x) => x.productId !== productId));
+      localSet(favKey(), localGet(favKey(), []).filter((x) => x.productId !== productId));
     }
     updateFavoriteButtons();
     toast('Удалено из избранного', 'info');
@@ -480,7 +538,7 @@
       const snap = await firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'favorites'));
       return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     }
-    return localGet(localFavoritesKey, []);
+    return localGet(favKey(), []);
   }
 
   async function isFavorite(productId) {
@@ -503,9 +561,9 @@
         ...item, createdAt: firebase.serverTimestamp()
       });
     } else {
-      const list = localGet(localOrdersKey, []);
+      const list = localGet(ordKey(), []);
       list.unshift(item);
-      localSet(localOrdersKey, list.slice(0, 50));
+      localSet(ordKey(), list.slice(0, 50));
     }
   }
 
@@ -514,7 +572,7 @@
       const snap = await firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders'));
       return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
     }
-    return localGet(localOrdersKey, []);
+    return localGet(ordKey(), []);
   }
 
   function findProduct(productId) {

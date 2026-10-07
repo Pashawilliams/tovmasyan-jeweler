@@ -45,7 +45,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
         </section>`;
     }
 
-    function profileView(user, favorites, orders) {
+    function profileView(user, favorites, orders, pending = false) {
       const name = user.displayName || user.email || 'Клиент TOVMASYAN';
       const photo = user.photoURL || '/assets/brand-logo-small.webp';
       return `
@@ -61,10 +61,14 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
             <div><strong>Google</strong><span>защищённый вход</span></div>
           </div>
           <div class="account-columns">
-            <section class="account-section" id="favorites"><div class="account-section__head"><h3>Избранное</h3><a href="/catalog/">Открыть каталог</a></div>${favoritesView(favorites)}</section>
-            <section class="account-section"><div class="account-section__head"><h3>Заявки</h3><a href="/contacts/">Новая заявка</a></div>${ordersView(orders)}</section>
+            <section class="account-section" id="favorites"><div class="account-section__head"><h3>Избранное</h3><a href="/catalog/">Открыть каталог</a></div>${pending ? pendingList() : favoritesView(favorites)}</section>
+            <section class="account-section"><div class="account-section__head"><h3>Заявки</h3><a href="/contacts/">Новая заявка</a></div>${pending ? pendingList() : ordersView(orders)}</section>
           </div>
         </section>`;
+    }
+
+    function pendingList() {
+      return '<div class="account-items account-items--pending"><span class="sk sk--row"></span><span class="sk sk--row"></span></div>';
     }
 
     function favoritesView(items) {
@@ -86,17 +90,41 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
         </article>`).join('')}</div>`;
     }
 
+    let renderToken = 0;
+
+    function loadingView() {
+      return `
+        <section class="account-panel account-panel--loading" aria-busy="true">
+          <div class="account-skeleton">
+            <span class="sk sk--avatar"></span>
+            <span class="sk sk--line sk--wide"></span>
+            <span class="sk sk--line"></span>
+          </div>
+          <p class="account-loading-text">Проверяем вход…</p>
+        </section>`;
+    }
+
     async function render() {
+      const token = ++renderToken;
+      const ready = typeof auth.isReady === 'function' ? auth.isReady() : true;
       const user = auth.getUser();
+
       if (!user) {
-        root.innerHTML = loginView();
+        root.innerHTML = ready ? loginView() : loadingView();
         return;
       }
+
+      // show the profile frame immediately, fill lists when they arrive
+      root.innerHTML = profileView(user, [], [], true);
+
       const [favorites, orders] = await Promise.all([
         auth.listFavorites().catch(() => []),
         auth.listOrders().catch(() => [])
       ]);
+      if (token !== renderToken) return;            // a newer render won
+      if (auth.getUser()?.uid !== user.uid) return; // account switched mid-flight
       root.innerHTML = profileView(user, favorites, orders);
+      if (typeof auth.updateFavoriteButtons === 'function') auth.updateFavoriteButtons();
     }
 
     auth.onAuthChange(render);

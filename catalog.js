@@ -1,6 +1,9 @@
 function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '/' + u.replace(/^\.?\//,''); }
 (() => {
   const products = window.TOVMASYAN_PRODUCTS || [];
+  const waUrl = typeof window.TOVMASYAN_WHATSAPP === 'function'
+    ? window.TOVMASYAN_WHATSAPP
+    : (message) => `https://wa.me/37477105163?text=${encodeURIComponent(message)}`;
   const grid = document.querySelector('[data-catalog-products]');
   if (!grid) return;
 
@@ -34,7 +37,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
           <p>${product.short}</p>
           <div class="product-tags">${tags}</div>
           <dl class="mini-specs"><div><dt>Материал</dt><dd>${product.material}</dd></div><div><dt>Наличие</dt><dd>${product.availability}</dd></div></dl>
-          <div class="product-card__bottom"><span>${product.price}</span><a href="${whatsappUrl(message)}" target="_blank" rel="noopener" class="order-link" data-save-order="${product.id}">Заказать</a></div>
+          <div class="product-card__bottom"><span>${product.price}</span><a href="${waUrl(message)}" target="_blank" rel="noopener" class="order-link" data-save-order="${product.id}">Заказать</a></div>
         </div>
       </article>`;
   };
