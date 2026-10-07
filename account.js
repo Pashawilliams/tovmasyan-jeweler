@@ -9,7 +9,7 @@
 
     function productUrl(item) {
       const id = item.productId || item.id;
-      return id && productById.has(id) ? `products/${id}.html` : 'catalog.html';
+      return id && productById.has(id) ? `/products/${id}/` : '/catalog/';
     }
 
     function imageUrl(item) {
@@ -25,7 +25,7 @@
             <p class="eyebrow">Firebase setup</p>
             <h2>Система регистрации установлена, осталось активировать Firebase</h2>
             <p>Код входа через Google, личный кабинет, избранное и заявки уже добавлены на сайт. Для реальной авторизации нужно вставить <code>firebaseConfig</code> в файл <code>firebase-config.js</code> и добавить домен <code>pashawilliams.github.io</code> в Firebase Authorized domains.</p>
-            <div class="account-actions"><button class="btn btn--gold" data-auth-open>Проверить вход</button><a class="btn btn--glass" href="contacts.html">Связаться</a></div>
+            <div class="account-actions"><button class="btn btn--gold" data-auth-open>Проверить вход</button><a class="btn btn--glass" href="/contacts/">Связаться</a></div>
           </section>`;
       }
       return `
@@ -53,8 +53,8 @@
             <div><strong>Google</strong><span>реальная авторизация</span></div>
           </div>
           <div class="account-columns">
-            <section class="account-section"><div class="account-section__head"><h3>Избранное</h3><a href="catalog.html">Открыть каталог</a></div>${favoritesView(favorites)}</section>
-            <section class="account-section"><div class="account-section__head"><h3>Заявки</h3><a href="contacts.html">Новая заявка</a></div>${ordersView(orders)}</section>
+            <section class="account-section"><div class="account-section__head"><h3>Избранное</h3><a href="/catalog/">Открыть каталог</a></div>${favoritesView(favorites)}</section>
+            <section class="account-section"><div class="account-section__head"><h3>Заявки</h3><a href="/contacts/">Новая заявка</a></div>${ordersView(orders)}</section>
           </div>
         </section>`;
     }

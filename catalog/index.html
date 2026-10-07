@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Каталог изделий — TOVMASYAN Jeweler</title>
+  <meta name="description" content="Каталог TOVMASYAN Jeweler: кольца, серьги, браслеты, цепочки, подвески, обручальные кольца и украшения под заказ в Ереване.">
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" href="/assets/favicon.png" type="image/png">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="page-glow" aria-hidden="true"></div><div class="cursor-glow" aria-hidden="true"></div>
+  <header class="site-header" data-header>
+    <a class="brand" href="/" aria-label="TOVMASYAN Jeweler — главная">
+      <img class="brand__logo" src="/assets/brand-logo.webp" alt="TOVMASYAN Jeweler logo">
+      <span class="brand__text"><span>TOVMASYAN</span><small>Jeweler</small></span>
+    </a>
+    <nav class="main-nav" data-nav aria-label="Главное меню">
+      <a href="/catalog/" aria-current="page">Каталог</a>
+      <a href="/custom/">На заказ</a>
+      <a href="/care/">Уход</a>
+      <a href="/about/">О бренде</a>
+      <a href="/contacts/">Контакты</a>
+    </nav>
+    <div class="header-actions">
+      <a class="icon-link" href="https://www.instagram.com/tovmasyan_jeweler/" target="_blank" rel="noopener">Instagram</a>
+      <a class="btn btn--small btn--gold" href="#" data-whatsapp="Здравствуйте! Хочу получить консультацию TOVMASYAN Jeweler.">WhatsApp</a>
+      <button class="menu-toggle" type="button" data-menu-toggle aria-label="Открыть меню" aria-expanded="false"><span></span><span></span></button>
+    </div>
+  </header>
+  <main>
+    <section class="page-hero catalog-hero">
+      <div class="container page-hero__grid">
+        <div class="reveal">
+          <p class="eyebrow">Catalog</p>
+          <h1>Большой каталог ювелирных изделий</h1>
+          <p>Готовая продуктовая витрина для TOVMASYAN Jeweler: фильтры, поиск, отдельные страницы товаров и быстрый заказ через WhatsApp.</p>
+          <div class="hero__actions"><a class="btn btn--gold" href="#catalog-grid">Смотреть изделия</a><a class="btn btn--glass" href="/custom/">Индивидуальный заказ</a></div>
+        </div>
+        <div class="page-hero__stat reveal reveal--delay-sm">
+          <strong>24</strong><span>изделия в структуре каталога</span>
+          <strong>7</strong><span>категорий для роста ассортимента</span>
+        </div>
+      </div>
+    </section>
+    <section class="section catalog-section" id="catalog-grid">
+      <div class="container">
+        <div class="catalog-toolbar reveal">
+          <label class="search-field">Поиск изделия<input type="search" data-catalog-search placeholder="Например: кольцо, браслет, wedding"></label>
+          <label class="select-field">Категория<select data-catalog-category><option value="all">Все категории</option><option value="rings">Кольца</option><option value="earrings">Серьги</option><option value="bracelets">Браслеты</option><option value="chains">Цепочки</option><option value="pendants">Подвески</option><option value="wedding">Обручальные</option><option value="custom">Под заказ</option></select></label>
+          <label class="select-field">Сортировка<select data-catalog-sort><option value="default">По умолчанию</option><option value="name">По названию</option><option value="category">По категории</option></select></label>
+        </div>
+        <div class="catalog-summary reveal"><span data-catalog-count>24</span> изделий найдено <button type="button" class="text-button" data-clear-filters>Сбросить фильтры</button></div>
+        <div class="products-grid products-grid--large" data-catalog-products></div>
+      </div>
+    </section>
+    <section class="section quote-section">
+      <div class="container atelier-card reveal">
+        <div class="atelier-card__content"><p class="eyebrow">How to order</p><h2>Выберите изделие — мы уточним детали и стоимость</h2><p>Для золота цена зависит от веса, пробы, камней и сложности работы. Поэтому в каталоге используется формат «Цена по запросу» — клиент сразу переходит к консультации.</p><a class="btn btn--gold" href="#" data-whatsapp="Здравствуйте! Хочу подобрать украшение из каталога TOVMASYAN Jeweler.">Получить консультацию</a></div>
+        <div class="process-list"><div class="process-item"><span>01</span><div><h3>Выбор</h3><p>Клиент выбирает изделие или похожий стиль.</p></div></div><div class="process-item"><span>02</span><div><h3>Уточнение</h3><p>Обсуждаются размер, материал, камни и бюджет.</p></div></div><div class="process-item"><span>03</span><div><h3>Расчет</h3><p>Формируется стоимость и сроки изготовления.</p></div></div><div class="process-item"><span>04</span><div><h3>Заказ</h3><p>Украшение изготавливается или подбирается по наличию.</p></div></div></div>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <a class="footer-brand" href="/"><img src="/assets/brand-logo.webp" alt="TOVMASYAN Jeweler logo"><span>TOVMASYAN Jeweler</span></a>
+      <p>Продажа и изготовление изделий из золота. Украшения под заказ в Ереване.</p>
+      <div class="footer-links"><a href="tel:+37477105163">+374 77 105 163</a><a href="https://www.instagram.com/tovmasyan_jeweler/" target="_blank" rel="noopener">Instagram</a><a href="/contacts/">Контакты</a></div>
+    </div>
+    <div class="container footer-bottom"><span>© <span data-year></span> TOVMASYAN Jeweler</span><span>Ready for GitHub Pages</span></div>
+  </footer>
+  <a class="floating-whatsapp" href="#" data-whatsapp="Здравствуйте! Хочу задать вопрос TOVMASYAN Jeweler." aria-label="Написать в WhatsApp"><span>WhatsApp</span></a>
+  <script src="/data/products.js"></script>
+  <script src="/script.js"></script>
+  <script src="/catalog.js"></script>
+  <script src="/firebase-config.js"></script>
+  <script type="module" src="/auth.js"></script>
+</body>
+</html>

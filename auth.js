@@ -2,8 +2,8 @@
   const config = window.TOVMASYAN_FIREBASE_CONFIG || {};
   const providers = window.TOVMASYAN_AUTH_PROVIDERS || { google: true, apple: false };
   const isProductPage = /\/products\//.test(window.location.pathname);
-  const accountHref = isProductPage ? '../account.html' : 'account.html';
-  const catalogHref = isProductPage ? '../catalog.html' : 'catalog.html';
+  const accountHref = '/account/';
+  const catalogHref = '/catalog/';
   const productPrefix = isProductPage ? '../' : '';
   const configured = Boolean(config.apiKey && !String(config.apiKey).includes('PASTE') && !String(config.projectId || '').includes('PASTE'));
 
