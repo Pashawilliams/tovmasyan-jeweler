@@ -4,7 +4,7 @@
   const isProductPage = /\/products\//.test(window.location.pathname);
   const accountHref = '/account/';
   const catalogHref = '/catalog/';
-  const productPrefix = isProductPage ? '../' : '';
+  const productPrefix = '/';
   const configured = Boolean(config.apiKey && !String(config.apiKey).includes('PASTE') && !String(config.projectId || '').includes('PASTE'));
 
   let app = null;

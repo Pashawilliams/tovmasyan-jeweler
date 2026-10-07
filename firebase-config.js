@@ -1,13 +1,14 @@
 // Firebase configuration for TOVMASYAN Jeweler.
-// IMPORTANT: this is intentionally a public browser config, not a secret.
-// Replace the placeholders after creating a Firebase Web App.
+// This is intentionally a public browser config, not a secret.
+// Access is protected by Firebase Authorized domains + Firestore security rules.
 window.TOVMASYAN_FIREBASE_CONFIG = {
-  apiKey: "PASTE_FIREBASE_API_KEY",
-  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  projectId: "PASTE_PROJECT_ID",
-  storageBucket: "PASTE_PROJECT_ID.firebasestorage.app",
-  messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
-  appId: "PASTE_FIREBASE_APP_ID"
+  apiKey: "AIzaSyD6LtHqFtqUjj990M0OX_Ph8vYthH6Gn8g",
+  authDomain: "eurotour-ae133.firebaseapp.com",
+  projectId: "eurotour-ae133",
+  storageBucket: "eurotour-ae133.firebasestorage.app",
+  messagingSenderId: "264088714093",
+  appId: "1:264088714093:web:acbe44676223d3c500f864",
+  measurementId: "G-95VKMXSEFZ"
 };
 
 window.TOVMASYAN_AUTH_PROVIDERS = {
