@@ -1,3 +1,4 @@
+function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '/' + u.replace(/^\.?\//,''); }
 (() => {
   const products = window.TOVMASYAN_PRODUCTS || [];
   const grid = document.querySelector('[data-catalog-products]');
@@ -19,7 +20,7 @@
 
   const productCard = (product, index) => {
     const tags = (product.tags || []).slice(0, 3).map((tag) => `<span>${tag}</span>`).join('');
-    const image = product.thumbnail || product.image;
+    const image = toAbs(product.thumbnail || product.image);
     const message = `Здравствуйте! Пишу с сайта TOVMASYAN Jeweler. Меня интересует изделие: ${product.name}. Подскажите, пожалуйста, детали, наличие и цену.`;
     return `
       <article class="product-card reveal is-visible" data-category="${product.category}">

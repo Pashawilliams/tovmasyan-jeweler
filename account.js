@@ -1,3 +1,4 @@
+function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '/' + u.replace(/^\.?\//,''); }
 (() => {
   function boot() {
     const products = window.TOVMASYAN_PRODUCTS || [];
@@ -15,7 +16,7 @@
     function imageUrl(item) {
       const id = item.productId || item.id;
       const product = productById.get(id);
-      return item.image || product?.thumbnail || product?.image || 'assets/brand-logo-small.webp';
+      return toAbs(item.image || product?.thumbnail || product?.image || 'assets/brand-logo-small.webp');
     }
 
     function loginView() {
