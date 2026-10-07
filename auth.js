@@ -31,6 +31,7 @@
     try {
       localStorage.removeItem('tovmasyan_fav_guest');
       localStorage.removeItem('tovmasyan_ord_guest');
+      localStorage.removeItem('tovmasyan_pending_guest');
       LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
     } catch (e) { /* ignore */ }
   }
@@ -38,7 +39,7 @@
   function purgeAllUserData() {
     try {
       Object.keys(localStorage)
-        .filter((k) => k.startsWith('tovmasyan_fav_') || k.startsWith('tovmasyan_ord_'))
+        .filter((k) => k.startsWith('tovmasyan_fav_') || k.startsWith('tovmasyan_ord_') || k.startsWith('tovmasyan_pending_'))
         .forEach((k) => localStorage.removeItem(k));
       LEGACY_KEYS.forEach((k) => localStorage.removeItem(k));
     } catch (e) { /* ignore */ }
@@ -384,7 +385,8 @@
           localStorage.setItem(lastUidKey, user.uid);
           localStorage.setItem(sessionHintKey, '1');
           ensureUserDocument(user).catch(() => {});
-          syncLocalToCloud().catch(() => {});
+          syncFavorites().catch(() => {});
+          startLiveSync();
           closeModal();
           maybeAskLanguage();
           justLoggedIn = false;
@@ -402,29 +404,6 @@
       setAuthMessage('Не удалось открыть вход. Проверьте интернет и обновите страницу.', 'error');
       updateGate();
       return false;
-    }
-  }
-
-  // Push anything saved while the cloud was unavailable, then pull the cloud state back.
-  async function syncLocalToCloud() {
-    if (!currentUser || !db) return;
-    const favs = localGet(favKey(), []);
-    const orders = localGet(ordKey(), []);
-    try {
-      await Promise.all(favs.map((item) => withTimeout(firebase.setDoc(
-        firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId || item.id),
-        { ...item, savedAt: item.savedAt || Date.now() }, { merge: true }
-      ))));
-      await Promise.all(orders.filter((o) => !o.syncedAt).map((item) => withTimeout(firebase.addDoc(
-        firebase.collection(db, 'users', currentUser.uid, 'orders'), { ...item, syncedAt: Date.now() }
-      ))));
-      localSet(ordKey(), orders.map((o) => ({ ...o, syncedAt: o.syncedAt || Date.now() })));
-      const fresh = await listFavorites();
-      localSet(favKey(), fresh);
-      updateFavoriteButtons();
-      document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
-    } catch (error) {
-      console.warn('Cloud sync postponed:', error?.message || error);
     }
   }
 
@@ -481,6 +460,7 @@
     } catch (error) {
       console.warn('Sign out:', error);
     }
+    stopLiveSync();
     currentUser = null;
     authResolved = true;
     justLoggedIn = false;
@@ -508,73 +488,165 @@
     };
   }
 
-  // Firestore may be unavailable (database not created yet, offline, rules).
-  // Every cloud call falls back to local storage so the UI always responds.
-  function withTimeout(promise, ms = 6000) {
+  /* ============================= DATA LAYER =============================
+     Rules of the game:
+       - When the user is signed in, the CLOUD is the single source of truth.
+       - Local storage is only a mirror plus a queue of operations that could
+         not reach the cloud yet (offline, slow network, cold start).
+       - Deletions are queued as explicit tombstones, so a stale mirror can
+         never resurrect an item that was removed on another device.
+  ======================================================================= */
+
+  function withTimeout(promise, ms = 8000) {
     return Promise.race([
       promise,
       new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
     ]);
   }
 
-  function localAddFavorite(item) {
-    const list = localGet(favKey(), []).filter((x) => x.productId !== item.productId);
-    list.unshift({ ...item, savedAt: Date.now() });
-    localSet(favKey(), list);
+  function pendingKey() { return `tovmasyan_pending_${scope()}`; }
+  function pendingGet() { return localGet(pendingKey(), []); }
+  function pendingSet(list) { localSet(pendingKey(), list); }
+  function pendingPush(op) {
+    const list = pendingGet().filter((x) => !(x.kind === op.kind && x.id === op.id));
+    list.push({ ...op, ts: Date.now() });
+    pendingSet(list);
   }
 
-  async function addFavorite(product) {
-    const item = productSnapshot(product);
-    localAddFavorite(item);               // optimistic, always works
-    updateFavoriteButtons();
-    toast('Добавлено в избранное', 'success');
-    if (currentUser && db) {
+  // Cloud adapter — swappable so the sync logic can be tested without network.
+  const cloud = window.__TOVMASYAN_TEST_CLOUD__ || {
+    available: () => Boolean(currentUser && db && firebaseLoaded),
+    async listFavorites() {
+      const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'favorites')));
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    },
+    async setFavorite(item) {
+      await withTimeout(firebase.setDoc(
+        firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId),
+        { ...item, savedAt: item.savedAt || Date.now() }, { merge: true }
+      ));
+    },
+    async deleteFavorite(id) {
+      await withTimeout(firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', id)));
+    },
+    async addOrder(item) {
+      await withTimeout(firebase.addDoc(firebase.collection(db, 'users', currentUser.uid, 'orders'), {
+        ...item, createdAt: firebase.serverTimestamp()
+      }));
+    },
+    async listOrders() {
+      const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders')));
+      return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    },
+    subscribe(onChange) {
+      if (!firebase.onSnapshot) return null;
+      return firebase.onSnapshot(
+        firebase.collection(db, 'users', currentUser.uid, 'favorites'),
+        (snap) => onChange(snap.docs.map((d) => ({ id: d.id, ...d.data() }))),
+        (error) => console.warn('Live sync paused:', error?.message || error)
+      );
+    }
+  };
+
+  let unsubscribeFavorites = null;
+
+  function cloudOn() {
+    try { return cloud.available(); } catch { return false; }
+  }
+
+  function sameId(a, b) { return (a.productId || a.id) === (b.productId || b.id); }
+
+  async function flushPending() {
+    if (!cloudOn()) return false;
+    const queue = pendingGet();
+    if (!queue.length) return true;
+    const done = [];
+    for (const op of queue) {
       try {
-        await withTimeout(firebase.setDoc(
-          firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId),
-          { ...item, savedAt: firebase.serverTimestamp() }, { merge: true }
-        ));
+        if (op.kind === 'fav-add') await cloud.setFavorite(op.item);
+        else if (op.kind === 'fav-remove') await cloud.deleteFavorite(op.id);
+        else if (op.kind === 'order-add') await cloud.addOrder(op.item);
+        done.push(op);
       } catch (error) {
-        console.warn('Favorite saved locally only:', error?.message || error);
+        console.warn('Sync retry later:', error?.message || error);
+        break;                       // keep order, retry the rest next time
       }
     }
+    pendingSet(pendingGet().filter((op) => !done.some((d) => d.kind === op.kind && d.id === op.id && d.ts === op.ts)));
+    return pendingGet().length === 0;
+  }
+
+  // Full reconciliation: send queued changes first, then mirror the cloud exactly.
+  async function syncFavorites({ silent = false } = {}) {
+    if (!cloudOn()) return localGet(favKey(), []);
+    try {
+      await flushPending();
+      const fresh = await cloud.listFavorites();
+      localSet(favKey(), fresh);
+      if (!silent) {
+        updateFavoriteButtons();
+        document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
+      }
+      return fresh;
+    } catch (error) {
+      console.warn('Favorites served from cache:', error?.message || error);
+      return localGet(favKey(), []);
+    }
+  }
+
+  function startLiveSync() {
+    stopLiveSync();
+    if (!cloudOn() || typeof cloud.subscribe !== 'function') return;
+    try {
+      unsubscribeFavorites = cloud.subscribe((items) => {
+        if (pendingGet().length) return;   // our own unsent changes win until flushed
+        localSet(favKey(), items);
+        updateFavoriteButtons();
+        document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
+      });
+    } catch (error) {
+      console.warn('Live sync unavailable:', error?.message || error);
+    }
+  }
+
+  function stopLiveSync() {
+    if (typeof unsubscribeFavorites === 'function') {
+      try { unsubscribeFavorites(); } catch { /* ignore */ }
+    }
+    unsubscribeFavorites = null;
+  }
+
+
+  async function addFavorite(product) {
+    const item = { ...productSnapshot(product), savedAt: Date.now() };
+    const list = localGet(favKey(), []).filter((x) => !sameId(x, item));
+    list.unshift(item);
+    localSet(favKey(), list);
+    pendingPush({ kind: 'fav-add', id: item.productId, item });
+    updateFavoriteButtons();
+    toast('Добавлено в избранное', 'success');
+    if (cloudOn()) { await flushPending(); await syncFavorites({ silent: true }); }
+    document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
   }
 
   async function removeFavorite(productId) {
-    localSet(favKey(), localGet(favKey(), []).filter((x) => x.productId !== productId));
+    localSet(favKey(), localGet(favKey(), []).filter((x) => (x.productId || x.id) !== productId));
+    // tombstone: cancels any unsent add and guarantees the cloud delete happens
+    pendingSet(pendingGet().filter((op) => !(op.kind === 'fav-add' && op.id === productId)));
+    pendingPush({ kind: 'fav-remove', id: productId });
     updateFavoriteButtons();
     toast('Удалено из избранного', 'info');
-    if (currentUser && db) {
-      try {
-        await withTimeout(firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', productId)));
-      } catch (error) {
-        console.warn('Favorite removed locally only:', error?.message || error);
-      }
-    }
+    if (cloudOn()) { await flushPending(); await syncFavorites({ silent: true }); }
+    document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
   }
 
   async function listFavorites() {
-    const local = localGet(favKey(), []);
-    if (currentUser && db) {
-      try {
-        const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'favorites')));
-        const cloud = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        const merged = [...cloud];
-        local.forEach((item) => {
-          if (!merged.some((c) => (c.productId || c.id) === (item.productId || item.id))) merged.push(item);
-        });
-        localSet(favKey(), merged);
-        return merged;
-      } catch (error) {
-        console.warn('Favorites from local cache:', error?.message || error);
-      }
-    }
-    return local;
+    if (cloudOn()) return syncFavorites({ silent: true });
+    return localGet(favKey(), []);
   }
 
   async function isFavorite(productId) {
-    const list = await listFavorites();
-    return list.some((item) => item.productId === productId || item.id === productId);
+    return localGet(favKey(), []).some((x) => (x.productId || x.id) === productId);
   }
 
   async function toggleFavorite(product) {
@@ -582,7 +654,6 @@
     if (!id) return;
     if (configured && !currentUser) { openModal(); return; }
     const exists = localGet(favKey(), []).some((x) => (x.productId || x.id) === id);
-    // paint the star immediately, before any network work
     document.querySelectorAll(`[data-favorite-product="${CSS.escape(id)}"]`).forEach((btn) => {
       btn.classList.toggle('is-active', !exists);
       btn.classList.add('is-pulsing');
@@ -597,30 +668,24 @@
     const list = localGet(ordKey(), []);
     list.unshift(item);
     localSet(ordKey(), list.slice(0, 50));
-    if (currentUser && db) {
-      try {
-        await withTimeout(firebase.addDoc(firebase.collection(db, 'users', currentUser.uid, 'orders'), {
-          ...item, createdAt: firebase.serverTimestamp()
-        }));
-      } catch (error) {
-        console.warn('Order saved locally only:', error?.message || error);
-      }
-    }
+    pendingPush({ kind: 'order-add', id: `order-${item.createdAtLocal}`, item });
+    if (cloudOn()) await flushPending();
   }
 
   async function listOrders() {
     const local = localGet(ordKey(), []);
-    if (currentUser && db) {
-      try {
-        const snap = await withTimeout(firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders')));
-        const cloud = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-        const merged = [...cloud, ...local.filter((l) => !cloud.some((c) => c.createdAtLocal === l.createdAtLocal))];
-        return merged.sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
-      } catch (error) {
-        console.warn('Orders from local cache:', error?.message || error);
-      }
+    if (!cloudOn()) return local;
+    try {
+      await flushPending();
+      const cloudOrders = await cloud.listOrders();
+      const unsent = pendingGet().filter((op) => op.kind === 'order-add').map((op) => op.item);
+      const merged = [...cloudOrders, ...unsent];
+      localSet(ordKey(), merged.slice(0, 50));
+      return merged.sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
+    } catch (error) {
+      console.warn('Orders served from cache:', error?.message || error);
+      return local;
     }
-    return local;
   }
 
   function findProduct(productId) {
@@ -727,6 +792,8 @@
     listOrders,
     saveOrder,
     updateFavoriteButtons,
+    syncFavorites,
+    flushPending,
     getLang,
     setLang,
     googleButton,
