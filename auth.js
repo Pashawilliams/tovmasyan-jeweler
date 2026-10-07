@@ -1,10 +1,7 @@
 (() => {
   const config = window.TOVMASYAN_FIREBASE_CONFIG || {};
-  const providers = window.TOVMASYAN_AUTH_PROVIDERS || { google: true, apple: false };
-  const isProductPage = /\/products\//.test(window.location.pathname);
   const accountHref = '/account/';
-  const catalogHref = '/catalog/';
-  const productPrefix = '/';
+  const assetPrefix = '/';
   const configured = Boolean(config.apiKey && !String(config.apiKey).includes('PASTE') && !String(config.projectId || '').includes('PASTE'));
 
   let app = null;
@@ -13,11 +10,121 @@
   let firebase = {};
   let currentUser = null;
   let firebaseLoaded = false;
+  let authResolved = !configured;
   let initError = null;
   const listeners = new Set();
 
   const localFavoritesKey = 'tovmasyan_local_favorites';
   const localOrdersKey = 'tovmasyan_local_orders';
+  const langKey = 'tovmasyan_lang';
+  const langAskedKey = 'tovmasyan_lang_asked';
+
+  /* ---------------------------------------------------------------- i18n */
+
+  const I18N = {
+    ru: {
+      'Каталог': 'Каталог',
+      'На заказ': 'На заказ',
+      'Уход': 'Уход',
+      'О бренде': 'О бренде',
+      'Контакты': 'Контакты',
+      'WhatsApp': 'WhatsApp',
+      'Instagram': 'Instagram'
+    },
+    hy: {
+      'Каталог': 'Կատալոգ',
+      'На заказ': 'Պատվերով',
+      'Уход': 'Խնամք',
+      'О бренде': 'Բրենդի մասին',
+      'Контакты': 'Կոնտակտներ',
+      'WhatsApp': 'WhatsApp',
+      'Instagram': 'Instagram'
+    }
+  };
+
+  const UI = {
+    ru: {
+      signIn: 'Войти',
+      cabinet: 'Личный кабинет',
+      favorites: 'Избранное',
+      logout: 'Выйти',
+      gateTitle: 'Добро пожаловать в TOVMASYAN Jeweler',
+      gateText: 'Чтобы открыть каталог золотых украшений, сохранять избранное и отправлять заявки, войдите через аккаунт Google. Это занимает несколько секунд.',
+      gateNote: 'Мы используем защищённый вход Google. Пароль не сохраняется на сайте.',
+      checking: 'Проверяем вход…',
+      langTitle: 'Выберите язык сайта',
+      langText: 'Ընտրեք կայքի լեզուն',
+      loggedIn: 'Вы вошли через Google',
+      loggedOut: 'Вы вышли из аккаунта'
+    },
+    hy: {
+      signIn: 'Մուտք',
+      cabinet: 'Անձնական էջ',
+      favorites: 'Ընտրանի',
+      logout: 'Դուրս գալ',
+      gateTitle: 'Բարի գալուստ TOVMASYAN Jeweler',
+      gateText: 'Ոսկյա զարդերի կատալոգը բացելու, ընտրանին պահելու և հայտեր ուղարկելու համար մուտք գործեք Google հաշվով։ Դա տևում է մի քանի վայրկյան։',
+      gateNote: 'Մենք օգտագործում ենք Google-ի պաշտպանված մուտքը։ Գաղտնաբառը կայքում չի պահվում։',
+      checking: 'Ստուգում ենք մուտքը…',
+      langTitle: 'Ընտրեք կայքի լեզուն',
+      langText: 'Выберите язык сайта',
+      loggedIn: 'Դուք մուտք գործեցիք Google-ով',
+      loggedOut: 'Դուք դուրս եկաք հաշվից'
+    }
+  };
+
+  function getLang() {
+    const v = localStorage.getItem(langKey);
+    return v === 'hy' || v === 'ru' ? v : 'ru';
+  }
+
+  function t(key) {
+    return (UI[getLang()] || UI.ru)[key] || UI.ru[key] || key;
+  }
+
+  function applyLanguage() {
+    const lang = getLang();
+    const dict = I18N[lang] || I18N.ru;
+    document.documentElement.lang = lang === 'hy' ? 'hy' : 'ru';
+    document.querySelectorAll('.main-nav a, .site-footer .footer-links a').forEach((el) => {
+      if (!el.dataset.i18nBase) el.dataset.i18nBase = el.textContent.trim();
+      const base = el.dataset.i18nBase;
+      if (dict[base]) el.textContent = dict[base];
+    });
+    document.querySelectorAll('[data-lang-option]').forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.langOption === lang);
+    });
+    updateHeaderState();
+  }
+
+  function setLang(lang) {
+    localStorage.setItem(langKey, lang === 'hy' ? 'hy' : 'ru');
+    localStorage.setItem(langAskedKey, '1');
+    applyLanguage();
+    if (currentUser && db) {
+      firebase.setDoc(firebase.doc(db, 'users', currentUser.uid), { language: getLang() }, { merge: true }).catch(() => {});
+    }
+    document.dispatchEvent(new CustomEvent('tovmasyan:language-changed', { detail: { lang: getLang() } }));
+  }
+
+  /* ------------------------------------------------------------- helpers */
+
+  const GOOGLE_ICON = '<svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+    + '<path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>'
+    + '<path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>'
+    + '<path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>'
+    + '<path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>'
+    + '<path fill="none" d="M0 0h48v48H0z"></path></svg>';
+
+  function googleButton(label) {
+    return '<button class="gsi-material-button" type="button" data-login-google>'
+      + '<div class="gsi-material-button-state"></div>'
+      + '<div class="gsi-material-button-content-wrapper">'
+      + '<div class="gsi-material-button-icon">' + GOOGLE_ICON + '</div>'
+      + '<span class="gsi-material-button-contents">' + label + '</span>'
+      + '</div></button>';
+  }
+  window.TOVMASYAN_GOOGLE_BUTTON = googleButton;
 
   function emit() {
     listeners.forEach((fn) => {
@@ -25,16 +132,13 @@
     });
     updateHeaderState();
     updateFavoriteButtons();
+    updateGate();
   }
 
   function onAuthChange(fn) {
     listeners.add(fn);
     fn(currentUser);
     return () => listeners.delete(fn);
-  }
-
-  function normalizePhoto(url) {
-    return url || `${productPrefix}assets/brand-logo-small.webp`;
   }
 
   function localGet(key, fallback) {
@@ -44,6 +148,10 @@
 
   function localSet(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function escapeHtml(value) {
+    return String(value || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   function toast(message, tone = 'info') {
@@ -68,82 +176,174 @@
     });
   }
 
-  function injectHeaderLink() {
-    document.querySelectorAll('.header-actions').forEach((actions) => {
-      if (actions.querySelector('[data-auth-link]')) return;
-      const link = document.createElement('a');
-      link.className = 'auth-header-link';
-      link.href = accountHref;
-      link.dataset.authLink = '';
-      link.innerHTML = '<span class="auth-header-link__avatar">◆</span><span data-auth-link-text>Войти</span>';
-      const whatsapp = actions.querySelector('[data-whatsapp]');
-      actions.insertBefore(link, whatsapp || actions.firstChild);
-    });
-  }
+  /* -------------------------------------------------------------- header */
 
-  function updateHeaderState() {
-    document.querySelectorAll('[data-auth-link]').forEach((link) => {
-      const text = link.querySelector('[data-auth-link-text]');
-      const avatar = link.querySelector('.auth-header-link__avatar');
-      if (currentUser) {
-        const name = currentUser.displayName || currentUser.email || 'Аккаунт';
-        text.textContent = name.split(' ')[0];
-        if (currentUser.photoURL) {
-          avatar.innerHTML = `<img src="${currentUser.photoURL}" alt="" referrerpolicy="no-referrer">`;
-        } else {
-          avatar.textContent = name.trim()[0]?.toUpperCase() || '◆';
-        }
-      } else {
-        text.textContent = configured ? 'Войти' : 'Аккаунт';
-        avatar.textContent = '◆';
+  function injectHeaderUI() {
+    document.querySelectorAll('.header-actions').forEach((actions) => {
+      if (!actions.querySelector('[data-lang-switch]')) {
+        const sw = document.createElement('div');
+        sw.className = 'lang-switch';
+        sw.dataset.langSwitch = '';
+        sw.innerHTML = '<button type="button" data-lang-option="ru" aria-label="Русский">РУ</button>'
+          + '<button type="button" data-lang-option="hy" aria-label="Հայերեն">ՀԱՅ</button>';
+        actions.insertBefore(sw, actions.firstChild);
+      }
+      if (!actions.querySelector('[data-auth-slot]')) {
+        const slot = document.createElement('div');
+        slot.className = 'auth-slot';
+        slot.dataset.authSlot = '';
+        const toggle = actions.querySelector('[data-menu-toggle]');
+        actions.insertBefore(slot, toggle || null);
       }
     });
   }
 
-  function createModal() {
-    if (document.querySelector('[data-auth-modal]')) return;
-    const modal = document.createElement('div');
-    modal.className = 'auth-modal';
-    modal.dataset.authModal = '';
-    modal.innerHTML = `
-      <div class="auth-modal__backdrop" data-auth-close></div>
-      <div class="auth-modal__panel" role="dialog" aria-modal="true" aria-label="Вход TOVMASYAN Jeweler">
-        <button class="auth-modal__close" type="button" data-auth-close aria-label="Закрыть">×</button>
-        <div class="auth-modal__brand">
-          <img src="${productPrefix}assets/brand-logo-small.webp" alt="TOVMASYAN Jeweler">
-          <div><span>TOVMASYAN</span><small>Jeweler account</small></div>
-        </div>
-        <h2>Войти в личный кабинет</h2>
-        <p>Сохраняйте избранные изделия, отправляйте заявки и возвращайтесь к своим заказам.</p>
-        <div class="auth-modal__buttons">
-          <button class="gsi-material-button" type="button" data-login-google><div class="gsi-material-button-state"></div><div class="gsi-material-button-content-wrapper"><div class="gsi-material-button-icon"><svg class="gsi-material-button__icon" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg></div><span class="gsi-material-button-contents">Войти через Google</span><span style="display:none">Войти через Google</span></div></button>
-          <button class="auth-provider-btn" type="button" data-login-apple><span></span> Продолжить через Apple ID</button>
-        </div>
-        <p class="auth-message" data-auth-message></p>
-        <a class="auth-modal__account" href="${accountHref}">Открыть личный кабинет</a>
-      </div>`;
-    document.body.appendChild(modal);
-
-    modal.addEventListener('click', (event) => {
-      if (event.target.matches('[data-auth-close]')) closeModal();
+  function updateHeaderState() {
+    document.querySelectorAll('[data-auth-slot]').forEach((slot) => {
+      if (currentUser) {
+        const name = currentUser.displayName || currentUser.email || t('cabinet');
+        const first = escapeHtml(name.split(' ')[0]);
+        const avatar = currentUser.photoURL
+          ? `<img src="${escapeHtml(currentUser.photoURL)}" alt="" referrerpolicy="no-referrer" loading="lazy">`
+          : `<span class="user-chip__initial">${escapeHtml((name.trim()[0] || '◆').toUpperCase())}</span>`;
+        slot.innerHTML = `
+          <div class="user-menu" data-user-menu>
+            <button class="user-chip" type="button" data-user-toggle aria-haspopup="true" aria-expanded="false">
+              <span class="user-chip__avatar">${avatar}</span>
+              <span class="user-chip__name">${first}</span>
+              <span class="user-chip__caret" aria-hidden="true"></span>
+            </button>
+            <div class="user-dropdown" data-user-dropdown>
+              <div class="user-dropdown__head">
+                <span class="user-chip__avatar user-chip__avatar--lg">${avatar}</span>
+                <div>
+                  <strong>${escapeHtml(name)}</strong>
+                  <small>${escapeHtml(currentUser.email || '')}</small>
+                </div>
+              </div>
+              <a href="${accountHref}">${t('cabinet')}</a>
+              <a href="${accountHref}#favorites">${t('favorites')}</a>
+              <button type="button" data-auth-logout>${t('logout')}</button>
+            </div>
+          </div>`;
+      } else {
+        slot.innerHTML = `<button class="btn btn--small btn--gold auth-signin-btn" type="button" data-auth-open>${t('signIn')}</button>`;
+      }
     });
   }
 
+  function closeUserMenu() {
+    document.querySelectorAll('[data-user-menu]').forEach((m) => {
+      m.classList.remove('is-open');
+      m.querySelector('[data-user-toggle]')?.setAttribute('aria-expanded', 'false');
+    });
+  }
+
+  /* ---------------------------------------------------------- auth gate */
+
+  function createGate() {
+    if (document.querySelector('[data-auth-gate]')) return;
+    const gate = document.createElement('div');
+    gate.className = 'auth-gate';
+    gate.dataset.authGate = '';
+    gate.innerHTML = `
+      <div class="auth-gate__bg" aria-hidden="true"></div>
+      <div class="auth-gate__panel" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+        <div class="auth-gate__brand">
+          <img src="${assetPrefix}assets/brand-logo.webp" alt="TOVMASYAN Jeweler" width="112" height="112">
+        </div>
+        <p class="auth-gate__eyebrow">TOVMASYAN Jeweler</p>
+        <h2 id="auth-gate-title" data-gate-title>${t('gateTitle')}</h2>
+        <p class="auth-gate__text" data-gate-text>${t('gateText')}</p>
+        <div class="auth-gate__action">${googleButton(t('signIn') === 'Մուտք' ? 'Մուտք Google-ով' : 'Войти через Google')}</div>
+        <p class="auth-message" data-auth-message></p>
+        <p class="auth-gate__note" data-gate-note>${t('gateNote')}</p>
+        <div class="auth-gate__langs">
+          <button type="button" data-lang-option="ru">Русский</button>
+          <button type="button" data-lang-option="hy">Հայերեն</button>
+        </div>
+      </div>`;
+    document.body.appendChild(gate);
+  }
+
+  function updateGate() {
+    if (!configured) return;
+    createGate();
+    const gate = document.querySelector('[data-auth-gate]');
+    if (!gate) return;
+    const lang = getLang();
+    gate.querySelector('[data-gate-title]').textContent = t('gateTitle');
+    gate.querySelector('[data-gate-text]').textContent = t('gateText');
+    gate.querySelector('[data-gate-note]').textContent = t('gateNote');
+    const btnLabel = gate.querySelector('.gsi-material-button-contents');
+    if (btnLabel) btnLabel.textContent = lang === 'hy' ? 'Մուտք Google-ով' : 'Войти через Google';
+    gate.querySelectorAll('[data-lang-option]').forEach((b) => b.classList.toggle('is-active', b.dataset.langOption === lang));
+
+    const locked = !currentUser;
+    gate.classList.toggle('is-open', locked);
+    gate.classList.toggle('is-checking', locked && !authResolved);
+    document.body.classList.toggle('auth-locked', locked);
+    if (locked && !authResolved) setAuthMessage(t('checking'), 'info');
+    else if (locked) setAuthMessage('', 'info');
+  }
+
   function openModal() {
-    createModal();
-    document.querySelector('[data-auth-modal]')?.classList.add('is-open');
+    updateGate();
+    const gate = document.querySelector('[data-auth-gate]');
+    if (gate && !currentUser) {
+      gate.classList.add('is-open');
+      document.body.classList.add('auth-locked');
+    }
     if (!configured) {
-      setAuthMessage('Firebase ещё не настроен. Техническая часть на сайте готова — нужно добавить firebaseConfig из Firebase Console.', 'warning');
-    } else if (!firebaseLoaded) {
-      setAuthMessage('Загружаем защищённую систему входа...', 'info');
-    } else {
-      setAuthMessage('Выберите удобный способ входа.', 'info');
+      setAuthMessage('Firebase ещё не настроен: добавьте firebaseConfig в firebase-config.js.', 'warning');
     }
   }
 
   function closeModal() {
-    document.querySelector('[data-auth-modal]')?.classList.remove('is-open');
+    const gate = document.querySelector('[data-auth-gate]');
+    gate?.classList.remove('is-open');
+    document.body.classList.remove('auth-locked');
   }
+
+  /* --------------------------------------------------- language chooser */
+
+  function createLangDialog() {
+    if (document.querySelector('[data-lang-dialog]')) return;
+    const dlg = document.createElement('div');
+    dlg.className = 'lang-dialog';
+    dlg.dataset.langDialog = '';
+    dlg.innerHTML = `
+      <div class="lang-dialog__backdrop"></div>
+      <div class="lang-dialog__panel" role="dialog" aria-modal="true" aria-label="Язык / Լեզու">
+        <span class="lang-dialog__mark" aria-hidden="true">◆</span>
+        <h3>Выберите язык сайта</h3>
+        <p>Ընտրեք կայքի լեզուն</p>
+        <div class="lang-dialog__options">
+          <button type="button" data-lang-pick="hy">
+            <strong>Հայերեն</strong>
+            <small>Armenian</small>
+          </button>
+          <button type="button" data-lang-pick="ru">
+            <strong>Русский</strong>
+            <small>Russian</small>
+          </button>
+        </div>
+      </div>`;
+    document.body.appendChild(dlg);
+  }
+
+  function maybeAskLanguage() {
+    if (!currentUser) return;
+    if (localStorage.getItem(langAskedKey) === '1') return;
+    createLangDialog();
+    requestAnimationFrame(() => document.querySelector('[data-lang-dialog]')?.classList.add('is-open'));
+  }
+
+  function closeLangDialog() {
+    document.querySelector('[data-lang-dialog]')?.classList.remove('is-open');
+  }
+
+  /* ------------------------------------------------------------ firebase */
 
   async function loadFirebase() {
     if (!configured) return false;
@@ -160,17 +360,25 @@
       db = firebase.getFirestore(app);
       firebaseLoaded = true;
 
+      firebase.setPersistence?.(auth, firebase.browserLocalPersistence).catch(() => {});
       firebase.getRedirectResult(auth).catch((error) => console.warn('Redirect auth:', error));
       firebase.onAuthStateChanged(auth, async (user) => {
+        const wasAnonymous = !currentUser;
         currentUser = user;
-        if (user) await ensureUserDocument(user);
+        authResolved = true;
+        if (user) {
+          ensureUserDocument(user).catch(() => {});
+          if (wasAnonymous) maybeAskLanguage();
+        }
         emit();
       });
       return true;
     } catch (error) {
       initError = error;
+      authResolved = true;
       console.error(error);
-      setAuthMessage('Не удалось загрузить Firebase. Проверьте интернет, домен и настройки Firebase.', 'error');
+      setAuthMessage('Не удалось загрузить систему входа. Проверьте интернет-соединение и обновите страницу.', 'error');
+      updateGate();
       return false;
     }
   }
@@ -184,6 +392,7 @@
         email: user.email || '',
         photoURL: user.photoURL || '',
         provider: user.providerData?.[0]?.providerId || '',
+        language: getLang(),
         updatedAt: firebase.serverTimestamp()
       }, { merge: true });
     } catch (error) {
@@ -192,24 +401,27 @@
   }
 
   async function loginGoogle() {
-    if (!configured) {
-      openModal();
-      return false;
-    }
+    if (!configured) { openModal(); return false; }
     const loaded = await loadFirebase();
     if (!loaded) return false;
     try {
+      setAuthMessage('', 'info');
       const provider = new firebase.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await firebase.signInWithPopup(auth, provider);
       closeModal();
-      toast('Вы вошли через Google', 'success');
+      toast(t('loggedIn'), 'success');
       return true;
     } catch (error) {
-      if (String(error?.code || '').includes('popup') || String(error?.message || '').includes('popup')) {
-        const provider = new firebase.GoogleAuthProvider();
-        await firebase.signInWithRedirect(auth, provider);
-        return true;
+      const code = String(error?.code || '');
+      if (code.includes('popup-blocked') || code.includes('popup-closed') || code.includes('cancelled-popup')) {
+        if (code.includes('popup-blocked')) {
+          const provider = new firebase.GoogleAuthProvider();
+          await firebase.signInWithRedirect(auth, provider);
+          return true;
+        }
+        setAuthMessage('Окно входа было закрыто. Попробуйте ещё раз.', 'warning');
+        return false;
       }
       console.error(error);
       setAuthMessage(error.message || 'Ошибка входа через Google.', 'error');
@@ -217,34 +429,15 @@
     }
   }
 
-  async function loginApple() {
-    if (!providers.apple) {
-      setAuthMessage('Apple ID подготовлен в интерфейсе, но для реального входа нужен Apple Developer аккаунт и настройка Apple provider в Firebase.', 'warning');
-      return false;
-    }
-    const loaded = await loadFirebase();
-    if (!loaded) return false;
-    try {
-      const provider = new firebase.OAuthProvider('apple.com');
-      provider.addScope('email');
-      provider.addScope('name');
-      await firebase.signInWithPopup(auth, provider);
-      closeModal();
-      toast('Вы вошли через Apple ID', 'success');
-      return true;
-    } catch (error) {
-      console.error(error);
-      setAuthMessage(error.message || 'Ошибка входа через Apple ID.', 'error');
-      return false;
-    }
-  }
-
   async function logout() {
     if (auth && firebaseLoaded) await firebase.signOut(auth);
     currentUser = null;
+    closeUserMenu();
     emit();
-    toast('Вы вышли из аккаунта', 'info');
+    toast(t('loggedOut'), 'info');
   }
+
+  /* ------------------------------------------------- favorites / orders */
 
   function productSnapshot(product) {
     return {
@@ -261,14 +454,12 @@
     const item = productSnapshot(product);
     if (currentUser && db) {
       await firebase.setDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId), {
-        ...item,
-        savedAt: firebase.serverTimestamp()
+        ...item, savedAt: firebase.serverTimestamp()
       }, { merge: true });
     } else {
-      const list = localGet(localFavoritesKey, []);
-      const filtered = list.filter((x) => x.productId !== item.productId);
-      filtered.unshift({ ...item, savedAt: Date.now() });
-      localSet(localFavoritesKey, filtered);
+      const list = localGet(localFavoritesKey, []).filter((x) => x.productId !== item.productId);
+      list.unshift({ ...item, savedAt: Date.now() });
+      localSet(localFavoritesKey, list);
     }
     updateFavoriteButtons();
     toast('Добавлено в избранное', 'success');
@@ -278,8 +469,7 @@
     if (currentUser && db) {
       await firebase.deleteDoc(firebase.doc(db, 'users', currentUser.uid, 'favorites', productId));
     } else {
-      const list = localGet(localFavoritesKey, []).filter((x) => x.productId !== productId);
-      localSet(localFavoritesKey, list);
+      localSet(localFavoritesKey, localGet(localFavoritesKey, []).filter((x) => x.productId !== productId));
     }
     updateFavoriteButtons();
     toast('Удалено из избранного', 'info');
@@ -301,26 +491,16 @@
   async function toggleFavorite(product) {
     const id = product.id || product.productId;
     if (!id) return;
-    if (configured && !currentUser) {
-      openModal();
-      setAuthMessage('Войдите, чтобы сохранить изделие в избранное на всех устройствах.', 'info');
-      return;
-    }
+    if (configured && !currentUser) { openModal(); return; }
     const exists = await isFavorite(id);
     if (exists) await removeFavorite(id); else await addFavorite(product);
   }
 
   async function saveOrder(order) {
-    const item = {
-      ...order,
-      status: 'new',
-      createdAtLocal: Date.now(),
-      page: window.location.href
-    };
+    const item = { ...order, status: 'new', createdAtLocal: Date.now(), page: window.location.href };
     if (currentUser && db) {
       await firebase.addDoc(firebase.collection(db, 'users', currentUser.uid, 'orders'), {
-        ...item,
-        createdAt: firebase.serverTimestamp()
+        ...item, createdAt: firebase.serverTimestamp()
       });
     } else {
       const list = localGet(localOrdersKey, []);
@@ -331,8 +511,7 @@
 
   async function listOrders() {
     if (currentUser && db) {
-      const col = firebase.collection(db, 'users', currentUser.uid, 'orders');
-      const snap = await firebase.getDocs(col);
+      const snap = await firebase.getDocs(firebase.collection(db, 'users', currentUser.uid, 'orders'));
       return snap.docs.map((doc) => ({ id: doc.id, ...doc.data() })).sort((a, b) => (b.createdAtLocal || 0) - (a.createdAtLocal || 0));
     }
     return localGet(localOrdersKey, []);
@@ -349,8 +528,7 @@
     const favorites = await listFavorites().catch(() => []);
     const ids = new Set(favorites.map((item) => item.productId || item.id));
     buttons.forEach((btn) => {
-      const id = btn.dataset.favoriteProduct;
-      const active = ids.has(id);
+      const active = ids.has(btn.dataset.favoriteProduct);
       btn.classList.toggle('is-active', active);
       btn.setAttribute('aria-pressed', String(active));
       btn.innerHTML = active ? '★' : '☆';
@@ -358,50 +536,62 @@
     });
   }
 
+  /* -------------------------------------------------------------- events */
+
   document.addEventListener('click', async (event) => {
+    const langPick = event.target.closest('[data-lang-pick]');
+    if (langPick) {
+      setLang(langPick.dataset.langPick);
+      closeLangDialog();
+      return;
+    }
+    const langOpt = event.target.closest('[data-lang-option]');
+    if (langOpt) {
+      event.preventDefault();
+      setLang(langOpt.dataset.langOption);
+      updateGate();
+      return;
+    }
+    const userToggle = event.target.closest('[data-user-toggle]');
+    if (userToggle) {
+      event.preventDefault();
+      const menu = userToggle.closest('[data-user-menu]');
+      const open = menu.classList.toggle('is-open');
+      userToggle.setAttribute('aria-expanded', String(open));
+      return;
+    }
+    if (!event.target.closest('[data-user-menu]')) closeUserMenu();
+
     const loginGoogleBtn = event.target.closest('[data-login-google]');
     if (loginGoogleBtn) {
       event.preventDefault();
+      loginGoogleBtn.disabled = true;
       await loginGoogle();
-      return;
-    }
-    const loginAppleBtn = event.target.closest('[data-login-apple]');
-    if (loginAppleBtn) {
-      event.preventDefault();
-      await loginApple();
+      loginGoogleBtn.disabled = false;
       return;
     }
     const logoutBtn = event.target.closest('[data-auth-logout]');
-    if (logoutBtn) {
-      event.preventDefault();
-      await logout();
-      return;
-    }
+    if (logoutBtn) { event.preventDefault(); await logout(); return; }
+
     const openBtn = event.target.closest('[data-auth-open]');
-    if (openBtn) {
-      event.preventDefault();
-      openModal();
-      return;
-    }
+    if (openBtn) { event.preventDefault(); openModal(); return; }
+
     const favBtn = event.target.closest('[data-favorite-product]');
     if (favBtn) {
       event.preventDefault();
-      const product = findProduct(favBtn.dataset.favoriteProduct);
-      await toggleFavorite(product);
+      await toggleFavorite(findProduct(favBtn.dataset.favoriteProduct));
       document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
       return;
     }
     const orderLink = event.target.closest('[data-save-order]');
     if (orderLink) {
       const product = findProduct(orderLink.dataset.saveOrder);
-      saveOrder({
-        type: 'product',
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        source: 'whatsapp-click'
-      }).catch(console.warn);
+      saveOrder({ type: 'product', productId: product.id, name: product.name, price: product.price, source: 'whatsapp-click' }).catch(console.warn);
     }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeUserMenu();
   });
 
   document.addEventListener('tovmasyan:order-request', (event) => {
@@ -419,10 +609,11 @@
     loadFirebase,
     onAuthChange,
     getUser: () => currentUser,
+    isReady: () => authResolved,
     loginGoogle,
-    loginApple,
     logout,
     openModal,
+    closeModal,
     addFavorite,
     removeFavorite,
     toggleFavorite,
@@ -430,13 +621,25 @@
     listOrders,
     saveOrder,
     updateFavoriteButtons,
+    getLang,
+    setLang,
+    googleButton,
     get initError() { return initError; }
   };
 
-  injectHeaderLink();
-  createModal();
-  updateHeaderState();
-  document.dispatchEvent(new Event('tovmasyan:auth-ready'));
-  if (configured) loadFirebase();
-  setTimeout(updateFavoriteButtons, 250);
+  function boot() {
+    injectHeaderUI();
+    updateHeaderState();
+    applyLanguage();
+    if (configured) {
+      createGate();
+      updateGate();
+      loadFirebase();
+    }
+    document.dispatchEvent(new Event('tovmasyan:auth-ready'));
+    setTimeout(updateFavoriteButtons, 250);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
+  else boot();
 })();

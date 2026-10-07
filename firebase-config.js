@@ -12,6 +12,5 @@ window.TOVMASYAN_FIREBASE_CONFIG = {
 };
 
 window.TOVMASYAN_AUTH_PROVIDERS = {
-  google: true,
-  apple: false
+  google: true
 };
