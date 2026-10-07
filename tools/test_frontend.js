@@ -117,6 +117,53 @@ function tap(dom, el) {
   await B.logout();
   check('logout wipes local data', (await B.listFavorites()).length === 0);
 
+  /* 8. FULL Armenian translation */
+  const dict = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/hy.json'), 'utf8'));
+  for (const page of ['index.html', 'catalog/index.html', 'about/index.html', 'contacts/index.html', 'products/aurora-ring/index.html']) {
+    const hdom = makeDom(page, 'https://www.tovmasyan.army/');
+    hdom.window.localStorage.setItem('tovmasyan_lang', 'hy');
+    hdom.window.fetch = async () => ({ ok: true, json: async () => dict });
+    ['firebase-config.js', 'data/products.js', 'script.js', 'i18n.js', 'auth.js'].forEach((f) => runScript(hdom, f));
+    if (page.includes('catalog')) runScript(hdom, 'catalog.js');
+    ready(hdom);
+    await new Promise((r) => setTimeout(r, 120));
+    const doc = hdom.window.document;
+    const leftover = [];
+    doc.querySelectorAll('body *').forEach((el) => {
+      [...el.childNodes].filter((n) => n.nodeType === 3).forEach((n) => {
+        const txt = n.nodeValue.trim();
+        if (txt.length > 2 && /[А-Яа-яЁё]/.test(txt) && dict[txt]) leftover.push(txt);
+      });
+    });
+    check(`${page}: lang attribute = hy`, doc.documentElement.lang === 'hy');
+    check(`${page}: no untranslated Russian left`, leftover.length === 0);
+    if (leftover.length) console.log('   leftover:', leftover.slice(0, 5));
+  }
+
+  /* 9. switching back to Russian restores text */
+  const rdom = makeDom('index.html', 'https://www.tovmasyan.army/');
+  rdom.window.localStorage.setItem('tovmasyan_lang', 'hy');
+  rdom.window.fetch = async () => ({ ok: true, json: async () => dict });
+  ['firebase-config.js', 'script.js', 'i18n.js', 'auth.js'].forEach((f) => runScript(rdom, f));
+  ready(rdom);
+  await new Promise((r) => setTimeout(r, 120));
+  check('hy: nav translated', rdom.window.document.querySelector('.main-nav a').textContent.trim() === 'Կատալոգ');
+  rdom.window.TovmasyanAuth.setLang('ru');
+  await new Promise((r) => setTimeout(r, 120));
+  check('switch back to ru restores original text', rdom.window.document.querySelector('.main-nav a').textContent.trim() === 'Каталог');
+
+  /* 10. no developer/technical wording visible to clients */
+  const BAD = ['Firebase', 'firebaseConfig', 'GitHub', 'шаблон', 'витрина', 'демо', 'Декоративные изображения'];
+  for (const page of ['index.html', 'account/index.html', 'about/index.html', 'catalog/index.html']) {
+    const text = fs.readFileSync(path.join(ROOT, page), 'utf8');
+    const body = text.slice(text.indexOf('<body'));
+    const found = BAD.filter((w) => body.includes(w));
+    check(`${page}: no technical wording`, found.length === 0);
+    if (found.length) console.log('   found:', found);
+  }
+  const accJs = fs.readFileSync(path.join(ROOT, 'account.js'), 'utf8');
+  check('account.js: no Firebase wording', !accJs.includes('Firebase'));
+
   console.log(`\n${passed} passed, ${errors.filter((e) => e.startsWith('FAILED')).length} failed`);
   console.log('--- ERRORS ---');
   console.log(errors.length ? errors.join('\n') : 'none');

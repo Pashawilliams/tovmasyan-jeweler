@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-TARGETS = ['styles.css', 'script.js', 'auth.js', 'account.js', 'catalog.js',
+TARGETS = ['styles.css', 'script.js', 'auth.js', 'account.js', 'catalog.js', 'i18n.js',
            'firebase-config.js', 'data/products.js']
 
 

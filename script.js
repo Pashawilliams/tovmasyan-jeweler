@@ -3,7 +3,7 @@ const WHATSAPP_NUMBER = '37477105163';
 const whatsappUrl = (message) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 window.TOVMASYAN_WHATSAPP = whatsappUrl;
 
-const defaultMessage = 'Здравствуйте! Пишу с сайта TOVMASYAN Jeweler. Хочу получить консультацию.';
+const defaultMessage = 'Здравствуйте! Хочу получить консультацию.';
 
 document.querySelectorAll('[data-whatsapp]').forEach((link) => {
   const message = link.dataset.whatsapp || defaultMessage;
@@ -14,7 +14,7 @@ document.querySelectorAll('[data-whatsapp]').forEach((link) => {
 
 document.querySelectorAll('[data-product]').forEach((link) => {
   const product = link.dataset.product;
-  const message = `Здравствуйте! Пишу с сайта TOVMASYAN Jeweler. Меня интересует: ${product}. Подскажите, пожалуйста, наличие и цену.`;
+  const message = `Здравствуйте! Меня интересует: ${product}. Подскажите, пожалуйста, наличие и цену.`;
   link.href = whatsappUrl(message);
   link.target = '_blank';
   link.rel = 'noopener';
@@ -95,7 +95,7 @@ if (orderForm) {
     const message = String(formData.get('message') || '').trim();
 
     const lines = [
-      'Здравствуйте! Пишу с сайта TOVMASYAN Jeweler.',
+      'Здравствуйте! ',
       name ? `Меня зовут: ${name}.` : '',
       interest ? `Интересует: ${interest}.` : '',
       message ? `Комментарий: ${message}` : '',

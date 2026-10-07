@@ -46,27 +46,6 @@
 
   /* ---------------------------------------------------------------- i18n */
 
-  const I18N = {
-    ru: {
-      'Каталог': 'Каталог',
-      'На заказ': 'На заказ',
-      'Уход': 'Уход',
-      'О бренде': 'О бренде',
-      'Контакты': 'Контакты',
-      'WhatsApp': 'WhatsApp',
-      'Instagram': 'Instagram'
-    },
-    hy: {
-      'Каталог': 'Կատալոգ',
-      'На заказ': 'Պատվերով',
-      'Уход': 'Խնամք',
-      'О бренде': 'Բրենդի մասին',
-      'Контакты': 'Կոնտակտներ',
-      'WhatsApp': 'WhatsApp',
-      'Instagram': 'Instagram'
-    }
-  };
-
   const UI = {
     ru: {
       signIn: 'Войти',
@@ -109,17 +88,12 @@
 
   function applyLanguage() {
     const lang = getLang();
-    const dict = I18N[lang] || I18N.ru;
     document.documentElement.lang = lang === 'hy' ? 'hy' : 'ru';
-    document.querySelectorAll('.main-nav a, .site-footer .footer-links a').forEach((el) => {
-      if (!el.dataset.i18nBase) el.dataset.i18nBase = el.textContent.trim();
-      const base = el.dataset.i18nBase;
-      if (dict[base]) el.textContent = dict[base];
-    });
     document.querySelectorAll('[data-lang-option]').forEach((btn) => {
       btn.classList.toggle('is-active', btn.dataset.langOption === lang);
     });
     updateHeaderState();
+    if (window.TovmasyanI18n) window.TovmasyanI18n.apply();
   }
 
   function setLang(lang) {
@@ -327,7 +301,7 @@
       document.body.classList.add('auth-locked');
     }
     if (!configured) {
-      setAuthMessage('Firebase ещё не настроен: добавьте firebaseConfig в firebase-config.js.', 'warning');
+      setAuthMessage('Вход временно недоступен. Напишите нам в WhatsApp.', 'warning');
     }
   }
 
@@ -410,6 +384,7 @@
           localStorage.setItem(lastUidKey, user.uid);
           localStorage.setItem(sessionHintKey, '1');
           ensureUserDocument(user).catch(() => {});
+          syncLocalToCloud().catch(() => {});
           closeModal();
           maybeAskLanguage();
           justLoggedIn = false;
@@ -424,9 +399,32 @@
       initError = error;
       authResolved = true;
       console.error(error);
-      setAuthMessage('Не удалось загрузить систему входа. Проверьте интернет-соединение и обновите страницу.', 'error');
+      setAuthMessage('Не удалось открыть вход. Проверьте интернет и обновите страницу.', 'error');
       updateGate();
       return false;
+    }
+  }
+
+  // Push anything saved while the cloud was unavailable, then pull the cloud state back.
+  async function syncLocalToCloud() {
+    if (!currentUser || !db) return;
+    const favs = localGet(favKey(), []);
+    const orders = localGet(ordKey(), []);
+    try {
+      await Promise.all(favs.map((item) => withTimeout(firebase.setDoc(
+        firebase.doc(db, 'users', currentUser.uid, 'favorites', item.productId || item.id),
+        { ...item, savedAt: item.savedAt || Date.now() }, { merge: true }
+      ))));
+      await Promise.all(orders.filter((o) => !o.syncedAt).map((item) => withTimeout(firebase.addDoc(
+        firebase.collection(db, 'users', currentUser.uid, 'orders'), { ...item, syncedAt: Date.now() }
+      ))));
+      localSet(ordKey(), orders.map((o) => ({ ...o, syncedAt: o.syncedAt || Date.now() })));
+      const fresh = await listFavorites();
+      localSet(favKey(), fresh);
+      updateFavoriteButtons();
+      document.dispatchEvent(new CustomEvent('tovmasyan:favorites-changed'));
+    } catch (error) {
+      console.warn('Cloud sync postponed:', error?.message || error);
     }
   }
 
