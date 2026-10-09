@@ -6,6 +6,7 @@ const { JSDOM } = require('/tmp/node_modules/jsdom');
 
 const ROOT = '/home/user/tovmasyan-jeweler-site';
 const DICT = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/hy.json'), 'utf8'));
+const HISTORY = JSON.parse(fs.readFileSync(path.join(ROOT, 'data/gold-history.json'), 'utf8'));
 let passed = 0; const failures = [];
 
 function check(name, cond, extra) {
@@ -31,6 +32,7 @@ function makeDom({ failMarket = false, withBaseline = true } = {}) {
       if (!withBaseline) return { ok: false, status: 404, json: async () => ({}) };
       return json({ capturedAt: new Date(Date.now() - 20 * 3600e3).toISOString(), gold: BASE_GOLD, silver: 60 });
     }
+    if (u.includes('gold-history')) return json(HISTORY);
     if (u.includes('hy.json')) return json(DICT);
     return { ok: false, status: 404, json: async () => ({}) };
   };
@@ -126,48 +128,55 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   check('without a baseline the 24h cell degrades to a dash', dash.textContent.trim() === '—', dash.textContent.trim());
   check('prices still render without a baseline', num(noBase.document.querySelector('[data-rate-rows] .rate-sell').textContent) > 0);
 
-  /* ---------------- always-open board, chart on demand ---------------- */
+  /* -------- compact board, arrow expands it with the chart inside -------- */
   const board2 = w.document.querySelector('[data-gold-board]');
-  const chartPanel = w.document.querySelector('[data-rate-chart]');
-  check('board is open from the start', !board2.classList.contains('is-collapsed'));
-  check('full purity table is visible without any click', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
-  check('chart starts hidden', chartPanel.classList.contains('is-hidden'));
+  const panel = w.document.querySelector('[data-board-panel]');
+  const toggle = w.document.querySelector('[data-board-toggle]');
+  check('compact board starts collapsed', !board2.classList.contains('is-open'));
+  check('collapsed panel is hidden from screen readers', panel.getAttribute('aria-hidden') === 'true');
+  check('the toggle is an arrow button', Boolean(toggle.querySelector('.rate-expand__arrow svg')));
 
   const highlight = w.document.querySelector('[data-rate-highlight]');
-  check('price strip shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
+  check('collapsed strip still shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
+  check('full purity table exists inside the panel', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
 
-  const chartBtn = w.document.querySelector('[data-chart-toggle]');
-  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(150);
-  check('button opens the chart', !chartPanel.classList.contains('is-hidden'));
-  check('open state is announced to screen readers', chartBtn.getAttribute('aria-expanded') === 'true');
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(200);
+  check('arrow expands the board', board2.classList.contains('is-open'));
+  check('expanded state is announced to screen readers', toggle.getAttribute('aria-expanded') === 'true');
+  check('expanded panel is exposed to screen readers', panel.getAttribute('aria-hidden') === 'false');
 
   const svg = w.document.querySelector('[data-chart-canvas] svg');
   check('chart is drawn as an svg', Boolean(svg));
   const candles = svg ? svg.querySelectorAll('g.rate-candle') : [];
-  check('candlesticks are rendered', candles.length >= 2, `${candles.length} candles`);
+  check('candlesticks are rendered from the published history', candles.length >= 4, `${candles.length} candles`);
   check('each candle has a wick and a body', Boolean(candles[0] && candles[0].querySelector('line') && candles[0].querySelector('rect')));
   const upCount = svg ? svg.querySelectorAll('g.rate-candle.is-up').length : 0;
   const downCount = svg ? svg.querySelectorAll('g.rate-candle.is-down').length : 0;
-  check('candles are coloured by direction', upCount + downCount === candles.length && upCount > 0, `up ${upCount} / down ${downCount}`);
+  check('candles are coloured by direction', upCount + downCount === candles.length, `up ${upCount} / down ${downCount}`);
   const firstBody = candles[0] && candles[0].querySelector('rect');
   check('candle body has a real height', firstBody && parseFloat(firstBody.getAttribute('height')) > 0);
+  check('chart carries start and end dates', Boolean(w.document.querySelector('.rate-chart__from') && w.document.querySelector('.rate-chart__to')));
   check('legend counts the candles', /свеч|մոմ/.test(w.document.querySelector('[data-chart-legend]').textContent));
 
-  const sevenBtn = w.document.querySelector('[data-chart-range="7d"]');
-  sevenBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  const monthBtn = w.document.querySelector('[data-chart-range="30d"]');
+  monthBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
-  check('7-day range switches', sevenBtn.classList.contains('is-active'));
-  check('7-day range draws fewer, wider candles',
-    w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length <= candles.length,
-    `${w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length} vs ${candles.length}`);
+  check('30-day range switches', monthBtn.classList.contains('is-active'));
+  const monthCandles = w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length;
+  check('30-day range draws more candles than 7 days', monthCandles > candles.length, `${monthCandles} vs ${candles.length}`);
+  const quarterBtn = w.document.querySelector('[data-chart-range="90d"]');
+  quarterBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
+  check('3-month range draws the longest history',
+    w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length >= monthCandles);
 
-  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(120);
-  check('button hides the chart again', chartPanel.classList.contains('is-hidden'));
-  check('table stays visible when the chart is hidden', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
-  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(120);
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
+  check('arrow collapses the board again', !board2.classList.contains('is-open'));
+  check('the price strip survives collapsing', /999\.9/.test(highlight.textContent));
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
 
   /* a price move must be visibly flagged */
   const before = w.document.querySelector('[data-rate-rows] .rate-sell').textContent;

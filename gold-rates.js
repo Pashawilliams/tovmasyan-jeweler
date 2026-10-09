@@ -49,14 +49,16 @@
   const highlightEl = board.querySelector('[data-rate-highlight]');
   const chartCanvas = board.querySelector('[data-chart-canvas]');
   const chartLegend = board.querySelector('[data-chart-legend]');
-  const chartPanel = board.querySelector('[data-rate-chart]');
-  const chartToggle = board.querySelector('[data-chart-toggle]');
-  const chartToggleLabel = board.querySelector('[data-chart-toggle-label]');
+  const boardPanel = board.querySelector('[data-board-panel]');
+  const boardToggle = board.querySelector('[data-board-toggle]');
+  const boardToggleLabel = board.querySelector('[data-board-toggle-label]');
   const currencyButtons = board.querySelectorAll('[data-rate-currency]');
   const rangeButtons = board.querySelectorAll('[data-chart-range]');
 
   let currency = localStorage.getItem('tovmasyan_rate_currency') || 'USD';
-  let chartRange = localStorage.getItem('tovmasyan_rate_range') || '24h';
+  let chartRange = localStorage.getItem('tovmasyan_rate_range') || '7d';
+  if (!['7d', '30d', '90d'].includes(chartRange)) chartRange = '7d';
+  let history = [];                     // daily world price, USD per gram of fine gold
   let market = null;
   let lastSellValues = {};
 
@@ -106,6 +108,19 @@
     const trimmed = series.slice(-SERIES_MAX_POINTS);
     try { localStorage.setItem(SERIES_KEY, JSON.stringify(trimmed)); } catch (error) { /* ignore */ }
     return trimmed;
+  }
+
+  /* ------- daily price history (real market data, same origin) --------- */
+  async function loadHistory() {
+    try {
+      const data = await getJSON('/data/gold-history.json');
+      const points = Array.isArray(data.points) ? data.points : [];
+      history = points
+        .map((p) => ({ t: Date.parse(p.d + 'T12:00:00Z'), g: Number(p.g) }))
+        .filter((p) => isFinite(p.t) && isFinite(p.g))
+        .sort((a, b) => a.t - b.t);
+    } catch (error) { history = []; }
+    return history;
   }
 
   /* --------- 24h baseline: shared daily snapshot, local fallback -------- */
@@ -171,30 +186,54 @@
      Japanese candlesticks: every bucket of collected ticks becomes one candle
      (open, high, low, close), drawn in the sell price of gold 999.9.        */
   function buildCandles() {
-    const windowMs = chartRange === '7d' ? 7 * 24 * 3600e3 : 24 * 3600e3;
-    const bucketMs = chartRange === '7d' ? 6 * 3600e3 : 3600e3;   // 6h or 1h candles
-    const cutoff = Date.now() - windowMs;
-
-    let points = readSeries().filter((p) => p.t >= cutoff);
-    if (market && market.prevGoldOz && market.baselineAt && market.baselineAt >= cutoff
-      && !points.some((p) => Math.abs(p.t - market.baselineAt) < 60e3)) {
-      points = [{ t: market.baselineAt, g: market.prevGoldOz }].concat(points);
-    }
-    points.sort((a, b) => a.t - b.t);
+    const days = chartRange === '90d' ? 93 : chartRange === '30d' ? 30 : 7;
+    const cutoff = Date.now() - days * 24 * 3600e3;
 
     const useAmd = currency === 'AMD' && market && market.amd;
     const factor = useAmd ? market.amd : 1;
-    const toSell = (oz) => (oz / TROY_OUNCE_G) * 0.9999 * SELL_RATIO.pure * factor;
+    // the chart shows the same Yerevan sell price as the 999.9 row of the table
+    const toSell = (perGram) => perGram * 0.9999 * SELL_RATIO.pure * factor;
 
-    const buckets = new Map();
-    points.forEach((p) => {
-      const key = Math.floor(p.t / bucketMs) * bucketMs;
-      const v = toSell(p.g);
-      const c = buckets.get(key);
-      if (!c) buckets.set(key, { t: key, o: v, h: v, l: v, c: v });
-      else { c.h = Math.max(c.h, v); c.l = Math.min(c.l, v); c.c = v; }
+    const dayKey = (ts) => { const d = new Date(ts); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
+
+    // 1. one candle per trading day, from the published daily history
+    const daily = history.filter((p) => p.t >= cutoff);
+    const candles = [];
+    let previous = null;
+    const before = history.filter((p) => p.t < cutoff);
+    if (before.length) previous = before[before.length - 1].g;
+    daily.forEach((p) => {
+      const open = toSell(previous === null ? p.g : previous);
+      const close = toSell(p.g);
+      candles.push({ t: dayKey(p.t), o: open, c: close, h: Math.max(open, close), l: Math.min(open, close) });
+      previous = p.g;
     });
-    return [...buckets.values()].sort((a, b) => a.t - b.t);
+
+    // 2. today's candle is refined with our own live ticks (real high / low / close)
+    const ticks = readSeries().filter((p) => p.t >= cutoff);
+    if (ticks.length) {
+      const grouped = new Map();
+      ticks.forEach((p) => {
+        const key = dayKey(p.t);
+        const v = toSell(p.g / TROY_OUNCE_G);
+        const c = grouped.get(key);
+        if (!c) grouped.set(key, { t: key, o: v, h: v, l: v, c: v });
+        else { c.h = Math.max(c.h, v); c.l = Math.min(c.l, v); c.c = v; }
+      });
+      grouped.forEach((live, key) => {
+        const existing = candles.find((c) => c.t === key);
+        if (existing) {
+          existing.h = Math.max(existing.h, live.h);
+          existing.l = Math.min(existing.l, live.l);
+          existing.c = live.c;
+        } else {
+          const open = candles.length ? candles[candles.length - 1].c : live.o;
+          candles.push({ t: key, o: open, c: live.c, h: Math.max(open, live.h), l: Math.min(open, live.l) });
+        }
+      });
+    }
+
+    return candles.sort((a, b) => a.t - b.t);
   }
 
   function buildChart() {
@@ -213,9 +252,9 @@
     const min = Math.min(...candles.map((c) => c.l));
     const span = (max - min) || Math.max(max * 0.001, 0.01);
 
-    const W = 1000, H = 220, PAD_X = 14, PAD_Y = 16;
+    const W = 1000, H = 220, PAD_X = 16, PAD_Y = 18;
     const step = (W - PAD_X * 2) / candles.length;
-    const bodyW = Math.max(3, Math.min(18, step * 0.58));
+    const bodyW = Math.max(2.5, Math.min(22, step * 0.56));
     const y = (v) => PAD_Y + (1 - (v - min + span * 0.1) / (span * 1.2)) * (H - PAD_Y * 2);
 
     const bodies = candles.map((c, i) => {
@@ -239,6 +278,13 @@
            aria-label="Свечной график цены золота 999.9">${grid}${bodies}</svg>
       <span class="rate-chart__max">${symbol(cur)} ${fmt(max, cur)}</span>
       <span class="rate-chart__min">${symbol(cur)} ${fmt(min, cur)}</span>`;
+
+    const first = candles[0];
+    const last = candles[candles.length - 1];
+    const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+    chartCanvas.insertAdjacentHTML('beforeend',
+      `<span class="rate-chart__from">${dateFmt.format(new Date(first.t))}</span>`
+      + `<span class="rate-chart__to">${dateFmt.format(new Date(last.t))}</span>`);
 
     const diff = candles[candles.length - 1].c - candles[0].o;
     const pct = candles[0].o ? (diff / candles[0].o) * 100 : 0;
@@ -320,7 +366,7 @@
     });
     rangeButtons.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.chartRange === chartRange));
 
-    if (chartPanel && !chartPanel.classList.contains('is-hidden')) buildChart();
+    if (board.classList.contains('is-open')) buildChart();
     if (window.TovmasyanI18n && window.TovmasyanI18n.getLang() !== 'ru') window.TovmasyanI18n.apply();
   }
 
@@ -401,26 +447,33 @@
     });
   });
 
-  function setChartVisible(visible) {
-    if (!chartPanel) return;
-    chartPanel.classList.toggle('is-hidden', !visible);
-    if (chartToggle) {
-      chartToggle.setAttribute('aria-expanded', String(visible));
-      chartToggle.classList.toggle('is-active', visible);
+  function setBoardOpen(open, animate) {
+    if (!boardPanel) return;
+    board.classList.toggle('is-open', open);
+    boardPanel.setAttribute('aria-hidden', String(!open));
+    if (boardToggle) {
+      boardToggle.setAttribute('aria-expanded', String(open));
+      boardToggle.classList.toggle('is-active', open);
+      boardToggle.setAttribute('aria-label', open ? 'Свернуть курс и график' : 'Развернуть курс и график');
     }
-    if (chartToggleLabel) chartToggleLabel.textContent = visible ? 'Скрыть график' : 'График';
-    try { localStorage.setItem('tovmasyan_chart_open', visible ? '1' : '0'); } catch (error) { /* ignore */ }
-    if (visible) buildChart();
+    if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Свернуть' : 'Подробнее и график';
+    try { localStorage.setItem('tovmasyan_board_open', open ? '1' : '0'); } catch (error) { /* ignore */ }
+    if (!animate) {
+      boardPanel.style.transition = 'none';
+      requestAnimationFrame(() => { boardPanel.style.transition = ''; });
+    }
+    if (open) buildChart();
     if (window.TovmasyanI18n && window.TovmasyanI18n.getLang() !== 'ru') window.TovmasyanI18n.apply();
   }
 
-  if (chartToggle) {
-    chartToggle.addEventListener('click', () => setChartVisible(chartPanel.classList.contains('is-hidden')));
-    setChartVisible(localStorage.getItem('tovmasyan_chart_open') === '1');
+  if (boardToggle) {
+    boardToggle.addEventListener('click', () => setBoardOpen(!board.classList.contains('is-open'), true));
   }
+  setBoardOpen(localStorage.getItem('tovmasyan_board_open') === '1', false);
 
   tick();
   setInterval(tick, 1000);
+  loadHistory().then(() => { if (board.classList.contains('is-open')) buildChart(); });
   refresh();
   setInterval(refresh, REFRESH_MS);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
