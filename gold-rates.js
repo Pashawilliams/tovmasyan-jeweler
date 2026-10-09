@@ -56,8 +56,8 @@
   const rangeButtons = board.querySelectorAll('[data-chart-range]');
 
   let currency = localStorage.getItem('tovmasyan_rate_currency') || 'USD';
-  let chartRange = localStorage.getItem('tovmasyan_rate_range') || '7d';
-  if (!['7d', '30d', '90d'].includes(chartRange)) chartRange = '7d';
+  let chartRange = localStorage.getItem('tovmasyan_rate_range') || '30d';
+  if (!['7d', '30d', '90d'].includes(chartRange)) chartRange = '30d';
   let history = [];                     // daily world price, USD per gram of fine gold
   let market = null;
   let lastSellValues = {};
@@ -203,11 +203,44 @@
     return [...byDay.entries()].map(([t, v]) => ({ t, v })).sort((a, b) => a.t - b.t);
   }
 
+  /* Japanese candlesticks. Daily closes give open = previous close and
+     h/l = max/min(open, close); the newest day also uses the intraday high
+     and low collected by our own 30-second polls. Nothing is invented. */
+  function buildCandles() {
+    const points = buildSeries();
+    if (points.length < 2) return [];
+
+    const useAmd = currency === 'AMD' && market && market.amd;
+    const factor = useAmd ? market.amd : 1;
+    const toSell = (perGram) => perGram * 0.9999 * SELL_RATIO.pure * factor;
+    const dayKey = (ts) => { const d = new Date(ts); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
+
+    // real intraday extremes from our own ticks, per day
+    const intraday = new Map();
+    readSeries().forEach((tick) => {
+      const k = dayKey(tick.t);
+      const v = toSell(tick.g / TROY_OUNCE_G);
+      const cur = intraday.get(k);
+      if (!cur) intraday.set(k, { h: v, l: v, o: v });
+      else { cur.h = Math.max(cur.h, v); cur.l = Math.min(cur.l, v); }
+    });
+
+    return points.map((p, i) => {
+      const o = i ? points[i - 1].v : p.v;
+      const c = p.v;
+      let h = Math.max(o, c);
+      let l = Math.min(o, c);
+      const live = intraday.get(p.t);
+      if (live) { h = Math.max(h, live.h); l = Math.min(l, live.l); }
+      return { t: p.t, o, h, l, c };
+    });
+  }
+
   function buildChart() {
     if (!chartCanvas) return;
-    const points = buildSeries();
+    const candles = buildCandles();
 
-    if (points.length < 2) {
+    if (candles.length < 2) {
       chartCanvas.innerHTML = '<p class="rate-chart__empty">Накапливаем историю цен…</p>';
       if (chartLegend) chartLegend.textContent = '';
       return;
@@ -215,55 +248,55 @@
 
     const useAmd = currency === 'AMD' && market && market.amd;
     const cur = useAmd ? 'AMD' : 'USD';
-    const values = points.map((p) => p.v);
-    const max = Math.max(...values);
-    const min = Math.min(...values);
+    const max = Math.max(...candles.map((c) => c.h));
+    const min = Math.min(...candles.map((c) => c.l));
     const span = (max - min) || Math.max(max * 0.001, 0.01);
 
-    const W = 1000, H = 220, PAD_X = 16, PAD_Y = 18;
-    const x = (i) => PAD_X + (points.length === 1 ? 0 : (i / (points.length - 1)) * (W - PAD_X * 2));
+    const W = 1000, H = 220, PAD_X = 18, PAD_Y = 18;
+    const step = (W - PAD_X * 2) / candles.length;
+    const bw = Math.max(3, Math.min(26, step * 0.56));
+    const cx = (i) => PAD_X + step * (i + 0.5);
     const y = (v) => PAD_Y + (1 - (v - min + span * 0.12) / (span * 1.24)) * (H - PAD_Y * 2);
 
-    const line = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
-    const area = `${line} L${x(points.length - 1).toFixed(1)} ${H - PAD_Y / 2} L${x(0).toFixed(1)} ${H - PAD_Y / 2} Z`;
-    const rising = points[points.length - 1].v >= points[0].v;
-
-    const grid = [0.15, 0.5, 0.85].map((f) => {
-      const yy = y(min + span * (1 - f)).toFixed(1);
+    const grid = [0.1, 0.35, 0.65, 0.9].map((f) => {
+      const yy = y(min + span * f).toFixed(1);
       return `<line class="rate-chart__grid" x1="${PAD_X}" x2="${W - PAD_X}" y1="${yy}" y2="${yy}"></line>`;
     }).join('');
 
-    const dots = points.map((p, i) => {
-      const last = i === points.length - 1;
-      return last ? `<circle class="rate-chart__dot" cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4"></circle>` : '';
+    const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+    const bars = candles.map((c, i) => {
+      const up = c.c >= c.o;
+      const top = y(Math.max(c.o, c.c));
+      const bottom = y(Math.min(c.o, c.c));
+      const bodyH = Math.max(2, bottom - top);
+      const title = `${dateFmt.format(new Date(c.t))} · O ${fmt(c.o, cur)} H ${fmt(c.h, cur)} L ${fmt(c.l, cur)} C ${fmt(c.c, cur)}`;
+      return `<g class="rate-candle ${up ? 'is-up' : 'is-down'}"><title>${title}</title>`
+        + `<line class="rate-candle__wick" x1="${cx(i).toFixed(1)}" x2="${cx(i).toFixed(1)}" y1="${y(c.h).toFixed(1)}" y2="${y(c.l).toFixed(1)}"></line>`
+        + `<rect class="rate-candle__body" x="${(cx(i) - bw / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bw.toFixed(1)}" height="${bodyH.toFixed(1)}" rx="1.5"></rect>`
+        + '</g>';
     }).join('');
 
     chartCanvas.innerHTML = `
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
-           aria-label="График цены золота 999.9">
+           aria-label="Японские свечи: цена золота 999.9">
         ${grid}
-        <g class="rate-line ${rising ? 'is-up' : 'is-down'}">
-          <path class="rate-line__area" d="${area}"></path>
-          <path class="rate-line__path" d="${line}"></path>
-          ${dots}
-        </g>
+        ${bars}
       </svg>
       <span class="rate-chart__max">${symbol(cur)} ${fmt(max, cur)}</span>
       <span class="rate-chart__min">${symbol(cur)} ${fmt(min, cur)}</span>`;
 
-    const first = points[0];
-    const last = points[points.length - 1];
-    const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
+    const first = candles[0];
+    const last = candles[candles.length - 1];
     chartCanvas.insertAdjacentHTML('beforeend',
       `<span class="rate-chart__from">${dateFmt.format(new Date(first.t))}</span>`
       + `<span class="rate-chart__to">${dateFmt.format(new Date(last.t))}</span>`);
 
-    const diff = last.v - first.v;
-    const pct = first.v ? (diff / first.v) * 100 : 0;
+    const diff = last.c - first.o;
+    const pct = first.o ? (diff / first.o) * 100 : 0;
     const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
     if (chartLegend) {
       chartLegend.innerHTML = `<span class="${diff >= 0 ? 'is-up' : 'is-down'}">${sign}${fmt(Math.abs(diff), cur)} `
-        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>точек</span>: ${points.length}`;
+        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>свечей</span>: ${candles.length}`;
     }
   }
 

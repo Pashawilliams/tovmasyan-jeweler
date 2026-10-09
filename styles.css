@@ -3734,3 +3734,136 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 @media (max-width: 1400px) {
   .hero-lux__card { right: auto; left: clamp(-6px, 1vw, 18px); }
 }
+
+/* =================== ROUND 15: a more refined, modern rate board ===================
+   Pure visual layer on top of the existing markup — no structural changes.          */
+.rate-section { padding-top: clamp(86px, 9vw, 104px); }
+
+.rate-board {
+  border-radius: 26px;
+  padding: clamp(14px, 1.5vw, 20px) clamp(14px, 1.8vw, 24px) clamp(12px, 1.4vw, 18px);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(166, 124, 45, 0.09) 0%, rgba(166, 124, 45, 0) 46%),
+    radial-gradient(120% 140% at 100% 0%, rgba(166, 124, 45, 0.07) 0%, rgba(166, 124, 45, 0) 52%),
+    linear-gradient(180deg, #ffffff 0%, #fdfbf7 100%);
+  box-shadow:
+    0 24px 60px -28px rgba(23, 19, 16, 0.3),
+    0 2px 10px rgba(23, 19, 16, 0.05),
+    0 0 0 1px rgba(166, 124, 45, 0.18);
+}
+.rate-board::before {
+  height: 3px;
+  background: linear-gradient(90deg, rgba(166,124,45,0) 0%, #c9a24a 18%, #f3dfae 38%, #a67c2d 58%, #f3dfae 78%, rgba(166,124,45,0) 100%);
+  background-size: 220% 100%;
+  animation: rateShimmer 7s linear infinite;
+}
+@keyframes rateShimmer { from { background-position: 0% 0; } to { background-position: 220% 0; } }
+@media (prefers-reduced-motion: reduce) { .rate-board::before { animation: none; } }
+
+.rate-board__bar { gap: 10px 18px; }
+.rate-board__eyebrow { font-size: 0.58rem; letter-spacing: 0.24em; }
+.rate-board__bar h2 { font-family: var(--font-display, inherit); font-size: clamp(1rem, 1.35vw, 1.18rem); }
+
+/* headline prices become elegant tiles */
+.rate-highlight { gap: 10px; justify-content: center; }
+.rate-highlight__card {
+  align-items: center;
+  gap: 10px;
+  padding: 7px 14px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbf7ef 100%);
+  border: 1px solid rgba(166, 124, 45, 0.2);
+  box-shadow: 0 6px 16px -10px rgba(23, 19, 16, 0.4);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.rate-highlight__card:hover { transform: translateY(-1px); box-shadow: 0 12px 24px -14px rgba(23, 19, 16, 0.45); }
+.rate-highlight__label { font-size: 0.58rem; letter-spacing: 0.18em; color: var(--gold-3); }
+.rate-highlight__value { font-size: clamp(1.05rem, 1.7vw, 1.3rem); letter-spacing: -0.02em; }
+.rate-highlight__delta {
+  padding: 2px 8px; border-radius: 999px; font-size: 0.72rem;
+  background: rgba(23, 19, 16, 0.05);
+}
+.rate-highlight__delta.is-up { background: rgba(21, 127, 60, 0.1); }
+.rate-highlight__delta.is-down { background: rgba(180, 64, 44, 0.1); }
+
+/* tools */
+.rate-clock, .rate-switch, .rate-expand {
+  border-radius: 999px;
+  box-shadow: 0 4px 12px -8px rgba(23, 19, 16, 0.5);
+}
+.rate-switch button.is-active { box-shadow: inset 0 0 0 1px rgba(166, 124, 45, 0.35); }
+.rate-expand { padding: 5px 7px 5px 15px; }
+.rate-expand__arrow { width: 26px; height: 26px; }
+
+/* ---- table: airy rows, rounded, gold accent on the featured ones ---- */
+.rate-table-wrap { margin-top: 14px; }
+.rate-table { border-collapse: separate; border-spacing: 0 6px; }
+.rate-table thead th { padding: 0 14px 4px; font-size: 0.6rem; letter-spacing: 0.18em; }
+.rate-table tbody tr {
+  border-top: 0;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(23, 19, 16, 0.06);
+  transition: box-shadow 0.22s ease, transform 0.22s ease, background 0.22s ease;
+}
+.rate-table tbody tr:hover {
+  box-shadow: 0 10px 22px -16px rgba(23, 19, 16, 0.55), 0 0 0 1px rgba(166, 124, 45, 0.3);
+  transform: translateY(-1px);
+}
+.rate-table tbody tr.is-featured {
+  background: linear-gradient(90deg, rgba(166, 124, 45, 0.11) 0%, rgba(166, 124, 45, 0.03) 42%, #fff 100%);
+  box-shadow: 0 0 0 1px rgba(166, 124, 45, 0.26);
+}
+.rate-table td, .rate-table tbody th { padding: 10px 14px; font-size: 0.92rem; border: 0; }
+.rate-table tbody th { border-radius: 14px 0 0 14px; }
+.rate-table tbody tr > *:last-child { border-radius: 0 14px 14px 0; }
+.rate-purity { font-size: 1rem; letter-spacing: -0.01em; }
+.rate-karat { font-size: 0.8rem; letter-spacing: 0.06em; }
+.rate-sell { font-size: 0.98rem; }
+.rate-change { padding: 2px 9px; border-radius: 999px; background: rgba(23, 19, 16, 0.04); }
+.rate-change.is-up { background: rgba(21, 127, 60, 0.1); }
+.rate-change.is-down { background: rgba(180, 64, 44, 0.1); }
+
+/* ---- chart ---- */
+.rate-chart__canvas {
+  border-radius: 18px;
+  border-color: rgba(166, 124, 45, 0.18);
+  background: linear-gradient(180deg, #fffefb 0%, #fbf7ef 100%);
+  box-shadow: inset 0 1px 0 #fff;
+}
+.rate-chart__head h3 { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; }
+
+/* ---- foot ---- */
+.rate-board__foot { margin-top: 14px; padding-top: 10px; }
+
+@media (max-width: 720px) {
+  .rate-board { border-radius: 20px; }
+  .rate-highlight { width: 100%; }
+  .rate-highlight__card { flex: 1 1 140px; justify-content: space-between; padding: 6px 11px; }
+  .rate-table td, .rate-table tbody th { padding: 8px 10px; }
+}
+
+/* =================== ROUND 15: home page polish =================== */
+.hero-lux__photo img { transition: transform 1.1s cubic-bezier(.2,.7,.2,1); }
+.hero-lux__photo:hover img { transform: scale(1.035); }
+.hero-lux__card { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+.hero-lux__card:hover { transform: translateY(-3px); box-shadow: 0 26px 50px -26px rgba(23, 19, 16, 0.5); }
+.hero-lux__stats { position: relative; }
+.showcase-card { transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden; }
+.showcase-card:hover { transform: translateY(-4px); box-shadow: 0 26px 50px -30px rgba(23, 19, 16, 0.55); }
+.showcase-card picture img { transition: transform 0.9s cubic-bezier(.2,.7,.2,1); }
+.showcase-card:hover picture img { transform: scale(1.05); }
+.assurance__item { transition: transform 0.25s ease; }
+.assurance__item:hover { transform: translateY(-2px); }
+.assurance__icon { transition: background 0.25s ease, border-color 0.25s ease; }
+.assurance__item:hover .assurance__icon { background: rgba(166, 124, 45, 0.12); border-color: rgba(166, 124, 45, 0.45); }
+
+/* Japanese candlesticks */
+.rate-candle.is-up { color: var(--rb-up); }
+.rate-candle.is-down { color: var(--rb-down); }
+.rate-candle__wick { stroke: currentColor; stroke-width: 1.4; vector-effect: non-scaling-stroke; opacity: 0.75; }
+.rate-candle__body { fill: currentColor; stroke: currentColor; stroke-width: 1; vector-effect: non-scaling-stroke; }
+.rate-candle.is-down .rate-candle__body { fill: currentColor; }
+.rate-candle.is-up .rate-candle__body { fill-opacity: 0.9; }
+.rate-candle { transition: opacity 0.2s ease; }
+.rate-chart__canvas:hover .rate-candle { opacity: 0.55; }
+.rate-chart__canvas .rate-candle:hover { opacity: 1; }

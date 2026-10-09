@@ -152,29 +152,34 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
 
   const svg = w.document.querySelector('[data-chart-canvas] svg');
   check('chart is drawn as an svg', Boolean(svg));
-  check('no japanese candles are left', w.document.querySelectorAll('.rate-candle').length === 0);
-  const linePath = svg && svg.querySelector('.rate-line__path');
-  check('price line is drawn', Boolean(linePath) && (linePath.getAttribute('d') || '').startsWith('M'));
-  const segments = linePath ? (linePath.getAttribute('d').match(/L/g) || []).length : 0;
-  check('line joins the whole history', segments >= 3, `${segments + 1} points`);
-  check('line is filled with a soft area', Boolean(svg && svg.querySelector('.rate-line__area')));
-  check('line is coloured by direction',
-    Boolean(svg && svg.querySelector('.rate-line.is-up, .rate-line.is-down')));
+  const candles = w.document.querySelectorAll('.rate-candle');
+  check('chart is drawn as japanese candlesticks', candles.length >= 3, `${candles.length} candles`);
+  check('every candle has a body and a wick',
+    [...candles].every((c) => c.querySelector('.rate-candle__body') && c.querySelector('.rate-candle__wick')));
+  check('candles are coloured by direction',
+    Boolean(svg.querySelector('.rate-candle.is-up, .rate-candle.is-down')));
+  check('candles expose o/h/l/c on hover',
+    [...candles].every((c) => /O .*H .*L .*C /.test(c.querySelector('title')?.textContent || '')));
+  check('no leftover line chart', !svg.querySelector('.rate-line__path'));
   check('chart carries start and end dates',
     Boolean(w.document.querySelector('.rate-chart__from') && w.document.querySelector('.rate-chart__to')));
-  check('legend counts the points', /точек|կետ|points/.test(w.document.querySelector('[data-chart-legend]').textContent));
+  check('legend counts the candles', /свеч|մոմ|candle/.test(w.document.querySelector('[data-chart-legend]').textContent));
 
   const monthBtn = w.document.querySelector('[data-chart-range="30d"]');
+  const weekBtn = w.document.querySelector('[data-chart-range="7d"]');
+  weekBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
+  const weekCandles = w.document.querySelectorAll('.rate-candle').length;
   monthBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
   check('30-day range switches', monthBtn.classList.contains('is-active'));
-  const monthPts = (w.document.querySelector('.rate-line__path').getAttribute('d').match(/L/g) || []).length;
-  check('30-day range draws a longer line than 7 days', monthPts > segments, `${monthPts} vs ${segments}`);
+  const monthPts = w.document.querySelectorAll('.rate-candle').length;
+  check('30-day range draws more candles than 7 days', monthPts > weekCandles, `${monthPts} vs ${weekCandles}`);
   const quarterBtn = w.document.querySelector('[data-chart-range="90d"]');
   quarterBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
-  check('3-month range draws the longest line',
-    (w.document.querySelector('.rate-line__path').getAttribute('d').match(/L/g) || []).length >= monthPts);
+  check('3-month range draws the most candles',
+    w.document.querySelectorAll('.rate-candle').length >= monthPts);
 
   toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
