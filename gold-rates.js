@@ -429,7 +429,6 @@
       boardToggle.setAttribute('aria-label', open ? 'Скрыть график' : 'Показать график');
     }
     if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Скрыть график' : 'График';
-    try { localStorage.setItem('tovmasyan_board_open', open ? '1' : '0'); } catch (error) { /* ignore */ }
     if (!animate) {
       boardPanel.style.transition = 'none';
       requestAnimationFrame(() => { boardPanel.style.transition = ''; });
@@ -441,7 +440,7 @@
   if (boardToggle) {
     boardToggle.addEventListener('click', () => setBoardOpen(!board.classList.contains('is-open'), true));
   }
-  setBoardOpen(localStorage.getItem('tovmasyan_board_open') === '1', false);
+  setBoardOpen(false, false);   // the chart always starts closed, it opens only on click
 
   tick();
   setInterval(tick, 1000);

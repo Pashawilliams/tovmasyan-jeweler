@@ -3567,7 +3567,8 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
   overflow: hidden;
   box-shadow: 0 26px 60px rgba(23, 19, 16, 0.18);
 }
-.hero-lux__photo img { display: block; width: 100%; height: clamp(300px, 36vw, 470px); object-fit: cover; }
+.hero-lux__photo picture { display: block; }
+.hero-lux__photo img { display: block; width: 100%; height: clamp(300px, 34vw, 460px); object-fit: cover; }
 .hero-lux__card {
   position: absolute;
   right: clamp(-6px, 1vw, 18px);
@@ -3641,12 +3642,14 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 }
 .showcase-card__link::after { content: "→"; transition: transform .2s ease; }
 .showcase-card__link:hover::after { transform: translateX(3px); }
-.showcase-card--sm img {
-  position: absolute; right: -18px; bottom: -18px;
-  width: 132px; height: 132px; object-fit: cover;
-  border-radius: 20px; opacity: 0.95;
+.showcase-card--sm picture {
+  position: absolute; right: -16px; bottom: -16px;
+  width: 136px; height: 136px;
+  border-radius: 20px; overflow: hidden;
   box-shadow: 0 12px 28px rgba(23, 19, 16, 0.16);
 }
+.showcase-card--sm img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.showcase-card--sm p, .showcase-card--sm h2 { max-width: calc(100% - 120px); }
 .showcase-card--lg {
   flex-direction: row; align-items: stretch; gap: 18px;
   padding: 0; min-height: 260px;
@@ -3656,10 +3659,8 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
   display: flex; flex-direction: column;
   flex: 1 1 46%; padding: 22px;
 }
-.showcase-card--lg img {
-  flex: 1 1 54%; width: 54%; height: 100%;
-  object-fit: cover; border-radius: 22px;
-}
+.showcase-card--lg picture { flex: 1 1 54%; width: 54%; display: block; }
+.showcase-card--lg img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 22px; }
 
 /* ---- assurance strip ---- */
 .assurance { padding: 34px 0 6px; background: #fff; }
@@ -3697,6 +3698,7 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
   .showcase { padding-top: 38px; }
   .showcase__grid { grid-template-columns: 1fr; }
   .showcase-card--lg { flex-direction: column; }
+  .showcase-card--lg picture { width: 100%; }
   .showcase-card--lg img { width: 100%; height: 210px; }
   .assurance__grid { grid-template-columns: 1fr 1fr; }
   .assurance__item { border-left: 0 !important; padding-left: 0 !important; }
@@ -3704,4 +3706,31 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 @media (max-width: 430px) {
   .assurance__grid { grid-template-columns: 1fr; }
   .hero-lux__photo img { height: 260px; }
+}
+
+/* reference details: arrow on the primary hero action, tighter hero rhythm */
+.hero-lux__actions .btn--gold::after { content: "→"; margin-left: 8px; transition: transform .2s ease; }
+.hero-lux__actions .btn--gold:hover::after { transform: translateX(3px); }
+.hero-lux__content .eyebrow { color: var(--gold-3); }
+.hero-lux__photo { position: relative; }
+.hero-lux__photo::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border-radius: 26px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+/* home polish: tighter showcase cards, equal hero buttons on phones */
+.showcase-card__tag { white-space: nowrap; }
+.showcase-card--sm picture { width: 118px; height: 118px; right: -12px; bottom: -12px; }
+.showcase-card--sm h2, .showcase-card--sm p { max-width: calc(100% - 96px); }
+.showcase-card--sm .showcase-card__link { position: relative; z-index: 1; }
+@media (max-width: 720px) {
+  .hero-lux__actions { gap: 8px; }
+  .hero-lux__actions .btn { flex: 1 1 100%; justify-content: center; }
+  .showcase-card--sm picture { position: static; width: 100%; height: 170px; margin-top: 14px; border-radius: 16px; }
+  .showcase-card--sm h2, .showcase-card--sm p { max-width: 100%; }
+  .showcase-card--sm .showcase-card__link { padding-top: 12px; }
+}
+/* keep the hero product card clear of the floating WhatsApp button */
+@media (max-width: 1400px) {
+  .hero-lux__card { right: auto; left: clamp(-6px, 1vw, 18px); }
 }
