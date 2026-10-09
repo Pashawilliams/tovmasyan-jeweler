@@ -268,7 +268,7 @@
       <div class="auth-gate__bg" aria-hidden="true"></div>
       <div class="auth-gate__panel" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
         <div class="auth-gate__brand">
-          <img src="${assetPrefix}assets/brand-logo.webp" alt="TOVMASYAN Jeweler" width="112" height="112">
+          <img src="${assetPrefix}assets/brand-logo.webp?v=28a4d69d" alt="TOVMASYAN Jeweler" width="112" height="112">
         </div>
         <p class="auth-gate__eyebrow">TOVMASYAN Jeweler</p>
         <h2 id="auth-gate-title" data-gate-title>${t('gateTitle')}</h2>

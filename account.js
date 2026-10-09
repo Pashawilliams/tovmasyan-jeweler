@@ -24,7 +24,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
     function imageUrl(item) {
       const id = item.productId || item.id;
       const product = productById.get(id);
-      return toAbs(item.image || product?.thumbnail || product?.image || 'assets/brand-logo-small.webp');
+      return toAbs(item.image || product?.thumbnail || product?.image || 'assets/brand-logo-small.webp?v=88dd0bdf');
     }
 
     function loginView() {
@@ -39,7 +39,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
 
     function profileView(user, favorites, orders, pending = false) {
       const name = user.displayName || user.email || 'Клиент TOVMASYAN';
-      const photo = user.photoURL || '/assets/brand-logo-small.webp';
+      const photo = user.photoURL || '/assets/brand-logo-small.webp?v=88dd0bdf';
       return `
         <section class="account-dashboard">
           <div class="account-profile">
