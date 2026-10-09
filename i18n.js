@@ -1,18 +1,22 @@
-/* Full-site translation engine for TOVMASYAN Jeweler (ru <-> hy).
+/* Full-site translation engine for TOVMASYAN Jeweler (ru <-> hy <-> en).
    Translates static markup, dynamically rendered catalog cards and the account area. */
 (() => {
   const LANG_KEY = 'tovmasyan_lang';
-  const DICT_URL = '/i18n/hy.json';
+  const LANGS = ['hy', 'en'];
+  const DICT_URL = (lang) => `/i18n/${lang}.json`;
   const SKIP_TAGS = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'CODE', 'svg', 'SVG']);
   const ATTRS = ['placeholder', 'aria-label', 'title', 'alt', 'content'];
 
   let dict = null;
+  let dictLang = null;
   let loading = null;
+  let loadingLang = null;
   const originalText = new WeakMap();   // text node -> original Russian
   const originalAttr = new WeakMap();   // element -> { attr: original }
 
   // strings produced at runtime by auth.js / account.js
   const RUNTIME = {
+    hy: {
     'Добавлено в избранное': 'Ավելացվեց ընտրանի',
     'Удалено из избранного': 'Հեռացվեց ընտրանուց',
     'Вы вошли через Google': 'Դուք մուտք գործեցիք Google-ով',
@@ -40,18 +44,63 @@
     'Изделие': 'Իր',
     'Заявка': 'Հայտ',
     'Цена по запросу': 'Գինը՝ հարցմամբ'
+  },
+    en: {
+    'Добавлено в избранное': 'Added to favourites',
+    'Удалено из избранного': 'Removed from favourites',
+    'Вы вошли через Google': 'You are signed in with Google',
+    'Вы вышли из аккаунта': 'You have signed out',
+    'Проверяем вход…': 'Checking your sign-in…',
+    'Избранное': 'Favourites',
+    'Заявки': 'Requests',
+    'Открыть каталог': 'Open the catalogue',
+    'Новая заявка': 'New request',
+    'Выйти': 'Sign out',
+    'Смотреть': 'View',
+    'избранных изделий': 'saved pieces',
+    'заявок и заказов': 'requests and orders',
+    'защищённый вход': 'secure sign-in',
+    'Войдите в личный кабинет': 'Sign in to your account',
+    'После входа можно сохранять избранные изделия, видеть заявки и готовить будущие заказы.':
+      'Once signed in you can save favourite pieces, see your requests and plan future orders.',
+    'Личный кабинет': 'My account',
+    'Пока нет избранных изделий. Откройте каталог и нажмите звёздочку на понравившемся украшении.':
+      'No favourites yet. Open the catalogue and tap the star on a piece you like.',
+    'Заявки появятся здесь после отправки формы или нажатия кнопки заказа в WhatsApp.':
+      'Requests will appear here after you send the form or tap the WhatsApp order button.',
+    'Добавить в избранное': 'Add to favourites',
+    'Удалить из избранного': 'Remove from favourites',
+    'Изделие': 'Piece',
+    'Заявка': 'Request',
+    'Цена по запросу': 'Price on request'
+  }
   };
 
-  const getLang = () => (localStorage.getItem(LANG_KEY) === 'hy' ? 'hy' : 'ru');
+  const getLang = () => {
+    const stored = localStorage.getItem(LANG_KEY);
+    return LANGS.includes(stored) ? stored : 'ru';
+  };
 
-  async function loadDict() {
-    if (dict) return dict;
-    if (loading) return loading;
-    loading = fetch(DICT_URL, { cache: 'force-cache' })
+  async function loadDict(lang) {
+    if (dict && dictLang === lang) return dict;
+    if (loading && loadingLang === lang) return loading;
+    loadingLang = lang;
+    loading = fetch(DICT_URL(lang), { cache: 'force-cache' })
       .then((r) => (r.ok ? r.json() : {}))
-      .then((data) => { dict = Object.assign({}, data, RUNTIME); return dict; })
-      .catch(() => { dict = Object.assign({}, RUNTIME); return dict; });
+      .then((data) => { dict = Object.assign({}, data, RUNTIME[lang]); dictLang = lang; return dict; })
+      .catch(() => { dict = Object.assign({}, RUNTIME[lang]); dictLang = lang; return dict; });
     return loading;
+  }
+
+  // translates a whole string, or each part of a "A · B" / "A / B" composite
+  function translateString(value) {
+    if (!dict) return value;
+    if (dict[value]) return dict[value];
+    const sep = value.includes(' · ') ? ' · ' : (value.includes(' / ') ? ' / ' : null);
+    if (!sep) return value;
+    const parts = value.split(sep);
+    if (parts.length < 2 || !parts.some((x) => dict[x.trim()])) return value;
+    return parts.map((x) => dict[x.trim()] || x.trim()).join(sep);
   }
 
   function translateTextNode(node, toHy) {
@@ -63,9 +112,11 @@
     }
     const raw = node.nodeValue;
     const trimmed = raw.trim();
-    if (!trimmed || !dict[trimmed]) return;
+    if (!trimmed) return;
+    const translated = translateString(trimmed);
+    if (translated === trimmed) return;
     if (!originalText.has(node)) originalText.set(node, raw);
-    node.nodeValue = raw.replace(trimmed, dict[trimmed]);
+    node.nodeValue = raw.replace(trimmed, translated);
   }
 
   function translateAttrs(el, toHy) {
@@ -78,10 +129,11 @@
         return;
       }
       const value = el.getAttribute(attr).trim();
-      if (!dict[value]) return;
+      const translatedAttr = translateString(value);
+      if (translatedAttr === value) return;
       const store = originalAttr.get(el) || {};
       if (store[attr] === undefined) { store[attr] = el.getAttribute(attr); originalAttr.set(el, store); }
-      el.setAttribute(attr, dict[value]);
+      el.setAttribute(attr, translatedAttr);
     });
   }
 
@@ -108,7 +160,7 @@
   function startObserver() {
     if (observer) return;
     observer = new MutationObserver((mutations) => {
-      if (getLang() !== 'hy' || !dict) return;
+      if (getLang() === 'ru' || !dict || dictLang !== getLang()) return;
       observer.disconnect();
       mutations.forEach((m) => {
         m.addedNodes.forEach((node) => walk(node, true));
@@ -120,23 +172,24 @@
   }
 
   async function apply() {
-    const hy = getLang() === 'hy';
-    document.documentElement.lang = hy ? 'hy' : 'ru';
-    if (hy) {
-      await loadDict();
+    const lang = getLang();
+    document.documentElement.lang = lang;
+    if (observer) { observer.disconnect(); observer = null; }
+    // always restore the Russian source first, so hy -> en switches cleanly
+    walk(document.body, false);
+    if (lang !== 'ru') {
+      await loadDict(lang);
+      if (getLang() !== lang) return;
       walk(document.body, true);
       startObserver();
-    } else {
-      if (observer) { observer.disconnect(); observer = null; }
-      walk(document.body, false);
     }
-    document.documentElement.dataset.langApplied = hy ? 'hy' : 'ru';
+    document.documentElement.dataset.langApplied = lang;
   }
 
   window.TovmasyanI18n = {
     apply,
     getLang,
-    translate: (s) => (getLang() === 'hy' && dict && dict[s]) || s,
+    translate: (s) => (getLang() !== 'ru' && dict && dictLang === getLang() && dict[s]) || s,
     get ready() { return Boolean(dict); }
   };
 

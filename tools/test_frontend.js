@@ -117,28 +117,43 @@ function tap(dom, el) {
   await B.logout();
   check('logout wipes local data', (await B.listFavorites()).length === 0);
 
-  /* 8. FULL Armenian translation */
-  const dict = JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/hy.json'), 'utf8'));
-  for (const page of ['index.html', 'catalog/index.html', 'about/index.html', 'contacts/index.html', 'products/aurora-ring/index.html']) {
-    const hdom = makeDom(page, 'https://www.tovmasyan.army/');
-    hdom.window.localStorage.setItem('tovmasyan_lang', 'hy');
-    hdom.window.fetch = async () => ({ ok: true, json: async () => dict });
-    ['firebase-config.js', 'data/products.js', 'script.js', 'i18n.js', 'auth.js'].forEach((f) => runScript(hdom, f));
-    if (page.includes('catalog')) runScript(hdom, 'catalog.js');
-    ready(hdom);
-    await new Promise((r) => setTimeout(r, 120));
-    const doc = hdom.window.document;
-    const leftover = [];
-    doc.querySelectorAll('body *').forEach((el) => {
-      [...el.childNodes].filter((n) => n.nodeType === 3).forEach((n) => {
-        const txt = n.nodeValue.trim();
-        if (txt.length > 2 && /[А-Яа-яЁё]/.test(txt) && dict[txt]) leftover.push(txt);
+  /* 8. FULL Armenian + English translation */
+  const DICTS = {
+    hy: JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/hy.json'), 'utf8')),
+    en: JSON.parse(fs.readFileSync(path.join(ROOT, 'i18n/en.json'), 'utf8'))
+  };
+  const dict = DICTS.hy;
+  for (const lang of ['hy', 'en']) {
+    const d = DICTS[lang];
+    for (const page of ['index.html', 'catalog/index.html', 'about/index.html', 'contacts/index.html', 'products/aurora-ring/index.html']) {
+      const hdom = makeDom(page, 'https://www.tovmasyan.army/');
+      hdom.window.localStorage.setItem('tovmasyan_lang', lang);
+      hdom.window.fetch = async () => ({ ok: true, json: async () => d });
+      ['firebase-config.js', 'data/products.js', 'script.js', 'i18n.js', 'auth.js'].forEach((f) => runScript(hdom, f));
+      if (page.includes('catalog')) runScript(hdom, 'catalog.js');
+      ready(hdom);
+      await new Promise((r) => setTimeout(r, 120));
+      const doc = hdom.window.document;
+      const leftover = [];
+      doc.querySelectorAll('body *').forEach((el) => {
+        [...el.childNodes].filter((n) => n.nodeType === 3).forEach((n) => {
+          const txt = n.nodeValue.trim();
+          if (txt.length > 2 && /[\u0410-\u044f\u0401\u0451]/.test(txt) && d[txt]) leftover.push(txt);
+        });
       });
-    });
-    check(`${page}: lang attribute = hy`, doc.documentElement.lang === 'hy');
-    check(`${page}: no untranslated Russian left`, leftover.length === 0);
-    if (leftover.length) console.log('   leftover:', leftover.slice(0, 5));
+      check(`${lang} ${page}: lang attribute`, doc.documentElement.lang === lang);
+      check(`${lang} ${page}: no untranslated Russian left`, leftover.length === 0);
+      if (leftover.length) console.log('   leftover:', leftover.slice(0, 5));
+    }
   }
+
+  /* 8b. English dictionary completeness + composite strings */
+  check('en.json has as many entries as hy.json', Object.keys(DICTS.en).length === Object.keys(DICTS.hy).length);
+  check('en.json translates the nav', DICTS.en['Каталог'] === 'Catalogue');
+  check('en.json has no Cyrillic values', !Object.values(DICTS.en).some((v) => /[\u0410-\u044f]/.test(v)));
+  const sw = fs.readFileSync(path.join(ROOT, 'auth.js'), 'utf8');
+  check('header switcher offers EN', sw.includes('data-lang-option="en"'));
+  check('language dialog offers EN', sw.includes('data-lang-pick="en"'));
 
   /* 9. switching back to Russian restores text */
   const rdom = makeDom('index.html', 'https://www.tovmasyan.army/');
@@ -151,6 +166,14 @@ function tap(dom, el) {
   rdom.window.TovmasyanAuth.setLang('ru');
   await new Promise((r) => setTimeout(r, 120));
   check('switch back to ru restores original text', rdom.window.document.querySelector('.main-nav a').textContent.trim() === 'Каталог');
+  rdom.window.fetch = async () => ({ ok: true, json: async () => DICTS.en });
+  rdom.window.TovmasyanAuth.setLang('en');
+  await new Promise((r) => setTimeout(r, 200));
+  check('ru -> en switches the nav', rdom.window.document.querySelector('.main-nav a').textContent.trim() === 'Catalogue');
+  rdom.window.fetch = async () => ({ ok: true, json: async () => DICTS.hy });
+  rdom.window.TovmasyanAuth.setLang('hy');
+  await new Promise((r) => setTimeout(r, 200));
+  check('en -> hy switches the nav with no English left', rdom.window.document.querySelector('.main-nav a').textContent.trim() === 'Կատալոգ');
 
   /* 10. no developer/technical wording visible to clients */
   const BAD = ['Firebase', 'firebaseConfig', 'GitHub', 'шаблон', 'витрина', 'демо', 'Декоративные изображения'];

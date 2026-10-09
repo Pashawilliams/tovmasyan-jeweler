@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Build i18n/hy.json: Russian -> Armenian dictionary for every visible string."""
+"""Build i18n/hy.json and i18n/en.json: Russian -> target dictionaries for every visible string."""
 import re, json, html, pathlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 def collect():
-    pages = sorted(list(ROOT.glob('*.html')) + list(ROOT.glob('*/index.html')))
+    pages = sorted(set(list(ROOT.glob('*.html')) + list(ROOT.glob('*/index.html')) + list(ROOT.glob('*/*/index.html'))))
     seen, out = set(), []
     def add(s):
         s = s.strip()
@@ -35,14 +35,14 @@ EXTRA = [  # strings the scripts build at runtime, not present in the HTML sourc
 for e in EXTRA:
     if e not in ru: ru.append(e)
 
-hy = json.loads((ROOT / 'tools/hy_translations.json').read_text(encoding='utf-8'))
-assert isinstance(hy, dict), 'hy_translations.json must be a {russian: armenian} object'
-missing = [s for s in ru if not hy.get(s)]
-assert not missing, 'MISSING ARMENIAN: ' + json.dumps(missing, ensure_ascii=False, indent=1)
-
-mapping = {r: hy[r] for r in ru if hy[r] != r}
 (ROOT / 'i18n').mkdir(exist_ok=True)
-(ROOT / 'i18n/hy.json').write_text(json.dumps(mapping, ensure_ascii=False, indent=0), encoding='utf-8')
-print(f'strings: {len(ru)}, translated: {len(mapping)}')
-for probe in ['Каталог', 'Личный кабинет', 'Курс золота и серебра', 'Проба', 'Покупка', 'За 24 часа']:
-    print(f'  {probe!r} -> {mapping.get(probe)!r}')
+for lang in ('hy', 'en'):
+    d = json.loads((ROOT / f'tools/{lang}_translations.json').read_text(encoding='utf-8'))
+    assert isinstance(d, dict), f'{lang}_translations.json must be a {{russian: target}} object'
+    missing = [s for s in ru if not d.get(s)]
+    assert not missing, f'MISSING {lang.upper()}: ' + json.dumps(missing, ensure_ascii=False, indent=1)
+    mapping = {r: d[r] for r in ru if d[r] != r}
+    (ROOT / f'i18n/{lang}.json').write_text(json.dumps(mapping, ensure_ascii=False, indent=0), encoding='utf-8')
+    print(f'[{lang}] strings: {len(ru)}, translated: {len(mapping)}')
+    for probe in ['Каталог', 'Личный кабинет', 'Курс золота и серебра', 'Проба', 'Покупка', 'За 24 часа']:
+        print(f'  {probe!r} -> {mapping.get(probe)!r}')

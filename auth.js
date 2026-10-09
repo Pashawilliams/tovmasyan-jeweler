@@ -75,12 +75,27 @@
       langText: 'Выберите язык сайта',
       loggedIn: 'Դուք մուտք գործեցիք Google-ով',
       loggedOut: 'Դուք դուրս եկաք հաշվից'
+    },
+    en: {
+      signIn: 'Sign in',
+      cabinet: 'My account',
+      favorites: 'Favourites',
+      logout: 'Sign out',
+      gateTitle: 'Welcome to TOVMASYAN Jeweler',
+      gateText: 'Sign in with your Google account to open the gold jewellery catalogue, save favourites and send requests. It only takes a few seconds.',
+      gateNote: 'We use Google\u2019s secure sign-in. No password is stored on this site.',
+      checking: 'Checking your sign-in\u2026',
+      langTitle: 'Choose the site language',
+      langText: 'Выберите язык сайта',
+      loggedIn: 'You are signed in with Google',
+      loggedOut: 'You have signed out'
     }
   };
+  const LANGS = ['ru', 'hy', 'en'];
 
   function getLang() {
     const v = localStorage.getItem(langKey);
-    return v === 'hy' || v === 'ru' ? v : 'ru';
+    return LANGS.includes(v) ? v : 'ru';
   }
 
   function t(key) {
@@ -89,7 +104,7 @@
 
   function applyLanguage() {
     const lang = getLang();
-    document.documentElement.lang = lang === 'hy' ? 'hy' : 'ru';
+    document.documentElement.lang = lang;
     document.querySelectorAll('[data-lang-option]').forEach((btn) => {
       btn.classList.toggle('is-active', btn.dataset.langOption === lang);
     });
@@ -98,7 +113,7 @@
   }
 
   function setLang(lang) {
-    localStorage.setItem(langKey, lang === 'hy' ? 'hy' : 'ru');
+    localStorage.setItem(langKey, LANGS.includes(lang) ? lang : 'ru');
     localStorage.setItem(langAskedKey, '1');
     applyLanguage();
     if (currentUser && db) {
@@ -187,7 +202,8 @@
         sw.className = 'lang-switch';
         sw.dataset.langSwitch = '';
         sw.innerHTML = '<button type="button" data-lang-option="ru" aria-label="Русский">РУ</button>'
-          + '<button type="button" data-lang-option="hy" aria-label="Հայերեն">ՀԱՅ</button>';
+          + '<button type="button" data-lang-option="hy" aria-label="Հայերեն">ՀԱՅ</button>'
+          + '<button type="button" data-lang-option="en" aria-label="English">EN</button>';
         actions.insertBefore(sw, actions.firstChild);
       }
       if (!actions.querySelector('[data-auth-slot]')) {
@@ -263,6 +279,7 @@
         <div class="auth-gate__langs">
           <button type="button" data-lang-option="ru">Русский</button>
           <button type="button" data-lang-option="hy">Հայերեն</button>
+          <button type="button" data-lang-option="en">English</button>
         </div>
       </div>`;
     document.body.appendChild(gate);
@@ -278,7 +295,10 @@
     gate.querySelector('[data-gate-text]').textContent = t('gateText');
     gate.querySelector('[data-gate-note]').textContent = t('gateNote');
     const btnLabel = gate.querySelector('.gsi-material-button-contents');
-    if (btnLabel) btnLabel.textContent = lang === 'hy' ? 'Մուտք Google-ով' : 'Войти через Google';
+    if (btnLabel) {
+      const googleLabel = { hy: 'Մուտք Google-ով', en: 'Sign in with Google', ru: 'Войти через Google' };
+      btnLabel.textContent = googleLabel[lang] || googleLabel.ru;
+    }
     gate.querySelectorAll('[data-lang-option]').forEach((b) => b.classList.toggle('is-active', b.dataset.langOption === lang));
 
     const hasSessionHint = localStorage.getItem(sessionHintKey) === '1';
@@ -324,7 +344,7 @@
       <div class="lang-dialog__panel" role="dialog" aria-modal="true" aria-label="Язык / Լեզու">
         <span class="lang-dialog__mark" aria-hidden="true">◆</span>
         <h3>Выберите язык сайта</h3>
-        <p>Ընտրեք կայքի լեզուն</p>
+        <p>Ընտրեք կայքի լեզուն · Choose your language</p>
         <div class="lang-dialog__options">
           <button type="button" data-lang-pick="hy">
             <strong>Հայերեն</strong>
@@ -334,6 +354,10 @@
             <strong>Русский</strong>
             <small>Russian</small>
           </button>
+          <button type="button" data-lang-pick="en">
+            <strong>English</strong>
+            <small>English</small>
+          </button>
         </div>
       </div>`;
     document.body.appendChild(dlg);
@@ -341,7 +365,7 @@
 
   function maybeAskLanguage() {
     if (!currentUser) return;
-    if (localStorage.getItem(langKey) === 'ru' || localStorage.getItem(langKey) === 'hy') return;
+    if (LANGS.includes(localStorage.getItem(langKey))) return;
     if (localStorage.getItem(langAskedKey) === '1' && !justLoggedIn) return;
     localStorage.setItem(langAskedKey, '1');
     createLangDialog();

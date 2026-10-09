@@ -9,8 +9,9 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
     const productById = new Map(products.map((p) => [p.id, p]));
 
     function googleBtn() {
-      const hy = auth.getLang && auth.getLang() === 'hy';
-      const label = hy ? 'Մուտք Google-ով' : 'Войти через Google';
+      const lang = (auth.getLang && auth.getLang()) || 'ru';
+      const labels = { hy: 'Մուտք Google-ով', en: 'Sign in with Google', ru: 'Войти через Google' };
+      const label = labels[lang] || labels.ru;
       return window.TOVMASYAN_GOOGLE_BUTTON ? window.TOVMASYAN_GOOGLE_BUTTON(label)
         : `<button class="btn btn--gold" type="button" data-login-google>${label}</button>`;
     }

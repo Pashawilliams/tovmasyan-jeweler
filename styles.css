@@ -1,3 +1,22 @@
+/* ---- Self-hosted compact typeface (no external requests) ----
+   Inter Tight: narrower than the system sans, so more price data fits a line.
+   Noto Sans Armenian covers the Armenian script Inter Tight does not.        */
+@font-face {
+  font-family: 'Inter Tight'; font-style: normal; font-weight: 300 800; font-display: swap;
+  src: url(/assets/fonts/inter-tight-latin.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+2000-206F, U+2122, U+2190-21BB, U+25A0-25FF, U+2600-26FF;
+}
+@font-face {
+  font-family: 'Inter Tight'; font-style: normal; font-weight: 300 800; font-display: swap;
+  src: url(/assets/fonts/inter-tight-cyrillic.woff2) format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Noto Sans Armenian'; font-style: normal; font-weight: 300 800; font-display: swap;
+  src: url(/assets/fonts/noto-armenian-armenian.woff2) format('woff2');
+  unicode-range: U+0308, U+0530-058F, U+2010, U+25CC, U+FB13-FB17;
+}
+
 :root {
   --bg: #f6f4f0;
   --bg-2: #ffffff;
@@ -33,7 +52,8 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  font-family: 'Inter Tight', 'Noto Sans Armenian', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  letter-spacing: -0.005em;
   color: var(--text);
   background:
     radial-gradient(circle at 18% 8%, rgba(166, 124, 45, 0.13), transparent 28rem),
@@ -2675,6 +2695,10 @@ details p {
 @media (max-width: 420px) {
   .gsi-material-button { height: 46px; max-width: 100%; }
 }
+/* official Google light button keeps its dark label on white */
+.gsi-material-button,
+.gsi-material-button .gsi-material-button-contents,
+.gsi-material-button .gsi-material-button-content-wrapper { color: #1f1f1f; }
 
 /* --- header auth slot + language switch --- */
 .header-actions { gap: 10px; }
@@ -2955,11 +2979,12 @@ body.auth-locked .site-footer { filter: blur(7px) saturate(.7); pointer-events: 
 .lang-dialog__mark { color: #a87c2d; font-size: 20px; letter-spacing: .3em; }
 .lang-dialog__panel h3 { margin: 10px 0 4px; font-size: clamp(18px, 2.6vw, 22px); color: #ffffff; }
 .lang-dialog__panel > p { margin: 0 0 22px; font-size: 14px; color: rgba(23, 19, 16, 0.6); }
-.lang-dialog__options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lang-dialog__options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+@media (max-width: 420px) { .lang-dialog__options { grid-template-columns: 1fr; } }
 .lang-dialog__options button {
   display: grid;
   gap: 4px;
-  padding: 18px 12px;
+  padding: 16px 10px;
   border-radius: 16px;
   border: 1px solid rgba(166, 124, 45, 0.28);
   background: rgba(255, 255, 255, 0.033);
@@ -3172,6 +3197,8 @@ body.auth-pending .site-header { opacity: .6; }
 @media (max-width: 720px) { .rate-section { padding-top: 92px; } }
 
 .rate-board {
+  --rb-blue: linear-gradient(135deg, #1d5fd0 0%, #3d8bfd 42%, #67b6ff 70%, #2f74e0 100%);
+  --rb-blue-line: rgba(45, 118, 224, 0.45);
   --rb-ink: #171310;
   --rb-muted: #6d6254;
   --rb-line: rgba(23, 19, 16, 0.1);
@@ -3222,17 +3249,22 @@ body.auth-pending .site-header { opacity: .6; }
   background: transparent; color: var(--rb-muted); font-size: 0.8rem; font-weight: 600;
   letter-spacing: 0.04em; transition: background 0.25s ease, color 0.25s ease;
 }
-.rate-switch button:hover { color: var(--rb-ink); }
-.rate-switch button.is-active { background: var(--gold-gradient); color: #1a1208; }
+.rate-switch button:hover { color: #1d5fd0; }
+.rate-switch button.is-active {
+  background: var(--rb-blue); color: #fff; text-shadow: 0 1px 2px rgba(10, 40, 90, 0.35);
+}
 .rate-chart-toggle {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 6px 14px; border-radius: 999px; cursor: pointer;
-  border: 1px solid rgba(166, 124, 45, 0.4); background: #fff; color: var(--rb-ink);
+  border: 1px solid var(--rb-blue-line); background: #fff; color: #1d5fd0;
   font-size: 0.8rem; font-weight: 600;
-  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
-.rate-chart-toggle:hover { border-color: rgba(166, 124, 45, 0.75); }
-.rate-chart-toggle.is-active { background: var(--gold-gradient); color: #1a1208; border-color: transparent; }
+.rate-chart-toggle:hover { background: rgba(61, 139, 253, 0.08); border-color: #3d8bfd; }
+.rate-chart-toggle.is-active {
+  background: var(--rb-blue); color: #fff; border-color: transparent;
+  box-shadow: 0 6px 16px rgba(29, 95, 208, 0.3);
+}
 .rate-chart-toggle__icon { font-size: 0.85rem; line-height: 1; }
 
 /* ---- always-visible price strip ---- */
@@ -3279,7 +3311,10 @@ body.auth-pending .site-header { opacity: .6; }
   border: 1px solid var(--rb-line); background: #fff; color: var(--rb-muted); font-size: 0.74rem;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
-.rate-chart__range button.is-active { border-color: rgba(166, 124, 45, 0.6); color: var(--gold-3); font-weight: 600; }
+.rate-chart__range button:hover { border-color: var(--rb-blue-line); color: #1d5fd0; }
+.rate-chart__range button.is-active {
+  background: var(--rb-blue); border-color: transparent; color: #fff; font-weight: 600;
+}
 .rate-chart__canvas {
   position: relative; height: clamp(130px, 16vw, 170px);
   border: 1px solid var(--rb-line); border-radius: var(--radius-sm);
@@ -3368,3 +3403,21 @@ html[lang="hy"] .site-nav { gap: 2px; }
 html[lang="hy"] .site-nav a { font-size: 0.88rem; padding-left: 11px; padding-right: 11px; }
 html[lang="hy"] .header-actions { gap: 8px; }
 html[lang="hy"] .header-actions .btn { padding-left: 16px; padding-right: 16px; font-size: 0.86rem; }
+
+/* ---- Official WhatsApp mark ---- */
+.wa-icon { width: 1.05em; height: 1.05em; flex: 0 0 auto; fill: currentColor; }
+.btn .wa-icon { margin-right: 2px; }
+a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; justify-content: center; }
+.floating-whatsapp {
+  display: inline-flex; align-items: center; gap: 9px;
+  background: linear-gradient(135deg, #25d366 0%, #1ebe5b 55%, #128c7e 100%);
+  color: #fff; border: 0; box-shadow: 0 10px 26px rgba(18, 140, 126, 0.34);
+}
+.floating-whatsapp:hover { background: linear-gradient(135deg, #2ae472 0%, #22c963 55%, #159c8d 100%); color: #fff; }
+.floating-whatsapp .wa-icon { width: 1.3em; height: 1.3em; }
+.floating-whatsapp__label { font-weight: 700; letter-spacing: 0.01em; }
+@media (max-width: 560px) {
+  .floating-whatsapp__label { display: none; }
+  .floating-whatsapp { padding: 14px; border-radius: 50%; }
+  .floating-whatsapp .wa-icon { width: 1.5em; height: 1.5em; }
+}
