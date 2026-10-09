@@ -126,6 +126,56 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   check('without a baseline the 24h cell degrades to a dash', dash.textContent.trim() === '—', dash.textContent.trim());
   check('prices still render without a baseline', num(noBase.document.querySelector('[data-rate-rows] .rate-sell').textContent) > 0);
 
+  /* ---------------- compact mode, chart, live updates ---------------- */
+  const board2 = w.document.querySelector('[data-gold-board]');
+  check('board starts compact', board2.classList.contains('is-collapsed'));
+  const highlight = w.document.querySelector('[data-rate-highlight]');
+  check('compact strip shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
+  check('compact strip shows a price', /\d+,\d{2}/.test(highlight.textContent), highlight.textContent.trim().slice(0, 60));
+
+  const toggle = w.document.querySelector('[data-rate-toggle]');
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(120);
+  check('button expands the board', !board2.classList.contains('is-collapsed'));
+  check('expanded state is announced to screen readers', toggle.getAttribute('aria-expanded') === 'true');
+  // this window was switched to Armenian earlier, so accept either wording
+  const lbl = w.document.querySelector('[data-toggle-label]').textContent.trim();
+  check('button label flips to "collapse"', lbl === 'Свернуть' || lbl === 'Փակել', lbl);
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(120);
+  check('button collapses it again', board2.classList.contains('is-collapsed'));
+  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(120);
+
+  const svg = w.document.querySelector('[data-chart-canvas] svg');
+  check('chart is drawn as an svg line', Boolean(svg && svg.querySelector('path')));
+  const d = svg && svg.querySelectorAll('path')[1] && svg.querySelectorAll('path')[1].getAttribute('d');
+  check('chart line has many points', d && (d.match(/L/g) || []).length >= 1, d && d.slice(0, 40));
+  check('chart legend reports the change', /%/.test(w.document.querySelector('[data-chart-legend]').textContent));
+  const sevenBtn = w.document.querySelector('[data-chart-range="7d"]');
+  sevenBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(120);
+  check('7-day range button becomes active', sevenBtn.classList.contains('is-active'));
+  check('chart still renders on the 7-day range', Boolean(w.document.querySelector('[data-chart-canvas] svg, .rate-chart__empty')));
+
+  /* a price move must be visibly flagged */
+  const before = w.document.querySelector('[data-rate-rows] .rate-sell').textContent;
+  w.fetch = async (url) => {
+    const u = String(url);
+    const json = (dd) => ({ ok: true, status: 200, json: async () => dd });
+    if (u.includes('price/XAU')) return json({ price: GOLD_OZ + 40, updatedAt: new Date().toISOString() });
+    if (u.includes('price/XAG')) return json({ price: SILVER_OZ, updatedAt: new Date().toISOString() });
+    if (u.includes('er-api')) return json({ rates: { AMD } });
+    if (u.includes('gold-baseline')) return json({ capturedAt: new Date(Date.now() - 20 * 3600e3).toISOString(), gold: BASE_GOLD, silver: 60 });
+    return { ok: false, status: 404, json: async () => ({}) };
+  };
+  w.sessionStorage.removeItem('tovmasyan_rate_cache');
+  w.document.dispatchEvent(new w.Event('visibilitychange'));
+  await wait(400);
+  const after = w.document.querySelector('[data-rate-rows] .rate-sell');
+  check('price updates live without a reload', after.textContent !== before, `${before.trim()} -> ${after.textContent.trim()}`);
+  check('a rise is highlighted in the table', after.classList.contains('is-flash-up'), after.className);
+
   /* ---------------- FX missing, then recovered ---------------- */
   const flaky = (() => {
     const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
