@@ -54,10 +54,10 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const first = rows[0];
   const buy = num(first.querySelector('.rate-buy').textContent);
   const sell = num(first.querySelector('.rate-sell').textContent);
-  const PREMIUM = 1.10;   // our gold uplift
+  const PREMIUM = 0.90;   // gold shown 10% below the world market
   const spotGram = (GOLD_OZ / OZ_G) * 0.9999 * PREMIUM;
-  check('999.9 buy price = spot +10% −3%', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy} vs ${(spotGram * 0.97).toFixed(2)}`);
-  check('999.9 sell price = spot +10% +2%', Math.abs(sell - spotGram * 1.02) < 0.02, `${sell} vs ${(spotGram * 1.02).toFixed(2)}`);
+  check('999.9 buy price = spot −10% −3%', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy} vs ${(spotGram * 0.97).toFixed(2)}`);
+  check('999.9 sell price = spot −10% +2%', Math.abs(sell - spotGram * 1.02) < 0.02, `${sell} vs ${(spotGram * 1.02).toFixed(2)}`);
   check('sell is above buy', sell > buy);
 
   const r585 = [...rows].find((r) => r.textContent.includes('585'));
@@ -67,7 +67,7 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const silverRow = [...rows].find((r) => r.textContent.includes('925'));
   const silverSell = num(silverRow.querySelector('.rate-sell').textContent);
   check('silver row present and cheaper than gold', silverRow && silverSell < sell);
-  check('silver carries no gold uplift', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * 1.02) < 0.02, `${silverSell}`);
+  check('silver untouched by the gold correction', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * 1.02) < 0.02, `${silverSell}`);
 
   /* ---------------- 24h change ---------------- */
   const delta = first.querySelector('.rate-change');
@@ -118,6 +118,48 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const dash = noBase.document.querySelector('[data-rate-rows] .rate-change');
   check('without a baseline the 24h cell degrades to a dash', dash.textContent.trim() === '—', dash.textContent.trim());
   check('prices still render without a baseline', num(noBase.document.querySelector('[data-rate-rows] .rate-sell').textContent) > 0);
+
+  /* ---------------- FX missing, then recovered ---------------- */
+  const flaky = (() => {
+    const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+    const dom = new JSDOM(html, { url: 'https://www.tovmasyan.army/', runScripts: 'outside-only', pretendToBeVisual: true });
+    const w = dom.window;
+    let fxCalls = 0;
+    w.fetch = async (url) => {
+      const u = String(url);
+      const json = (d) => ({ ok: true, status: 200, json: async () => d });
+      if (u.includes('price/XAU')) return json({ price: GOLD_OZ, updatedAt: new Date().toISOString() });
+      if (u.includes('price/XAG')) return json({ price: SILVER_OZ, updatedAt: new Date().toISOString() });
+      if (u.includes('er-api')) { fxCalls += 1; if (fxCalls === 1) throw new Error('fx down'); return json({ rates: { AMD } }); }
+      if (u.includes('gold-baseline')) return json({ capturedAt: new Date(Date.now() - 20 * 3600e3).toISOString(), gold: BASE_GOLD, silver: 60 });
+      return { ok: false, status: 404, json: async () => ({}) };
+    };
+    ['script.js', 'gold-rates.js'].forEach((f) => w.eval(fs.readFileSync(path.join(ROOT, f), 'utf8')));
+    return w;
+  })();
+  await wait(250);
+  flaky.document.querySelector('[data-rate-currency="AMD"]').dispatchEvent(new flaky.Event('click', { bubbles: true }));
+  await wait(200);
+  check('AMD button re-fetches the rate after an earlier failure',
+    flaky.document.querySelector('[data-rate-rows] .rate-sell').textContent.includes('֏'),
+    flaky.document.querySelector('[data-rate-rows] .rate-sell').textContent.trim());
+
+  /* ---------------- the preview file must be clickable ---------------- */
+  const prevDom = new JSDOM(fs.readFileSync(path.join(ROOT, 'tools/preview-rate-board.html'), 'utf8'),
+    { url: 'https://www.tovmasyan.army/', runScripts: 'dangerously', pretendToBeVisual: true });
+  await wait(400);
+  const pw = prevDom.window;
+  const beforeTxt = pw.document.querySelector('[data-rate-rows] .rate-sell');
+  check('preview renders prices by itself', beforeTxt && beforeTxt.textContent.includes('$'), beforeTxt && beforeTxt.textContent.trim());
+  pw.document.querySelector('[data-rate-currency="AMD"]').dispatchEvent(new pw.Event('click', { bubbles: true }));
+  await wait(200);
+  check('preview currency switch actually switches',
+    pw.document.querySelector('[data-rate-rows] .rate-sell').textContent.includes('֏'),
+    pw.document.querySelector('[data-rate-rows] .rate-sell').textContent.trim());
+  pw.document.querySelector('[data-rate-currency="USD"]').dispatchEvent(new pw.Event('click', { bubbles: true }));
+  await wait(200);
+  check('preview switches back to dollars',
+    pw.document.querySelector('[data-rate-rows] .rate-sell').textContent.includes('$'));
 
   console.log(`\n${passed} passed, ${failures.length} failed`);
   if (failures.length) console.log(failures.join('\n'));

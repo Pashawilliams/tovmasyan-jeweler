@@ -11,8 +11,8 @@
     sell: 0.020    // we sell 2.0% above the world market price
   };
 
-  // Our own uplift on gold on top of the world market price.
-  const GOLD_PREMIUM = 0.10;   // +10%
+  // Our own correction on gold against the world market price.
+  const GOLD_PREMIUM = -0.10;  // −10%
 
   const TROY_OUNCE_G = 31.1034768;
   const REFRESH_MS = 5 * 60 * 1000;      // re-poll the market every 5 minutes
@@ -205,11 +205,26 @@
     }
   }
 
+  async function ensureFxRate() {
+    if (!market || market.amd) return;
+    try {
+      const fx = await getJSON(SOURCES.amd);
+      if (fx && fx.rates && fx.rates.AMD) {
+        market.amd = fx.rates.AMD;
+        try { sessionStorage.setItem('tovmasyan_rate_cache', JSON.stringify(market)); } catch (error) { /* ignore */ }
+      }
+    } catch (error) { console.warn('FX rate:', error && error.message); }
+  }
+
   currencyButtons.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', async () => {
       currency = btn.dataset.rateCurrency;
       try { localStorage.setItem('tovmasyan_rate_currency', currency); } catch (error) { /* ignore */ }
+      if (currency === 'AMD') await ensureFxRate();          // never leave the button silent
       render();
+      if (currency === 'AMD' && market && !market.amd && statusEl) {
+        statusEl.textContent = 'Курс драма временно недоступен — цены показаны в долларах.';
+      }
     });
   });
 
