@@ -3263,7 +3263,7 @@ body.auth-pending .site-header { opacity: .6; }
 
 /* ---- candlestick chart ---- */
 .rate-chart {
-  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rb-line);
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rb-line);
   animation: rateChartIn 0.35s ease;
 }
 .rate-chart.is-hidden { display: none; }
@@ -3395,18 +3395,6 @@ body{background:var(--bg);padding:18px 0;}.reveal{opacity:1;transform:none;}.rat
 
           <div class="rate-highlight" data-rate-highlight></div>
 
-          <div class="rate-chart is-hidden" id="rate-chart-panel" data-rate-chart>
-            <div class="rate-chart__head">
-              <h3>Золото 999.9 — японские свечи</h3>
-              <div class="rate-chart__range" role="group" aria-label="Период графика">
-                <button type="button" data-chart-range="24h" class="is-active">24 часа</button>
-                <button type="button" data-chart-range="7d">7 дней</button>
-              </div>
-            </div>
-            <div class="rate-chart__canvas" data-chart-canvas></div>
-            <p class="rate-chart__legend" data-chart-legend></p>
-          </div>
-
           <div class="rate-table-wrap">
             <table class="rate-table">
               <thead>
@@ -3431,6 +3419,18 @@ body{background:var(--bg);padding:18px 0;}.reveal{opacity:1;transform:none;}.rat
             </p>
             <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
           </footer>
+
+          <div class="rate-chart is-hidden" id="rate-chart-panel" data-rate-chart>
+            <div class="rate-chart__head">
+              <h3>Золото 999.9 — японские свечи</h3>
+              <div class="rate-chart__range" role="group" aria-label="Период графика">
+                <button type="button" data-chart-range="24h" class="is-active">24 часа</button>
+                <button type="button" data-chart-range="7d">7 дней</button>
+              </div>
+            </div>
+            <div class="rate-chart__canvas" data-chart-canvas></div>
+            <p class="rate-chart__legend" data-chart-legend></p>
+          </div>
 
           <p class="rate-board__status" role="status" data-rate-status></p>
         </div>

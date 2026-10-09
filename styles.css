@@ -3263,7 +3263,7 @@ body.auth-pending .site-header { opacity: .6; }
 
 /* ---- candlestick chart ---- */
 .rate-chart {
-  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rb-line);
+  margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--rb-line);
   animation: rateChartIn 0.35s ease;
 }
 .rate-chart.is-hidden { display: none; }
