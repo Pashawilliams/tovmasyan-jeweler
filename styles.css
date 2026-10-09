@@ -25,8 +25,8 @@
   --line: rgba(238, 224, 203, 0.14);
   --line-strong: rgba(200, 150, 62, 0.52);
   --gold: #d8a94a;
-  --gold-2: #c08a2e;
-  --gold-3: #8c5f1b;
+  --gold-2: #e0ab4e;
+  --gold-3: #d9a647;
   --text: #f5ece0;
   --muted: rgba(245, 236, 224, 0.74);
   --muted-2: rgba(245, 236, 224, 0.66);
@@ -3211,11 +3211,11 @@ body.auth-pending .site-header { opacity: .6; }
 .rate-board {
   --rb-blue: linear-gradient(135deg, #f3e7d2 0%, #e7d6b8 45%, #dcc8a4 100%);
   --rb-blue-line: rgba(166, 124, 45, 0.42);
-  --rb-ink: #171310;
-  --rb-muted: #6d6254;
-  --rb-line: rgba(23, 19, 16, 0.1);
-  --rb-up: #157f3c;
-  --rb-down: #b4402c;
+  --rb-ink: #f6eee2;
+  --rb-muted: rgba(246, 238, 226, 0.68);
+  --rb-line: rgba(238, 224, 203, 0.16);
+  --rb-up: #41d47f;
+  --rb-down: #ff7c63;
   position: relative;
   border-radius: var(--radius-md);
   padding: clamp(10px, 1.2vw, 14px) clamp(12px, 1.6vw, 18px);
@@ -3235,7 +3235,7 @@ body.auth-pending .site-header { opacity: .6; }
 .rate-board__title { flex: 0 1 auto; }
 .rate-board__eyebrow {
   margin: 0 0 1px; font-size: 0.55rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--gold-3);
+  text-transform: uppercase; color: var(--gold);
 }
 .rate-board__bar h2 {
   margin: 0; font-size: clamp(0.88rem, 1.2vw, 1rem); color: var(--rb-ink);
@@ -3312,7 +3312,7 @@ body.auth-pending .site-header { opacity: .6; }
 .rate-highlight__delta.is-flat { color: var(--rb-muted); }
 .rate-highlight__live {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-3);
+  font-size: 0.64rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold);
 }
 .rate-highlight__live::before {
   content: ""; width: 5px; height: 5px; border-radius: 50%;
@@ -3346,7 +3346,7 @@ body.auth-pending .site-header { opacity: .6; }
   background: #070504; overflow: hidden;
 }
 .rate-chart__canvas svg { width: 100%; height: 100%; display: block; }
-.rate-chart__grid { stroke: rgba(23, 19, 16, 0.07); stroke-width: 1; }
+.rate-chart__grid { stroke: rgba(238, 224, 203, 0.12); stroke-width: 1; }
 .rate-line.is-up { color: var(--rb-up); }
 .rate-line.is-down { color: var(--rb-down); }
 .rate-line__path {
@@ -3581,7 +3581,7 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 }
 .hero-lux__card-eyebrow {
   margin: 0; font-size: 0.56rem; letter-spacing: 0.2em;
-  text-transform: uppercase; color: var(--gold-3);
+  text-transform: uppercase; color: var(--gold);
 }
 .hero-lux__card h2 {
   margin: 5px 0 0;
@@ -3619,7 +3619,7 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 .showcase-card:hover { transform: translateY(-3px); box-shadow: 0 20px 44px rgba(23, 19, 16, 0.12); }
 .showcase-card__tag {
   margin: 0; font-size: 0.58rem; letter-spacing: 0.18em;
-  text-transform: uppercase; color: var(--gold-3);
+  text-transform: uppercase; color: var(--gold);
 }
 .showcase-card__tag--accent {
   display: inline-block; padding: 4px 10px; border-radius: 999px;
