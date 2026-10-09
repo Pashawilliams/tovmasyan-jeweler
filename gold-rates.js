@@ -11,6 +11,9 @@
     sell: 0.020    // we sell 2.0% above the world market price
   };
 
+  // Our own uplift on gold on top of the world market price.
+  const GOLD_PREMIUM = 0.10;   // +10%
+
   const TROY_OUNCE_G = 31.1034768;
   const REFRESH_MS = 5 * 60 * 1000;      // re-poll the market every 5 minutes
   const CACHE_MS = 2 * 60 * 1000;        // do not hammer the API on every page view
@@ -139,13 +142,14 @@
       const prevOz = row.metal === 'gold' ? market.prevGoldOz : market.prevSilverOz;
       if (!oz) return '';
 
-      const perGram = (oz / TROY_OUNCE_G) * row.fineness;
+      const premium = row.metal === 'gold' ? 1 + GOLD_PREMIUM : 1;
+      const perGram = (oz / TROY_OUNCE_G) * row.fineness * premium;
       const buy = perGram * (1 + MARGIN.buy) * factor;
       const sell = perGram * (1 + MARGIN.sell) * factor;
 
       let changeCell = '<span class="rate-change is-flat">—</span>';
       if (prevOz) {
-        const prevGram = (prevOz / TROY_OUNCE_G) * row.fineness * (1 + MARGIN.sell) * factor;
+        const prevGram = (prevOz / TROY_OUNCE_G) * row.fineness * premium * (1 + MARGIN.sell) * factor;
         const diff = sell - prevGram;
         const pct = prevGram ? (diff / prevGram) * 100 : 0;
         const dir = diff > 0.0001 ? 'is-up' : diff < -0.0001 ? 'is-down' : 'is-flat';

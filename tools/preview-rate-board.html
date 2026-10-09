@@ -1,4 +1,4 @@
-:root {
+<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Счётчик цен на золото</title><style>:root {
   --bg: #050403;
   --bg-2: #0b0806;
   --panel: rgba(18, 14, 10, 0.72);
@@ -3270,3 +3270,76 @@ body.auth-pending .site-header { opacity: .6; }
   .rate-board__tools { width: 100%; justify-content: space-between; }
   .rate-board__cta { margin-left: 0; width: 100%; text-align: center; }
 }
+
+body{background:var(--bg);padding:28px 0;}.reveal{opacity:1;transform:none;}</style></head><body><section class="section rate-section" id="gold-rates" aria-labelledby="gold-rates-title">
+      <div class="container">
+        <div class="rate-board" data-gold-board>
+          <header class="rate-board__head">
+            <div>
+              <p class="rate-board__eyebrow">Ереван</p>
+              <h2 id="gold-rates-title">Курс золота и серебра</h2>
+              <p class="rate-board__note">Цена за один грамм металла по пробам</p>
+            </div>
+            <div class="rate-board__tools">
+              <div class="rate-clock" aria-live="off">
+                <span class="rate-clock__dot" aria-hidden="true"></span>
+                <span>19:58:52</span>
+              </div>
+              <div class="rate-switch" role="group" aria-label="Валюта">
+                <button type="button" data-rate-currency="USD" class="is-active" aria-pressed="true">$</button>
+                <button type="button" data-rate-currency="AMD" aria-pressed="false">֏</button>
+              </div>
+            </div>
+          </header>
+
+          <div class="rate-table-wrap">
+            <table class="rate-table">
+              <thead>
+                <tr>
+                  <th scope="col">Проба</th>
+                  <th scope="col">Карат</th>
+                  <th scope="col">Покупка</th>
+                  <th scope="col">Продажа</th>
+                  <th scope="col">За 24 часа</th>
+                </tr>
+              </thead>
+              <tbody><tr class="is-featured">
+      <th scope="row"><span class="rate-purity">999.9</span><span class="rate-metal">Золото</span></th>
+      <td class="rate-karat">24K</td><td class="rate-buy">$&nbsp;143,70</td>
+      <td class="rate-sell">$&nbsp;151,10</td>
+      <td class="rate-delta"><span class="rate-change is-up">+3,22<small>+2.18%</small></span></td></tr><tr>
+      <th scope="row"><span class="rate-purity">958</span><span class="rate-metal">Золото</span></th>
+      <td class="rate-karat">23K</td><td class="rate-buy">$&nbsp;137,67</td>
+      <td class="rate-sell">$&nbsp;144,77</td>
+      <td class="rate-delta"><span class="rate-change is-up">+3,08<small>+2.18%</small></span></td></tr><tr>
+      <th scope="row"><span class="rate-purity">750</span><span class="rate-metal">Золото</span></th>
+      <td class="rate-karat">18K</td><td class="rate-buy">$&nbsp;107,78</td>
+      <td class="rate-sell">$&nbsp;113,34</td>
+      <td class="rate-delta"><span class="rate-change is-up">+2,41<small>+2.18%</small></span></td></tr><tr class="is-featured">
+      <th scope="row"><span class="rate-purity">585</span><span class="rate-metal">Золото</span></th>
+      <td class="rate-karat">14K</td><td class="rate-buy">$&nbsp;84,07</td>
+      <td class="rate-sell">$&nbsp;88,40</td>
+      <td class="rate-delta"><span class="rate-change is-up">+1,88<small>+2.18%</small></span></td></tr><tr>
+      <th scope="row"><span class="rate-purity">375</span><span class="rate-metal">Золото</span></th>
+      <td class="rate-karat">9K</td><td class="rate-buy">$&nbsp;53,89</td>
+      <td class="rate-sell">$&nbsp;56,67</td>
+      <td class="rate-delta"><span class="rate-change is-up">+1,21<small>+2.18%</small></span></td></tr><tr>
+      <th scope="row"><span class="rate-purity">925</span><span class="rate-metal">Серебро</span></th>
+      <td class="rate-karat">—</td><td class="rate-buy">$&nbsp;1,76</td>
+      <td class="rate-sell">$&nbsp;1,85</td>
+      <td class="rate-delta"><span class="rate-change is-up">+0,03<small>+1.68%</small></span></td></tr></tbody>
+            </table>
+          </div>
+
+          <footer class="rate-board__foot">
+            <p class="rate-board__meta">
+              <span>1 $ = 361.63 ֏</span>
+              <span class="rate-board__stamp">Обновлено: <strong>09.10, 19:58</strong></span>
+            </p>
+            <p class="rate-board__status" role="status" data-rate-status></p>
+            <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
+            <a class="btn btn-ghost rate-board__cta" href="/contacts/">Уточнить цену</a>
+          </footer>
+        </div>
+      </div>
+    </section></body></html>
