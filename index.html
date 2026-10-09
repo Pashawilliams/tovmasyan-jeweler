@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://www.tovmasyan.army/assets/brand-logo.webp">
   <link rel="canonical" href="https://www.tovmasyan.army/">
   <link rel="icon" href="/assets/favicon.png" type="image/png">
-  <link rel="stylesheet" href="/styles.css?v=d235db37">
+  <link rel="stylesheet" href="/styles.css?v=bfcbb4ce">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -135,6 +135,57 @@
     </section>
 
 
+
+    <section class="section rate-section" id="gold-rates" aria-labelledby="gold-rates-title">
+      <div class="container">
+        <div class="rate-board reveal" data-gold-board>
+          <header class="rate-board__head">
+            <div>
+              <p class="rate-board__eyebrow">Ереван</p>
+              <h2 id="gold-rates-title">Курс золота и серебра</h2>
+              <p class="rate-board__note">Цена за один грамм металла по пробам</p>
+            </div>
+            <div class="rate-board__tools">
+              <div class="rate-clock" aria-live="off">
+                <span class="rate-clock__dot" aria-hidden="true"></span>
+                <span data-rate-clock>00:00:00</span>
+              </div>
+              <div class="rate-switch" role="group" aria-label="Валюта">
+                <button type="button" data-rate-currency="USD" class="is-active" aria-pressed="true">$</button>
+                <button type="button" data-rate-currency="AMD" aria-pressed="false">֏</button>
+              </div>
+            </div>
+          </header>
+
+          <div class="rate-table-wrap">
+            <table class="rate-table">
+              <thead>
+                <tr>
+                  <th scope="col">Проба</th>
+                  <th scope="col">Карат</th>
+                  <th scope="col">Покупка</th>
+                  <th scope="col">Продажа</th>
+                  <th scope="col">За 24 часа</th>
+                </tr>
+              </thead>
+              <tbody data-rate-rows>
+                <tr class="rate-skeleton"><td colspan="5">Загружаем биржевые данные…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <footer class="rate-board__foot">
+            <p class="rate-board__meta">
+              <span data-rate-usdamd></span>
+              <span class="rate-board__stamp">Обновлено: <strong data-rate-updated>—</strong></span>
+            </p>
+            <p class="rate-board__status" role="status" data-rate-status></p>
+            <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
+            <a class="btn btn-ghost rate-board__cta" href="/contacts/">Уточнить цену</a>
+          </footer>
+        </div>
+      </div>
+    </section>
 
     <section class="banner-section" aria-label="TOVMASYAN Jeweler">
       <div class="container">
@@ -518,7 +569,8 @@
 
   <script src="/script.js?v=af2a721d"></script>
   <script src="/firebase-config.js?v=76fa85ca"></script>
-  <script src="/i18n.js?v=c5c53763" defer></script>
+  <script src="/gold-rates.js?v=cd0def89" defer></script>
+    <script src="/i18n.js?v=c5c53763" defer></script>
   <script type="module" src="/auth.js?v=c32e3d49"></script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+name: Daily gold baseline
+
+on:
+  schedule:
+    - cron: '5 0 * * *'      # every day at 00:05 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture world market price
+        run: |
+          GOLD=$(curl -sf --retry 3 https://api.gold-api.com/price/XAU | python3 -c "import sys,json;print(json.load(sys.stdin)['price'])")
+          SILVER=$(curl -sf --retry 3 https://api.gold-api.com/price/XAG | python3 -c "import sys,json;print(json.load(sys.stdin)['price'])")
+          printf '{\n  "capturedAt": "%s",\n  "gold": %s,\n  "silver": %s,\n  "unit": "USD per troy ounce"\n}\n' \
+            "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$GOLD" "$SILVER" > data/gold-baseline.json
+          cat data/gold-baseline.json
+      - name: Commit if changed
+        run: |
+          git config user.name "TOVMASYAN Bot"
+          git config user.email "bot@tovmasyan.army"
+          git add data/gold-baseline.json
+          git diff --staged --quiet || git commit -m "Daily gold baseline"
+          git push

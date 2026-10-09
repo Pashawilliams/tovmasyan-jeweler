@@ -26,11 +26,21 @@ def collect():
     return out
 
 ru = collect()
+EXTRA = [  # strings the scripts build at runtime, not present in the HTML source
+    'Золото', 'Серебро',
+    'Биржевые данные временно недоступны. Актуальную цену уточните по телефону.',
+]
+for e in EXTRA:
+    if e not in ru: ru.append(e)
+
 hy = json.loads((ROOT / 'tools/hy_translations.json').read_text(encoding='utf-8'))
-assert len(ru) == len(hy), f'MISMATCH ru={len(ru)} hy={len(hy)}'
-mapping = {r: h for r, h in zip(ru, hy) if h and h != r}
+assert isinstance(hy, dict), 'hy_translations.json must be a {russian: armenian} object'
+missing = [s for s in ru if not hy.get(s)]
+assert not missing, 'MISSING ARMENIAN: ' + json.dumps(missing, ensure_ascii=False, indent=1)
+
+mapping = {r: hy[r] for r in ru if hy[r] != r}
 (ROOT / 'i18n').mkdir(exist_ok=True)
 (ROOT / 'i18n/hy.json').write_text(json.dumps(mapping, ensure_ascii=False, indent=0), encoding='utf-8')
 print(f'strings: {len(ru)}, translated: {len(mapping)}')
-for probe in ['Каталог', 'Личный кабинет', 'Цена по запросу', 'Кольцо Aurora', 'Обручальные Roman']:
+for probe in ['Каталог', 'Личный кабинет', 'Курс золота и серебра', 'Проба', 'Покупка', 'За 24 часа']:
     print(f'  {probe!r} -> {mapping.get(probe)!r}')
