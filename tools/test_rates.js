@@ -128,53 +128,58 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   check('without a baseline the 24h cell degrades to a dash', dash.textContent.trim() === '—', dash.textContent.trim());
   check('prices still render without a baseline', num(noBase.document.querySelector('[data-rate-rows] .rate-sell').textContent) > 0);
 
-  /* -------- compact board, arrow expands it with the chart inside -------- */
+  /* ---- full price table always visible, chart behind the arrow ---- */
   const board2 = w.document.querySelector('[data-gold-board]');
   const panel = w.document.querySelector('[data-board-panel]');
   const toggle = w.document.querySelector('[data-board-toggle]');
-  check('compact board starts collapsed', !board2.classList.contains('is-open'));
-  check('collapsed panel is hidden from screen readers', panel.getAttribute('aria-hidden') === 'true');
+  check('chart panel starts collapsed', !board2.classList.contains('is-open'));
+  check('collapsed chart is hidden from screen readers', panel.getAttribute('aria-hidden') === 'true');
   check('the toggle is an arrow button', Boolean(toggle.querySelector('.rate-expand__arrow svg')));
+  check('full purity table is visible without any click',
+    w.document.querySelectorAll('[data-rate-rows] tr').length === 6
+    && !w.document.querySelector('.rate-table-wrap').closest('[data-board-panel]'));
+  check('the chart is the only thing inside the collapsible panel',
+    Boolean(panel.querySelector('[data-rate-chart]')) && !panel.querySelector('.rate-table-wrap'));
 
   const highlight = w.document.querySelector('[data-rate-highlight]');
-  check('collapsed strip still shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
-  check('full purity table exists inside the panel', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
+  check('compact strip shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
 
   toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(200);
-  check('arrow expands the board', board2.classList.contains('is-open'));
-  check('expanded state is announced to screen readers', toggle.getAttribute('aria-expanded') === 'true');
-  check('expanded panel is exposed to screen readers', panel.getAttribute('aria-hidden') === 'false');
+  check('arrow opens the chart', board2.classList.contains('is-open'));
+  check('open state is announced to screen readers', toggle.getAttribute('aria-expanded') === 'true');
+  check('open panel is exposed to screen readers', panel.getAttribute('aria-hidden') === 'false');
 
   const svg = w.document.querySelector('[data-chart-canvas] svg');
   check('chart is drawn as an svg', Boolean(svg));
-  const candles = svg ? svg.querySelectorAll('g.rate-candle') : [];
-  check('candlesticks are rendered from the published history', candles.length >= 4, `${candles.length} candles`);
-  check('each candle has a wick and a body', Boolean(candles[0] && candles[0].querySelector('line') && candles[0].querySelector('rect')));
-  const upCount = svg ? svg.querySelectorAll('g.rate-candle.is-up').length : 0;
-  const downCount = svg ? svg.querySelectorAll('g.rate-candle.is-down').length : 0;
-  check('candles are coloured by direction', upCount + downCount === candles.length, `up ${upCount} / down ${downCount}`);
-  const firstBody = candles[0] && candles[0].querySelector('rect');
-  check('candle body has a real height', firstBody && parseFloat(firstBody.getAttribute('height')) > 0);
-  check('chart carries start and end dates', Boolean(w.document.querySelector('.rate-chart__from') && w.document.querySelector('.rate-chart__to')));
-  check('legend counts the candles', /свеч|մոմ/.test(w.document.querySelector('[data-chart-legend]').textContent));
+  check('no japanese candles are left', w.document.querySelectorAll('.rate-candle').length === 0);
+  const linePath = svg && svg.querySelector('.rate-line__path');
+  check('price line is drawn', Boolean(linePath) && (linePath.getAttribute('d') || '').startsWith('M'));
+  const segments = linePath ? (linePath.getAttribute('d').match(/L/g) || []).length : 0;
+  check('line joins the whole history', segments >= 3, `${segments + 1} points`);
+  check('line is filled with a soft area', Boolean(svg && svg.querySelector('.rate-line__area')));
+  check('line is coloured by direction',
+    Boolean(svg && svg.querySelector('.rate-line.is-up, .rate-line.is-down')));
+  check('chart carries start and end dates',
+    Boolean(w.document.querySelector('.rate-chart__from') && w.document.querySelector('.rate-chart__to')));
+  check('legend counts the points', /точек|կետ|points/.test(w.document.querySelector('[data-chart-legend]').textContent));
 
   const monthBtn = w.document.querySelector('[data-chart-range="30d"]');
   monthBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
   check('30-day range switches', monthBtn.classList.contains('is-active'));
-  const monthCandles = w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length;
-  check('30-day range draws more candles than 7 days', monthCandles > candles.length, `${monthCandles} vs ${candles.length}`);
+  const monthPts = (w.document.querySelector('.rate-line__path').getAttribute('d').match(/L/g) || []).length;
+  check('30-day range draws a longer line than 7 days', monthPts > segments, `${monthPts} vs ${segments}`);
   const quarterBtn = w.document.querySelector('[data-chart-range="90d"]');
   quarterBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
-  check('3-month range draws the longest history',
-    w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length >= monthCandles);
+  check('3-month range draws the longest line',
+    (w.document.querySelector('.rate-line__path').getAttribute('d').match(/L/g) || []).length >= monthPts);
 
   toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
-  check('arrow collapses the board again', !board2.classList.contains('is-open'));
-  check('the price strip survives collapsing', /999\.9/.test(highlight.textContent));
+  check('arrow closes the chart again', !board2.classList.contains('is-open'));
+  check('the price table survives closing the chart', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
   toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(150);
 

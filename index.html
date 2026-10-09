@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://www.tovmasyan.army/assets/brand-logo.webp">
   <link rel="canonical" href="https://www.tovmasyan.army/">
   <link rel="icon" href="/assets/favicon.png" type="image/png">
-  <link rel="stylesheet" href="/styles.css?v=7752129d">
+  <link rel="stylesheet" href="/styles.css?v=4286f460">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -82,8 +82,8 @@
                 <button type="button" data-rate-currency="USD" class="is-active" aria-pressed="true">USD</button>
                 <button type="button" data-rate-currency="AMD" aria-pressed="false">AMD</button>
               </div>
-              <button type="button" class="rate-expand" data-board-toggle aria-expanded="false" aria-controls="rate-board-panel" aria-label="Развернуть курс и график">
-                <span class="rate-expand__text" data-board-toggle-label>Подробнее и график</span>
+              <button type="button" class="rate-expand" data-board-toggle aria-expanded="false" aria-controls="rate-board-panel" aria-label="Показать график">
+                <span class="rate-expand__text" data-board-toggle-label>График</span>
                 <span class="rate-expand__arrow" aria-hidden="true">
                   <svg viewBox="0 0 24 24" width="14" height="14"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
                 </span>
@@ -91,28 +91,28 @@
             </div>
           </div>
 
+          <div class="rate-table-wrap">
+            <table class="rate-table">
+              <thead>
+                <tr>
+                  <th scope="col">Проба</th>
+                  <th scope="col">Карат</th>
+                  <th scope="col">Покупка</th>
+                  <th scope="col">Продажа</th>
+                  <th scope="col">За 24 часа</th>
+                </tr>
+              </thead>
+              <tbody data-rate-rows>
+                <tr class="rate-skeleton"><td colspan="5">Загружаем биржевые данные…</td></tr>
+              </tbody>
+            </table>
+          </div>
+
           <div class="rate-board__panel" id="rate-board-panel" data-board-panel>
             <div class="rate-board__panel-inner">
-              <div class="rate-table-wrap">
-                <table class="rate-table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Проба</th>
-                      <th scope="col">Карат</th>
-                      <th scope="col">Покупка</th>
-                      <th scope="col">Продажа</th>
-                      <th scope="col">За 24 часа</th>
-                    </tr>
-                  </thead>
-                  <tbody data-rate-rows>
-                    <tr class="rate-skeleton"><td colspan="5">Загружаем биржевые данные…</td></tr>
-                  </tbody>
-                </table>
-              </div>
-
               <div class="rate-chart" data-rate-chart>
                 <div class="rate-chart__head">
-                  <h3>Золото 999.9 — японские свечи</h3>
+                  <h3>Золото 999.9 — динамика цены</h3>
                   <div class="rate-chart__range" role="group" aria-label="Период графика">
                     <button type="button" data-chart-range="7d" class="is-active">7 дней</button>
                     <button type="button" data-chart-range="30d">30 дней</button>
@@ -122,16 +122,16 @@
                 <div class="rate-chart__canvas" data-chart-canvas></div>
                 <p class="rate-chart__legend" data-chart-legend></p>
               </div>
-
-              <footer class="rate-board__foot">
-                <p class="rate-board__meta">
-                  <span data-rate-usdamd></span>
-                  <span class="rate-board__stamp">Обновлено: <strong data-rate-updated>—</strong></span>
-                </p>
-                <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
-              </footer>
             </div>
           </div>
+
+          <footer class="rate-board__foot">
+            <p class="rate-board__meta">
+              <span data-rate-usdamd></span>
+              <span class="rate-board__stamp">Обновлено: <strong data-rate-updated>—</strong></span>
+            </p>
+            <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
+          </footer>
 
           <p class="rate-board__status" role="status" data-rate-status></p>
         </div>
@@ -591,7 +591,7 @@
 
   <script src="/script.js?v=af2a721d"></script>
   <script src="/firebase-config.js?v=76fa85ca"></script>
-  <script src="/gold-rates.js?v=771b75ef" defer></script>
+  <script src="/gold-rates.js?v=7b65ccd5" defer></script>
     <script src="/i18n.js?v=eb4ea2cc" defer></script>
   <script type="module" src="/auth.js?v=0d3ea182"></script>
 </body>

@@ -185,62 +185,29 @@
   /* ------------------------------- chart --------------------------------
      Japanese candlesticks: every bucket of collected ticks becomes one candle
      (open, high, low, close), drawn in the sell price of gold 999.9.        */
-  function buildCandles() {
+  function buildSeries() {
     const days = chartRange === '90d' ? 93 : chartRange === '30d' ? 30 : 7;
     const cutoff = Date.now() - days * 24 * 3600e3;
 
     const useAmd = currency === 'AMD' && market && market.amd;
     const factor = useAmd ? market.amd : 1;
-    // the chart shows the same Yerevan sell price as the 999.9 row of the table
+    // the line shows the same Yerevan sell price as the 999.9 row of the table
     const toSell = (perGram) => perGram * 0.9999 * SELL_RATIO.pure * factor;
-
     const dayKey = (ts) => { const d = new Date(ts); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
 
-    // 1. one candle per trading day, from the published daily history
-    const daily = history.filter((p) => p.t >= cutoff);
-    const candles = [];
-    let previous = null;
-    const before = history.filter((p) => p.t < cutoff);
-    if (before.length) previous = before[before.length - 1].g;
-    daily.forEach((p) => {
-      const open = toSell(previous === null ? p.g : previous);
-      const close = toSell(p.g);
-      candles.push({ t: dayKey(p.t), o: open, c: close, h: Math.max(open, close), l: Math.min(open, close) });
-      previous = p.g;
-    });
+    const byDay = new Map();
+    history.filter((p) => p.t >= cutoff).forEach((p) => byDay.set(dayKey(p.t), toSell(p.g)));
+    // our own live ticks refine (or add) the most recent days
+    readSeries().filter((p) => p.t >= cutoff).forEach((p) => byDay.set(dayKey(p.t), toSell(p.g / TROY_OUNCE_G)));
 
-    // 2. today's candle is refined with our own live ticks (real high / low / close)
-    const ticks = readSeries().filter((p) => p.t >= cutoff);
-    if (ticks.length) {
-      const grouped = new Map();
-      ticks.forEach((p) => {
-        const key = dayKey(p.t);
-        const v = toSell(p.g / TROY_OUNCE_G);
-        const c = grouped.get(key);
-        if (!c) grouped.set(key, { t: key, o: v, h: v, l: v, c: v });
-        else { c.h = Math.max(c.h, v); c.l = Math.min(c.l, v); c.c = v; }
-      });
-      grouped.forEach((live, key) => {
-        const existing = candles.find((c) => c.t === key);
-        if (existing) {
-          existing.h = Math.max(existing.h, live.h);
-          existing.l = Math.min(existing.l, live.l);
-          existing.c = live.c;
-        } else {
-          const open = candles.length ? candles[candles.length - 1].c : live.o;
-          candles.push({ t: key, o: open, c: live.c, h: Math.max(open, live.h), l: Math.min(open, live.l) });
-        }
-      });
-    }
-
-    return candles.sort((a, b) => a.t - b.t);
+    return [...byDay.entries()].map(([t, v]) => ({ t, v })).sort((a, b) => a.t - b.t);
   }
 
   function buildChart() {
     if (!chartCanvas) return;
-    const candles = buildCandles();
+    const points = buildSeries();
 
-    if (candles.length < 2) {
+    if (points.length < 2) {
       chartCanvas.innerHTML = '<p class="rate-chart__empty">Накапливаем историю цен…</p>';
       if (chartLegend) chartLegend.textContent = '';
       return;
@@ -248,50 +215,55 @@
 
     const useAmd = currency === 'AMD' && market && market.amd;
     const cur = useAmd ? 'AMD' : 'USD';
-    const max = Math.max(...candles.map((c) => c.h));
-    const min = Math.min(...candles.map((c) => c.l));
+    const values = points.map((p) => p.v);
+    const max = Math.max(...values);
+    const min = Math.min(...values);
     const span = (max - min) || Math.max(max * 0.001, 0.01);
 
     const W = 1000, H = 220, PAD_X = 16, PAD_Y = 18;
-    const step = (W - PAD_X * 2) / candles.length;
-    const bodyW = Math.max(2.5, Math.min(22, step * 0.56));
-    const y = (v) => PAD_Y + (1 - (v - min + span * 0.1) / (span * 1.2)) * (H - PAD_Y * 2);
+    const x = (i) => PAD_X + (points.length === 1 ? 0 : (i / (points.length - 1)) * (W - PAD_X * 2));
+    const y = (v) => PAD_Y + (1 - (v - min + span * 0.12) / (span * 1.24)) * (H - PAD_Y * 2);
 
-    const bodies = candles.map((c, i) => {
-      const cx = PAD_X + step * (i + 0.5);
-      const cls = c.c >= c.o ? 'is-up' : 'is-down';
-      const top = y(Math.max(c.o, c.c));
-      const height = Math.max(1.5, y(Math.min(c.o, c.c)) - top);
-      return `<g class="rate-candle ${cls}">`
-        + `<line x1="${cx.toFixed(1)}" y1="${y(c.h).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${y(c.l).toFixed(1)}"></line>`
-        + `<rect x="${(cx - bodyW / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bodyW.toFixed(1)}"`
-        + ` height="${height.toFixed(1)}" rx="1"></rect></g>`;
-    }).join('');
+    const line = points.map((p, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(' ');
+    const area = `${line} L${x(points.length - 1).toFixed(1)} ${H - PAD_Y / 2} L${x(0).toFixed(1)} ${H - PAD_Y / 2} Z`;
+    const rising = points[points.length - 1].v >= points[0].v;
 
     const grid = [0.15, 0.5, 0.85].map((f) => {
       const yy = y(min + span * (1 - f)).toFixed(1);
       return `<line class="rate-chart__grid" x1="${PAD_X}" x2="${W - PAD_X}" y1="${yy}" y2="${yy}"></line>`;
     }).join('');
 
+    const dots = points.map((p, i) => {
+      const last = i === points.length - 1;
+      return last ? `<circle class="rate-chart__dot" cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4"></circle>` : '';
+    }).join('');
+
     chartCanvas.innerHTML = `
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
-           aria-label="Свечной график цены золота 999.9">${grid}${bodies}</svg>
+           aria-label="График цены золота 999.9">
+        ${grid}
+        <g class="rate-line ${rising ? 'is-up' : 'is-down'}">
+          <path class="rate-line__area" d="${area}"></path>
+          <path class="rate-line__path" d="${line}"></path>
+          ${dots}
+        </g>
+      </svg>
       <span class="rate-chart__max">${symbol(cur)} ${fmt(max, cur)}</span>
       <span class="rate-chart__min">${symbol(cur)} ${fmt(min, cur)}</span>`;
 
-    const first = candles[0];
-    const last = candles[candles.length - 1];
+    const first = points[0];
+    const last = points[points.length - 1];
     const dateFmt = new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: '2-digit', timeZone: 'UTC' });
     chartCanvas.insertAdjacentHTML('beforeend',
       `<span class="rate-chart__from">${dateFmt.format(new Date(first.t))}</span>`
       + `<span class="rate-chart__to">${dateFmt.format(new Date(last.t))}</span>`);
 
-    const diff = candles[candles.length - 1].c - candles[0].o;
-    const pct = candles[0].o ? (diff / candles[0].o) * 100 : 0;
+    const diff = last.v - first.v;
+    const pct = first.v ? (diff / first.v) * 100 : 0;
     const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
     if (chartLegend) {
       chartLegend.innerHTML = `<span class="${diff >= 0 ? 'is-up' : 'is-down'}">${sign}${fmt(Math.abs(diff), cur)} `
-        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>свечей</span>: ${candles.length}`;
+        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>точек</span>: ${points.length}`;
     }
   }
 
@@ -454,9 +426,9 @@
     if (boardToggle) {
       boardToggle.setAttribute('aria-expanded', String(open));
       boardToggle.classList.toggle('is-active', open);
-      boardToggle.setAttribute('aria-label', open ? 'Свернуть курс и график' : 'Развернуть курс и график');
+      boardToggle.setAttribute('aria-label', open ? 'Скрыть график' : 'Показать график');
     }
-    if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Свернуть' : 'Подробнее и график';
+    if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Скрыть график' : 'График';
     try { localStorage.setItem('tovmasyan_board_open', open ? '1' : '0'); } catch (error) { /* ignore */ }
     if (!animate) {
       boardPanel.style.transition = 'none';
