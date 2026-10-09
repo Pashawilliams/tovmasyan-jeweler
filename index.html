@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://www.tovmasyan.army/assets/brand-logo.webp">
   <link rel="canonical" href="https://www.tovmasyan.army/">
   <link rel="icon" href="/assets/favicon.png" type="image/png">
-  <link rel="stylesheet" href="/styles.css?v=7040a7f9">
+  <link rel="stylesheet" href="/styles.css?v=fd8da352">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -66,12 +66,11 @@
   <main id="top">
     <section class="rate-section" id="gold-rates" aria-labelledby="gold-rates-title">
       <div class="container">
-        <div class="rate-board is-collapsed" data-gold-board>
+        <div class="rate-board" data-gold-board>
           <header class="rate-board__head">
             <div class="rate-board__title">
               <p class="rate-board__eyebrow">Ереван · курс в реальном времени</p>
               <h2 id="gold-rates-title">Курс золота и серебра</h2>
-              <p class="rate-board__note">Цена за один грамм металла по пробам</p>
             </div>
             <div class="rate-board__tools">
               <div class="rate-clock" aria-live="off">
@@ -82,59 +81,53 @@
                 <button type="button" data-rate-currency="USD" class="is-active" aria-pressed="true">USD</button>
                 <button type="button" data-rate-currency="AMD" aria-pressed="false">AMD</button>
               </div>
+              <button type="button" class="rate-chart-toggle" data-chart-toggle aria-expanded="false" aria-controls="rate-chart-panel">
+                <span class="rate-chart-toggle__icon" aria-hidden="true">▦</span>
+                <span data-chart-toggle-label>График</span>
+              </button>
             </div>
           </header>
 
           <div class="rate-highlight" data-rate-highlight></div>
 
-          <div class="rate-board__body" data-rate-body>
-            <div class="rate-board__inner">
-            <div class="rate-chart" data-rate-chart>
-              <div class="rate-chart__head">
-                <h3>Золото 999.9 — динамика</h3>
-                <div class="rate-chart__range" role="group" aria-label="Период графика">
-                  <button type="button" data-chart-range="24h" class="is-active">24 часа</button>
-                  <button type="button" data-chart-range="7d">7 дней</button>
-                </div>
+          <div class="rate-chart is-hidden" id="rate-chart-panel" data-rate-chart>
+            <div class="rate-chart__head">
+              <h3>Золото 999.9 — японские свечи</h3>
+              <div class="rate-chart__range" role="group" aria-label="Период графика">
+                <button type="button" data-chart-range="24h" class="is-active">24 часа</button>
+                <button type="button" data-chart-range="7d">7 дней</button>
               </div>
-              <div class="rate-chart__canvas" data-chart-canvas></div>
-              <p class="rate-chart__legend" data-chart-legend></p>
             </div>
-
-            <div class="rate-table-wrap">
-              <table class="rate-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Проба</th>
-                    <th scope="col">Карат</th>
-                    <th scope="col">Покупка</th>
-                    <th scope="col">Продажа</th>
-                    <th scope="col">За 24 часа</th>
-                  </tr>
-                </thead>
-                <tbody data-rate-rows>
-                  <tr class="rate-skeleton"><td colspan="5">Загружаем биржевые данные…</td></tr>
-                </tbody>
-              </table>
-            </div>
-
-            <footer class="rate-board__foot">
-              <p class="rate-board__meta">
-                <span data-rate-usdamd></span>
-                <span class="rate-board__stamp">Обновлено: <strong data-rate-updated>—</strong></span>
-              </p>
-              <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
-              <a class="btn btn-ghost rate-board__cta" href="/contacts/">Уточнить цену</a>
-            </footer>
-            </div>
+            <div class="rate-chart__canvas" data-chart-canvas></div>
+            <p class="rate-chart__legend" data-chart-legend></p>
           </div>
 
-          <p class="rate-board__status" role="status" data-rate-status></p>
+          <div class="rate-table-wrap">
+            <table class="rate-table">
+              <thead>
+                <tr>
+                  <th scope="col">Проба</th>
+                  <th scope="col">Карат</th>
+                  <th scope="col">Покупка</th>
+                  <th scope="col">Продажа</th>
+                  <th scope="col">За 24 часа</th>
+                </tr>
+              </thead>
+              <tbody data-rate-rows>
+                <tr class="rate-skeleton"><td colspan="5">Загружаем биржевые данные…</td></tr>
+              </tbody>
+            </table>
+          </div>
 
-          <button type="button" class="rate-toggle" data-rate-toggle aria-expanded="false" aria-controls="gold-rates">
-            <span data-toggle-label>Показать все пробы и график</span>
-            <span class="rate-toggle__chevron" aria-hidden="true">⌄</span>
-          </button>
+          <footer class="rate-board__foot">
+            <p class="rate-board__meta">
+              <span data-rate-usdamd></span>
+              <span class="rate-board__stamp">Обновлено: <strong data-rate-updated>—</strong></span>
+            </p>
+            <p class="rate-board__legal">Курс следует за мировым рынком и носит справочный характер. Окончательная цена изделия подтверждается при заказе.</p>
+          </footer>
+
+          <p class="rate-board__status" role="status" data-rate-status></p>
         </div>
       </div>
     </section>
@@ -594,7 +587,7 @@
 
   <script src="/script.js?v=af2a721d"></script>
   <script src="/firebase-config.js?v=76fa85ca"></script>
-  <script src="/gold-rates.js?v=186fa30b" defer></script>
+  <script src="/gold-rates.js?v=306e8eba" defer></script>
     <script src="/i18n.js?v=c5c53763" defer></script>
   <script type="module" src="/auth.js?v=c32e3d49"></script>
 </body>

@@ -1,7 +1,7 @@
 /* ===========================================================================
    TOVMASYAN Jeweler — live gold & silver rate board.
    World market price -> price per gram for every purity we work with,
-   a live intraday chart, and a compact mode that expands on request.
+   plus a candlestick chart that opens on request.
    =========================================================================== */
 (function () {
   'use strict';
@@ -49,8 +49,9 @@
   const highlightEl = board.querySelector('[data-rate-highlight]');
   const chartCanvas = board.querySelector('[data-chart-canvas]');
   const chartLegend = board.querySelector('[data-chart-legend]');
-  const toggleBtn = board.querySelector('[data-rate-toggle]');
-  const toggleLabel = board.querySelector('[data-toggle-label]');
+  const chartPanel = board.querySelector('[data-rate-chart]');
+  const chartToggle = board.querySelector('[data-chart-toggle]');
+  const chartToggleLabel = board.querySelector('[data-chart-toggle-label]');
   const currencyButtons = board.querySelectorAll('[data-rate-currency]');
   const rangeButtons = board.querySelectorAll('[data-chart-range]');
 
@@ -166,70 +167,85 @@
     return data;
   }
 
-  /* ------------------------------- chart -------------------------------- */
-  function buildChart() {
-    if (!chartCanvas) return;
+  /* ------------------------------- chart --------------------------------
+     Japanese candlesticks: every bucket of collected ticks becomes one candle
+     (open, high, low, close), drawn in the sell price of gold 999.9.        */
+  function buildCandles() {
     const windowMs = chartRange === '7d' ? 7 * 24 * 3600e3 : 24 * 3600e3;
+    const bucketMs = chartRange === '7d' ? 6 * 3600e3 : 3600e3;   // 6h or 1h candles
     const cutoff = Date.now() - windowMs;
-    let points = readSeries().filter((p) => p.t >= cutoff);
 
-    // seed the left edge with yesterday's official snapshot so the line has context
+    let points = readSeries().filter((p) => p.t >= cutoff);
     if (market && market.prevGoldOz && market.baselineAt && market.baselineAt >= cutoff
       && !points.some((p) => Math.abs(p.t - market.baselineAt) < 60e3)) {
       points = [{ t: market.baselineAt, g: market.prevGoldOz }].concat(points);
     }
     points.sort((a, b) => a.t - b.t);
 
-    if (points.length < 2) {
+    const useAmd = currency === 'AMD' && market && market.amd;
+    const factor = useAmd ? market.amd : 1;
+    const toSell = (oz) => (oz / TROY_OUNCE_G) * 0.9999 * SELL_RATIO.pure * factor;
+
+    const buckets = new Map();
+    points.forEach((p) => {
+      const key = Math.floor(p.t / bucketMs) * bucketMs;
+      const v = toSell(p.g);
+      const c = buckets.get(key);
+      if (!c) buckets.set(key, { t: key, o: v, h: v, l: v, c: v });
+      else { c.h = Math.max(c.h, v); c.l = Math.min(c.l, v); c.c = v; }
+    });
+    return [...buckets.values()].sort((a, b) => a.t - b.t);
+  }
+
+  function buildChart() {
+    if (!chartCanvas) return;
+    const candles = buildCandles();
+
+    if (candles.length < 2) {
       chartCanvas.innerHTML = '<p class="rate-chart__empty">Накапливаем историю цен…</p>';
       if (chartLegend) chartLegend.textContent = '';
       return;
     }
 
     const useAmd = currency === 'AMD' && market && market.amd;
-    const factor = useAmd ? market.amd : 1;
-    const toSell = (oz) => (oz / TROY_OUNCE_G) * 0.9999 * SELL_RATIO.pure * factor;
-    const values = points.map((p) => toSell(p.g));
-    const min = Math.min(...values), max = Math.max(...values);
-    const span = (max - min) || Math.max(max * 0.001, 0.01);
-    const t0 = points[0].t, t1 = points[points.length - 1].t;
-    const dt = (t1 - t0) || 1;
-
-    const W = 1000, H = 260, PAD = 18;
-    const x = (t) => PAD + ((t - t0) / dt) * (W - PAD * 2);
-    const y = (v) => H - PAD - ((v - min + span * 0.12) / (span * 1.24)) * (H - PAD * 2);
-
-    const line = points.map((p, i) => `${i ? 'L' : 'M'}${x(p.t).toFixed(1)} ${y(values[i]).toFixed(1)}`).join(' ');
-    const area = `${line} L${x(t1).toFixed(1)} ${H - PAD} L${x(t0).toFixed(1)} ${H - PAD} Z`;
-    const lastV = values[values.length - 1];
-    const rising = lastV >= values[0];
-    const stroke = rising ? '#157f3c' : '#b4402c';
     const cur = useAmd ? 'AMD' : 'USD';
+    const max = Math.max(...candles.map((c) => c.h));
+    const min = Math.min(...candles.map((c) => c.l));
+    const span = (max - min) || Math.max(max * 0.001, 0.01);
+
+    const W = 1000, H = 220, PAD_X = 14, PAD_Y = 16;
+    const step = (W - PAD_X * 2) / candles.length;
+    const bodyW = Math.max(3, Math.min(18, step * 0.58));
+    const y = (v) => PAD_Y + (1 - (v - min + span * 0.1) / (span * 1.2)) * (H - PAD_Y * 2);
+
+    const bodies = candles.map((c, i) => {
+      const cx = PAD_X + step * (i + 0.5);
+      const cls = c.c >= c.o ? 'is-up' : 'is-down';
+      const top = y(Math.max(c.o, c.c));
+      const height = Math.max(1.5, y(Math.min(c.o, c.c)) - top);
+      return `<g class="rate-candle ${cls}">`
+        + `<line x1="${cx.toFixed(1)}" y1="${y(c.h).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${y(c.l).toFixed(1)}"></line>`
+        + `<rect x="${(cx - bodyW / 2).toFixed(1)}" y="${top.toFixed(1)}" width="${bodyW.toFixed(1)}"`
+        + ` height="${height.toFixed(1)}" rx="1"></rect></g>`;
+    }).join('');
+
+    const grid = [0.15, 0.5, 0.85].map((f) => {
+      const yy = y(min + span * (1 - f)).toFixed(1);
+      return `<line class="rate-chart__grid" x1="${PAD_X}" x2="${W - PAD_X}" y1="${yy}" y2="${yy}"></line>`;
+    }).join('');
 
     chartCanvas.innerHTML = `
       <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img"
-           aria-label="График цены золота 999.9">
-        <defs>
-          <linearGradient id="rateFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${stroke}" stop-opacity="0.22"></stop>
-            <stop offset="100%" stop-color="${stroke}" stop-opacity="0"></stop>
-          </linearGradient>
-        </defs>
-        <line x1="${PAD}" y1="${H - PAD}" x2="${W - PAD}" y2="${H - PAD}" class="rate-chart__axis"></line>
-        <path d="${area}" fill="url(#rateFill)"></path>
-        <path d="${line}" fill="none" stroke="${stroke}" stroke-width="2.5"
-              stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>
-        <circle cx="${x(t1).toFixed(1)}" cy="${y(lastV).toFixed(1)}" r="5" fill="${stroke}"></circle>
-      </svg>
+           aria-label="Свечной график цены золота 999.9">${grid}${bodies}</svg>
       <span class="rate-chart__max">${symbol(cur)} ${fmt(max, cur)}</span>
       <span class="rate-chart__min">${symbol(cur)} ${fmt(min, cur)}</span>`;
 
-    const diff = lastV - values[0];
-    const pct = values[0] ? (diff / values[0]) * 100 : 0;
+    const diff = candles[candles.length - 1].c - candles[0].o;
+    const pct = candles[0].o ? (diff / candles[0].o) * 100 : 0;
     const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
     if (chartLegend) {
-      chartLegend.innerHTML = `<span class="${rising ? 'is-up' : 'is-down'}">${sign}${fmt(Math.abs(diff), cur)} `
-        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>точек</span>: ${points.length}`;
+      chartLegend.innerHTML = `<span class="${diff >= 0 ? 'is-up' : 'is-down'}">${sign}${fmt(Math.abs(diff), cur)} `
+        + `(${sign}${Math.abs(pct).toFixed(2)}%)</span> · <span>свечей</span>: ${candles.length}`;
     }
   }
 
@@ -304,7 +320,7 @@
     });
     rangeButtons.forEach((btn) => btn.classList.toggle('is-active', btn.dataset.chartRange === chartRange));
 
-    buildChart();
+    if (chartPanel && !chartPanel.classList.contains('is-hidden')) buildChart();
     if (window.TovmasyanI18n && window.TovmasyanI18n.getLang() !== 'ru') window.TovmasyanI18n.apply();
   }
 
@@ -385,18 +401,22 @@
     });
   });
 
-  function setExpanded(expanded) {
-    board.classList.toggle('is-collapsed', !expanded);
-    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', String(expanded));
-    if (toggleLabel) toggleLabel.textContent = expanded ? 'Свернуть' : 'Показать все пробы и график';
-    try { localStorage.setItem('tovmasyan_rate_open', expanded ? '1' : '0'); } catch (error) { /* ignore */ }
-    if (expanded) buildChart();
+  function setChartVisible(visible) {
+    if (!chartPanel) return;
+    chartPanel.classList.toggle('is-hidden', !visible);
+    if (chartToggle) {
+      chartToggle.setAttribute('aria-expanded', String(visible));
+      chartToggle.classList.toggle('is-active', visible);
+    }
+    if (chartToggleLabel) chartToggleLabel.textContent = visible ? 'Скрыть график' : 'График';
+    try { localStorage.setItem('tovmasyan_chart_open', visible ? '1' : '0'); } catch (error) { /* ignore */ }
+    if (visible) buildChart();
     if (window.TovmasyanI18n && window.TovmasyanI18n.getLang() !== 'ru') window.TovmasyanI18n.apply();
   }
 
-  if (toggleBtn) {
-    toggleBtn.addEventListener('click', () => setExpanded(board.classList.contains('is-collapsed')));
-    setExpanded(localStorage.getItem('tovmasyan_rate_open') === '1');
+  if (chartToggle) {
+    chartToggle.addEventListener('click', () => setChartVisible(chartPanel.classList.contains('is-hidden')));
+    setChartVisible(localStorage.getItem('tovmasyan_chart_open') === '1');
   }
 
   tick();

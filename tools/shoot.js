@@ -56,7 +56,7 @@ const BASE = 'http://127.0.0.1:8099';
   await new Promise((r) => setTimeout(r, 900));
 
   if (flags.includes('--expand')) {
-    await page.click('[data-rate-toggle]').catch(() => {});
+    await page.click('[data-chart-toggle]').catch(() => {});
     await new Promise((r) => setTimeout(r, 900));
   }
 

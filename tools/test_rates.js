@@ -126,37 +126,48 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   check('without a baseline the 24h cell degrades to a dash', dash.textContent.trim() === '—', dash.textContent.trim());
   check('prices still render without a baseline', num(noBase.document.querySelector('[data-rate-rows] .rate-sell').textContent) > 0);
 
-  /* ---------------- compact mode, chart, live updates ---------------- */
+  /* ---------------- always-open board, chart on demand ---------------- */
   const board2 = w.document.querySelector('[data-gold-board]');
-  check('board starts compact', board2.classList.contains('is-collapsed'));
-  const highlight = w.document.querySelector('[data-rate-highlight]');
-  check('compact strip shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
-  check('compact strip shows a price', /\d+,\d{2}/.test(highlight.textContent), highlight.textContent.trim().slice(0, 60));
+  const chartPanel = w.document.querySelector('[data-rate-chart]');
+  check('board is open from the start', !board2.classList.contains('is-collapsed'));
+  check('full purity table is visible without any click', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
+  check('chart starts hidden', chartPanel.classList.contains('is-hidden'));
 
-  const toggle = w.document.querySelector('[data-rate-toggle]');
-  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(120);
-  check('button expands the board', !board2.classList.contains('is-collapsed'));
-  check('expanded state is announced to screen readers', toggle.getAttribute('aria-expanded') === 'true');
-  // this window was switched to Armenian earlier, so accept either wording
-  const lbl = w.document.querySelector('[data-toggle-label]').textContent.trim();
-  check('button label flips to "collapse"', lbl === 'Свернуть' || lbl === 'Փակել', lbl);
-  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(120);
-  check('button collapses it again', board2.classList.contains('is-collapsed'));
-  toggle.dispatchEvent(new w.Event('click', { bubbles: true }));
-  await wait(120);
+  const highlight = w.document.querySelector('[data-rate-highlight]');
+  check('price strip shows 999.9 and 585', /999\.9/.test(highlight.textContent) && /585/.test(highlight.textContent));
+
+  const chartBtn = w.document.querySelector('[data-chart-toggle]');
+  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
+  check('button opens the chart', !chartPanel.classList.contains('is-hidden'));
+  check('open state is announced to screen readers', chartBtn.getAttribute('aria-expanded') === 'true');
 
   const svg = w.document.querySelector('[data-chart-canvas] svg');
-  check('chart is drawn as an svg line', Boolean(svg && svg.querySelector('path')));
-  const d = svg && svg.querySelectorAll('path')[1] && svg.querySelectorAll('path')[1].getAttribute('d');
-  check('chart line has many points', d && (d.match(/L/g) || []).length >= 1, d && d.slice(0, 40));
-  check('chart legend reports the change', /%/.test(w.document.querySelector('[data-chart-legend]').textContent));
+  check('chart is drawn as an svg', Boolean(svg));
+  const candles = svg ? svg.querySelectorAll('g.rate-candle') : [];
+  check('candlesticks are rendered', candles.length >= 2, `${candles.length} candles`);
+  check('each candle has a wick and a body', Boolean(candles[0] && candles[0].querySelector('line') && candles[0].querySelector('rect')));
+  const upCount = svg ? svg.querySelectorAll('g.rate-candle.is-up').length : 0;
+  const downCount = svg ? svg.querySelectorAll('g.rate-candle.is-down').length : 0;
+  check('candles are coloured by direction', upCount + downCount === candles.length && upCount > 0, `up ${upCount} / down ${downCount}`);
+  const firstBody = candles[0] && candles[0].querySelector('rect');
+  check('candle body has a real height', firstBody && parseFloat(firstBody.getAttribute('height')) > 0);
+  check('legend counts the candles', /свеч|մոմ/.test(w.document.querySelector('[data-chart-legend]').textContent));
+
   const sevenBtn = w.document.querySelector('[data-chart-range="7d"]');
   sevenBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(150);
+  check('7-day range switches', sevenBtn.classList.contains('is-active'));
+  check('7-day range draws fewer, wider candles',
+    w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length <= candles.length,
+    `${w.document.querySelectorAll('[data-chart-canvas] g.rate-candle').length} vs ${candles.length}`);
+
+  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
   await wait(120);
-  check('7-day range button becomes active', sevenBtn.classList.contains('is-active'));
-  check('chart still renders on the 7-day range', Boolean(w.document.querySelector('[data-chart-canvas] svg, .rate-chart__empty')));
+  check('button hides the chart again', chartPanel.classList.contains('is-hidden'));
+  check('table stays visible when the chart is hidden', w.document.querySelectorAll('[data-rate-rows] tr').length === 6);
+  chartBtn.dispatchEvent(new w.Event('click', { bubbles: true }));
+  await wait(120);
 
   /* a price move must be visibly flagged */
   const before = w.document.querySelector('[data-rate-rows] .rate-sell').textContent;
