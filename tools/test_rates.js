@@ -54,22 +54,27 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const first = rows[0];
   const buy = num(first.querySelector('.rate-buy').textContent);
   const sell = num(first.querySelector('.rate-sell').textContent);
-  const PREMIUM = 0.90;   // gold shown 10% below the world market
-  const spotGram = (GOLD_OZ / OZ_G) * 0.9999 * PREMIUM;
-  check('999.9 buy price = spot −10% −3%', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy} vs ${(spotGram * 0.97).toFixed(2)}`);
-  check('999.9 sell price = spot −10% +2% +5%', Math.abs(sell - spotGram * 1.02 * 1.05) < 0.02, `${sell} vs ${(spotGram * 1.02 * 1.05).toFixed(2)}`);
+  const PREMIUM = 0.90;      // buy reference: 10% below the world market
+  const BUY_UP = 1.05;       // +5% on the buy price
+  const R_PURE = 0.9845, R_ALLOY = 0.9759, R_SILVER = 1.0868;   // Yerevan retail sell level
+  const pureGram = (GOLD_OZ / OZ_G) * 0.9999;
+  const spotGram = pureGram * PREMIUM;
+  check('999.9 buy price = reference −3% +5%', Math.abs(buy - spotGram * 0.97 * BUY_UP) < 0.02, `${buy} vs ${(spotGram * 0.97 * BUY_UP).toFixed(2)}`);
+  check('999.9 sell price matches the Yerevan retail level', Math.abs(sell - pureGram * R_PURE) < 0.02, `${sell} vs ${(pureGram * R_PURE).toFixed(2)}`);
   check('sell is above buy', sell > buy);
-  check('buy price is unchanged by the sell uplift', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy}`);
-  check('sell sits 5% over the plain margin', Math.abs(sell / (spotGram * 1.02) - 1.05) < 0.001, `${(sell / (spotGram * 1.02)).toFixed(4)}`);
+  check('buy carries the +5% uplift', Math.abs(buy / (spotGram * 0.97) - 1.05) < 0.001, `${(buy / (spotGram * 0.97)).toFixed(4)}`);
 
   const r585 = [...rows].find((r) => r.textContent.includes('585'));
   const sell585 = num(r585.querySelector('.rate-sell').textContent);
-  check('585 is 58.5% of pure gold', Math.abs(sell585 / sell - 0.585 / 0.9999) < 0.001);
+  check('585 sell matches the Yerevan alloy level', Math.abs(sell585 - (GOLD_OZ / OZ_G) * 0.585 * R_ALLOY) < 0.02, `${sell585}`);
+  const buy585 = num(r585.querySelector('.rate-buy').textContent);
+  check('585 buy scales with purity', Math.abs(buy585 / buy - 0.585 / 0.9999) < 0.001);
+  check('585 sell stays above 585 buy', sell585 > buy585);
 
   const silverRow = [...rows].find((r) => r.textContent.includes('925'));
   const silverSell = num(silverRow.querySelector('.rate-sell').textContent);
   check('silver row present and cheaper than gold', silverRow && silverSell < sell);
-  check('silver untouched by the gold correction', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * 1.02 * 1.05) < 0.02, `${silverSell}`);
+  check('silver follows its own retail level', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * R_SILVER) < 0.01, `${silverSell}`);
 
   /* ---------------- 24h change ---------------- */
   const delta = first.querySelector('.rate-change');
