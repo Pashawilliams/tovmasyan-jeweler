@@ -71,7 +71,7 @@ function tap(dom, el) {
   ready(dom);
   d = dom.window.document;
   const A = dom.window.TovmasyanAuth;
-  check('catalog renders 24 cards', d.querySelectorAll('[data-catalog-products] .product-card').length === 24);
+  check('catalog renders 21 cards', d.querySelectorAll('[data-catalog-products] .product-card').length === 21);
   check('catalog images absolute', [...d.querySelectorAll('[data-catalog-products] img')].every((i) => i.getAttribute('src').startsWith('/assets/')));
   const star = d.querySelector('[data-favorite-product]');
   check('star button exists on card', !!star);
@@ -86,11 +86,11 @@ function tap(dom, el) {
   check('second tap removes favorite', !star.classList.contains('is-active') && (await A.listFavorites()).length === 0);
 
   /* 5. product page: link targets and favorite button */
-  dom = makeDom('products/aurora-ring/index.html', 'https://www.tovmasyan.army/products/aurora-ring/');
+  dom = makeDom('products/cross-royal/index.html', 'https://www.tovmasyan.army/products/cross-royal/');
   ['firebase-config.js', 'data/products.js', 'script.js', 'auth.js'].forEach((f) => runScript(dom, f));
   ready(dom);
   d = dom.window.document;
-  check('product page has favorite button', !!d.querySelector('[data-favorite-product="aurora-ring"]'));
+  check('product page has favorite button', !!d.querySelector('[data-favorite-product="cross-royal"]'));
   check('product page has detail text', d.body.textContent.length > 800);
   check('product image absolute path', d.querySelector('.product-detail__media img').getAttribute('src').startsWith('/assets/'));
 
@@ -100,7 +100,7 @@ function tap(dom, el) {
   ready(dom);
   d = dom.window.document;
   const mediaLinks = [...d.querySelectorAll('.product-card__media')];
-  check('every card media is a link', mediaLinks.length === 24 && mediaLinks.every((a) => a.tagName === 'A' && /^\/products\/.+\/$/.test(a.getAttribute('href'))));
+  check('every card media is a link', mediaLinks.length === 21 && mediaLinks.every((a) => a.tagName === 'A' && /^\/products\/.+\/$/.test(a.getAttribute('href'))));
   let defaultPrevented = false;
   const link = mediaLinks[0];
   link.addEventListener('click', (e) => { defaultPrevented = e.defaultPrevented; });
@@ -125,7 +125,7 @@ function tap(dom, el) {
   const dict = DICTS.hy;
   for (const lang of ['hy', 'en']) {
     const d = DICTS[lang];
-    for (const page of ['index.html', 'catalog/index.html', 'about/index.html', 'contacts/index.html', 'products/aurora-ring/index.html']) {
+    for (const page of ['index.html', 'catalog/index.html', 'about/index.html', 'contacts/index.html', 'products/cross-royal/index.html']) {
       const hdom = makeDom(page, 'https://www.tovmasyan.army/');
       hdom.window.localStorage.setItem('tovmasyan_lang', lang);
       hdom.window.fetch = async () => ({ ok: true, json: async () => d });

@@ -67,8 +67,8 @@ const wait = (ms = 60) => new Promise((r) => setTimeout(r, ms));
 
   /* --- device A: add two favourites --- */
   const A = makeDevice(backend, 'PC');
-  await A.auth.addFavorite({ id: 'aurora-ring', name: 'Aurora' });
-  await A.auth.addFavorite({ id: 'monaco-bracelet', name: 'Monaco' });
+  await A.auth.addFavorite({ id: 'cross-royal', name: 'Aurora' });
+  await A.auth.addFavorite({ id: 'tennis-classic-bracelet', name: 'Monaco' });
   await wait();
   check('PC: two favourites saved', (await A.auth.listFavorites()).length === 2);
   check('cloud received both', backend.state.favorites.size === 2);
@@ -79,41 +79,41 @@ const wait = (ms = 60) => new Promise((r) => setTimeout(r, ms));
   check('Phone: sees favourites from cloud', bList.length === 2);
 
   /* --- THE BUG: delete on phone, must stay deleted everywhere --- */
-  await B.auth.removeFavorite('aurora-ring');
+  await B.auth.removeFavorite('cross-royal');
   await wait();
   check('Phone: item removed locally', (await B.auth.listFavorites()).length === 1);
-  check('cloud: item really deleted', !backend.state.favorites.has('aurora-ring'));
+  check('cloud: item really deleted', !backend.state.favorites.has('cross-royal'));
 
   const bAfterReload = makeDevice(backend, 'Phone-reload');
   check('Phone after page reload: stays deleted', (await bAfterReload.auth.listFavorites()).length === 1);
 
   const aAfterReload = makeDevice(backend, 'PC-reload');
   check('PC after reload: deletion propagated', (await aAfterReload.auth.listFavorites()).length === 1);
-  check('PC: deleted item does NOT resurrect', !(await aAfterReload.auth.listFavorites()).some((i) => i.productId === 'aurora-ring'));
+  check('PC: deleted item does NOT resurrect', !(await aAfterReload.auth.listFavorites()).some((i) => i.productId === 'cross-royal'));
 
   /* --- live push: delete on one device updates the other without reload --- */
   const liveA = makeDevice(backend, 'Live-A');
   const liveB = makeDevice(backend, 'Live-B');
-  await liveA.auth.addFavorite({ id: 'stella-earrings', name: 'Stella' });
+  await liveA.auth.addFavorite({ id: 'halo-necklace', name: 'Stella' });
   await wait();
-  check('live: second device got the addition instantly', (await liveB.auth.listFavorites()).some((i) => i.productId === 'stella-earrings'));
-  await liveA.auth.removeFavorite('stella-earrings');
+  check('live: second device got the addition instantly', (await liveB.auth.listFavorites()).some((i) => i.productId === 'halo-necklace'));
+  await liveA.auth.removeFavorite('halo-necklace');
   await wait();
-  check('live: second device got the deletion instantly', !(await liveB.auth.listFavorites()).some((i) => i.productId === 'stella-earrings'));
+  check('live: second device got the deletion instantly', !(await liveB.auth.listFavorites()).some((i) => i.productId === 'halo-necklace'));
 
   /* --- offline deletion must survive and reach the cloud later --- */
   backend.setOnline(false);
   const off = makeDevice(backend, 'Offline');
-  await off.auth.removeFavorite('monaco-bracelet');
-  check('offline: removed from the screen immediately', !(await off.auth.listFavorites()).some((i) => i.productId === 'monaco-bracelet'));
-  check('offline: cloud still untouched', backend.state.favorites.has('monaco-bracelet'));
+  await off.auth.removeFavorite('tennis-classic-bracelet');
+  check('offline: removed from the screen immediately', !(await off.auth.listFavorites()).some((i) => i.productId === 'tennis-classic-bracelet'));
+  check('offline: cloud still untouched', backend.state.favorites.has('tennis-classic-bracelet'));
   backend.setOnline(true);
   await off.auth.flushPending();
   await wait();
-  check('back online: queued deletion reached the cloud', !backend.state.favorites.has('monaco-bracelet'));
+  check('back online: queued deletion reached the cloud', !backend.state.favorites.has('tennis-classic-bracelet'));
 
   const afterOffline = makeDevice(backend, 'After-offline');
-  check('deleted-while-offline item does not come back', !(await afterOffline.auth.listFavorites()).some((i) => i.productId === 'monaco-bracelet'));
+  check('deleted-while-offline item does not come back', !(await afterOffline.auth.listFavorites()).some((i) => i.productId === 'tennis-classic-bracelet'));
 
   /* --- orders are not duplicated on every login --- */
   const O = makeDevice(backend, 'Orders');

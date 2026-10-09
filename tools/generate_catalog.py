@@ -1,3 +1,5 @@
+# ВНИМАНИЕ: устарело. Каталог собирается из tools/catalog_photos.py через
+# tools/build_photo_catalog.py. Этот файл запускать нельзя — он перезапишет страницы.
 from pathlib import Path
 import json
 import html
