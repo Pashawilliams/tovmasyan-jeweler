@@ -57,8 +57,10 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const PREMIUM = 0.90;   // gold shown 10% below the world market
   const spotGram = (GOLD_OZ / OZ_G) * 0.9999 * PREMIUM;
   check('999.9 buy price = spot −10% −3%', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy} vs ${(spotGram * 0.97).toFixed(2)}`);
-  check('999.9 sell price = spot −10% +2%', Math.abs(sell - spotGram * 1.02) < 0.02, `${sell} vs ${(spotGram * 1.02).toFixed(2)}`);
+  check('999.9 sell price = spot −10% +2% +5%', Math.abs(sell - spotGram * 1.02 * 1.05) < 0.02, `${sell} vs ${(spotGram * 1.02 * 1.05).toFixed(2)}`);
   check('sell is above buy', sell > buy);
+  check('buy price is unchanged by the sell uplift', Math.abs(buy - spotGram * 0.97) < 0.02, `${buy}`);
+  check('sell sits 5% over the plain margin', Math.abs(sell / (spotGram * 1.02) - 1.05) < 0.001, `${(sell / (spotGram * 1.02)).toFixed(4)}`);
 
   const r585 = [...rows].find((r) => r.textContent.includes('585'));
   const sell585 = num(r585.querySelector('.rate-sell').textContent);
@@ -67,7 +69,7 @@ const num = (s) => parseFloat(String(s).replace(/[^\d,.-]/g, '').replace(/\s/g, 
   const silverRow = [...rows].find((r) => r.textContent.includes('925'));
   const silverSell = num(silverRow.querySelector('.rate-sell').textContent);
   check('silver row present and cheaper than gold', silverRow && silverSell < sell);
-  check('silver untouched by the gold correction', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * 1.02) < 0.02, `${silverSell}`);
+  check('silver untouched by the gold correction', Math.abs(silverSell - (SILVER_OZ / OZ_G) * 0.925 * 1.02 * 1.05) < 0.02, `${silverSell}`);
 
   /* ---------------- 24h change ---------------- */
   const delta = first.querySelector('.rate-change');

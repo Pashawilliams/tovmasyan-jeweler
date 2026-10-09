@@ -7,9 +7,12 @@
 
   /* ---- The only numbers the jeweler ever needs to change --------------- */
   const MARGIN = {
-    buy: -0.030,   // we buy metal 3.0% below the world market price
-    sell: 0.020    // we sell 2.0% above the world market price
+    buy: -0.030,   // buy price: 3.0% under the reference price
+    sell: 0.020    // sell price: 2.0% over the reference price
   };
+
+  // Extra uplift applied to the SELL price only — the buy price stays untouched.
+  const SELL_UPLIFT = 0.05;   // +5%
 
   // Our own correction on gold against the world market price.
   const GOLD_PREMIUM = -0.10;  // −10%
@@ -145,11 +148,12 @@
       const premium = row.metal === 'gold' ? 1 + GOLD_PREMIUM : 1;
       const perGram = (oz / TROY_OUNCE_G) * row.fineness * premium;
       const buy = perGram * (1 + MARGIN.buy) * factor;
-      const sell = perGram * (1 + MARGIN.sell) * factor;
+      const sell = perGram * (1 + MARGIN.sell) * (1 + SELL_UPLIFT) * factor;
 
       let changeCell = '<span class="rate-change is-flat">—</span>';
       if (prevOz) {
-        const prevGram = (prevOz / TROY_OUNCE_G) * row.fineness * premium * (1 + MARGIN.sell) * factor;
+        const prevGram = (prevOz / TROY_OUNCE_G) * row.fineness * premium
+          * (1 + MARGIN.sell) * (1 + SELL_UPLIFT) * factor;
         const diff = sell - prevGram;
         const pct = prevGram ? (diff / prevGram) * 100 : 0;
         const dir = diff > 0.0001 ? 'is-up' : diff < -0.0001 ? 'is-down' : 'is-flat';
