@@ -2090,7 +2090,7 @@ details p {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(22, 16, 13, 0.94), rgba(22, 16, 13, 0.56) 48%, rgba(22, 16, 13, 0.86)), url("assets/banner-tovmasyan-jeweler.jpg") center/cover no-repeat;
+  background: linear-gradient(90deg, rgba(22, 16, 13, 0.94), rgba(22, 16, 13, 0.56) 48%, rgba(22, 16, 13, 0.86)), url("/assets/banner-tovmasyan-jeweler.jpg?v=a6853670") center/cover no-repeat;
   opacity: .24;
   pointer-events: none;
 }
@@ -2103,13 +2103,13 @@ details p {
     border-radius: 26px;
   }
   .brand-banner img {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 1 / 1;
   }
 }
 
 /* Speed optimizations */
 .hero::before {
-  background: linear-gradient(90deg, rgba(22, 16, 13, 0.94), rgba(22, 16, 13, 0.56) 48%, rgba(22, 16, 13, 0.86)), url("assets/banner-tovmasyan-jeweler.webp") center/cover no-repeat;
+  background: linear-gradient(90deg, rgba(22, 16, 13, 0.94), rgba(22, 16, 13, 0.56) 48%, rgba(22, 16, 13, 0.86)), url("/assets/banner-tovmasyan-jeweler.webp?v=a6853670") center/cover no-repeat;
 }
 
 .brand-banner picture {
