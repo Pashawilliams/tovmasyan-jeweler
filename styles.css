@@ -3867,3 +3867,48 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 .rate-chart__canvas .rate-candle:hover { opacity: 1; }
 
 .product-card__media > a { display: block; width: 100%; height: 100%; }
+
+/* Переключатель валюты цен */
+.price-switch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+.price-switch-row--center { justify-content: center; margin: 2px 0 18px; }
+.price-switch-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+.price-switch {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.price-switch button {
+  padding: 6px 13px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+.price-switch button:hover { color: var(--text); }
+.price-switch button.is-active {
+  background: var(--blue-gradient);
+  color: var(--beige-ink);
+}
+.product-card__bottom span[data-price-amd],
+.hero-lux__card-price span,
+.showcase-card__price span { white-space: nowrap; }

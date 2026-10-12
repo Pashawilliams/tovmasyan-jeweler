@@ -10,7 +10,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 25 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "110 000 ֏",
     "short": "Тонкий крестик с центральным камнем и дорожкой паве.",
     "description": "Лучи крестика плавно сужаются к центру, где закреплен крупный круглый камень. Нижний и боковые лучи усыпаны дорожкой мелких камней, поэтому изделие сияет даже при мягком свете. Поставляется на тонкой якорной цепочке.",
     "tags": [
@@ -20,7 +20,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-lumiere.webp",
-    "thumbnail": "assets/thumbs/cross-lumiere.webp"
+    "thumbnail": "assets/thumbs/cross-lumiere.webp",
+    "priceAmd": 110000
   },
   {
     "id": "cross-petale",
@@ -33,7 +34,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 24 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "130 000 ֏",
     "short": "Крестик-цветок из четырех лепестков с паве.",
     "description": "Лучи выполнены в форме мягких лепестков-маркиз, внутри каждого — ряд мелких камней, а в центре закреплен более крупный круглый камень. Благодаря округлым линиям крестик смотрится женственно и деликатно.",
     "tags": [
@@ -43,7 +44,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-petale.webp",
-    "thumbnail": "assets/thumbs/cross-petale.webp"
+    "thumbnail": "assets/thumbs/cross-petale.webp",
+    "priceAmd": 130000
   },
   {
     "id": "cross-royal",
@@ -56,7 +58,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 28 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "110 000 ֏",
     "short": "Фигурный крестик с тремя камнями на каждом конце.",
     "description": "Лучи расходятся резной «короной», и каждый конец увенчан тремя круглыми камнями, а центр отмечен крупной вставкой. Рельефное литье дает глубокие тени и подчеркивает классический, почти храмовый силуэт.",
     "tags": [
@@ -66,7 +68,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-royal.webp",
-    "thumbnail": "assets/thumbs/cross-royal.webp"
+    "thumbnail": "assets/thumbs/cross-royal.webp",
+    "priceAmd": 110000
   },
   {
     "id": "cross-infinity",
@@ -79,7 +82,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 26 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "100 000 ֏",
     "short": "Переплетенные ленты золота с белым паве.",
     "description": "Две золотые ленты плавно перекрещиваются в центре, образуя мягкий силуэт креста без острых углов. Внутренняя часть каждой ленты закреплена мелкими камнями в белом родировании — получается контраст теплого золота и холодного блеска.",
     "tags": [
@@ -89,7 +92,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-infinity.webp",
-    "thumbnail": "assets/thumbs/cross-infinity.webp"
+    "thumbnail": "assets/thumbs/cross-infinity.webp",
+    "priceAmd": 100000
   },
   {
     "id": "cross-grand-rose",
@@ -102,7 +106,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 38 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "140 000 ֏",
     "short": "Крупный ажурный крест из красного золота в паве.",
     "description": "Самая заметная модель линии: открытый контур каждого луча обведен дорожкой камней, внутри идет вторая, более тонкая линия, а центр собран из четырех крупных круглых вставок. Красное золото делает блеск теплым и мягким.",
     "tags": [
@@ -112,7 +116,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-grand-rose.webp",
-    "thumbnail": "assets/thumbs/cross-grand-rose.webp"
+    "thumbnail": "assets/thumbs/cross-grand-rose.webp",
+    "priceAmd": 140000
   },
   {
     "id": "cross-classic",
@@ -125,7 +130,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 32 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "100 000 ֏",
     "short": "Гладкий полированный крестик с одним камнем.",
     "description": "Строгая форма без лишнего декора: широкие полированные лучи с мягким скосом и единственный круглый камень в перекрестии. Такой крестик одинаково уместен и как повседневный, и как подарок на крестины.",
     "tags": [
@@ -135,7 +140,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/cross-classic.webp",
-    "thumbnail": "assets/thumbs/cross-classic.webp"
+    "thumbnail": "assets/thumbs/cross-classic.webp",
+    "priceAmd": 100000
   },
   {
     "id": "papillon-necklace",
@@ -148,7 +154,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Цепочка 40–45 см",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "80 000 ֏",
     "short": "Бабочка из гладкого золота с камнем в центре.",
     "description": "Четыре вытянутых лепестка образуют силуэт бабочки, в центре — круглый камень в аккуратной глухой закрепке. Подвеска вшита в цепочку двумя точками, поэтому всегда лежит ровно и не переворачивается.",
     "tags": [
@@ -158,7 +164,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/papillon-necklace.webp",
-    "thumbnail": "assets/thumbs/papillon-necklace.webp"
+    "thumbnail": "assets/thumbs/papillon-necklace.webp",
+    "priceAmd": 80000
   },
   {
     "id": "fleur-necklace",
@@ -171,7 +178,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Цепочка 40–45 см",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "100 000 ֏",
     "short": "Цветок из пяти лепестков, полностью покрытых камнями.",
     "description": "Каждый лепесток плотно закреплен мелкими камнями, между ними видны тонкие линии красного золота, а сердцевина отмечена одним камнем покрупнее. Цветок закреплен на цепочке двумя петлями и красиво ложится в ямку ключиц.",
     "tags": [
@@ -181,7 +188,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/fleur-necklace.webp",
-    "thumbnail": "assets/thumbs/fleur-necklace.webp"
+    "thumbnail": "assets/thumbs/fleur-necklace.webp",
+    "priceAmd": 100000
   },
   {
     "id": "duo-papillon-necklace",
@@ -194,7 +202,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Цепочка 40–45 см",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "120 000 ֏",
     "short": "Две ажурные бабочки из белого золота.",
     "description": "Контуры двух бабочек выложены дорожками камней и соединены так, будто одна догоняет другую. Внутри крыльев пусто — за счет этого украшение выглядит легким и почти невесомым на коже.",
     "tags": [
@@ -204,7 +212,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/duo-papillon-necklace.webp",
-    "thumbnail": "assets/thumbs/duo-papillon-necklace.webp"
+    "thumbnail": "assets/thumbs/duo-papillon-necklace.webp",
+    "priceAmd": 120000
   },
   {
     "id": "halo-necklace",
@@ -217,7 +226,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Цепочка 40–45 см",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "100 000 ֏",
     "short": "Крупный круглый камень в обрамлении halo.",
     "description": "Главный камень бриллиантовой огранки удерживают четыре золотые лапки, а по кругу его обрамляет дорожка мелких вставок — классический halo, который зрительно увеличивает центр и усиливает блеск. Подвеска скользит по цепочке и всегда оказывается по центру.",
     "tags": [
@@ -227,7 +236,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/halo-necklace.webp",
-    "thumbnail": "assets/thumbs/halo-necklace.webp"
+    "thumbnail": "assets/thumbs/halo-necklace.webp",
+    "priceAmd": 100000
   },
   {
     "id": "arc-marquise-necklace",
@@ -240,7 +250,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Цепочка 40–45 см",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "140 000 ֏",
     "short": "Золотая дуга с камнем огранки маркиз.",
     "description": "Гладкая золотая дуга мягко повторяет линию шеи, а в ее нижней точке вертикально закреплен камень огранки маркиз. Минимум деталей и очень узнаваемая геометрия — украшение для тех, кто любит современную лаконичность.",
     "tags": [
@@ -250,7 +260,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/arc-marquise-necklace.webp",
-    "thumbnail": "assets/thumbs/arc-marquise-necklace.webp"
+    "thumbnail": "assets/thumbs/arc-marquise-necklace.webp",
+    "priceAmd": 140000
   },
   {
     "id": "butterfly-glow-pendant",
@@ -263,7 +274,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Ширина ок. 18 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "80 000 ֏",
     "short": "Объемные крылья и тельце в мелком паве.",
     "description": "Крылья вылеплены округлыми полированными линиями, а каплевидное тельце полностью усыпано мелкими камнями и подвешено на подвижном колечке — при движении бабочка слегка покачивается и ловит свет.",
     "tags": [
@@ -273,7 +284,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/butterfly-glow-pendant.webp",
-    "thumbnail": "assets/thumbs/butterfly-glow-pendant.webp"
+    "thumbnail": "assets/thumbs/butterfly-glow-pendant.webp",
+    "priceAmd": 80000
   },
   {
     "id": "butterfly-trio-pendant",
@@ -286,7 +298,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 35 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "40 000 ֏",
     "short": "Каскад из четырех бабочек разного размера.",
     "description": "Бабочки закреплены на подвижных звеньях и спускаются каскадом — крупные сверху, маленькие ниже. Крылья полностью покрыты камнями, поэтому даже небольшое движение дает живой, рассыпчатый блеск.",
     "tags": [
@@ -296,7 +308,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/butterfly-trio-pendant.webp",
-    "thumbnail": "assets/thumbs/butterfly-trio-pendant.webp"
+    "thumbnail": "assets/thumbs/butterfly-trio-pendant.webp",
+    "priceAmd": 40000
   },
   {
     "id": "laurel-circle-pendant",
@@ -309,7 +322,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Диаметр ок. 22 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "130 000 ֏",
     "short": "Кольцо из лавровой ветви с листьями в паве.",
     "description": "Ветвь свернута в круг: полированный стебель идет по кольцу, а листья, закрепленные мелкими камнями, расходятся в стороны. Открытая середина делает подвеску легкой, несмотря на крупный диаметр.",
     "tags": [
@@ -319,7 +332,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/laurel-circle-pendant.webp",
-    "thumbnail": "assets/thumbs/laurel-circle-pendant.webp"
+    "thumbnail": "assets/thumbs/laurel-circle-pendant.webp",
+    "priceAmd": 130000
   },
   {
     "id": "clover-pendant",
@@ -332,7 +346,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Ширина ок. 20 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "110 000 ֏",
     "short": "Четырехлистник с камнями на концах лепестков.",
     "description": "Четыре остроконечных лепестка образуют открытый цветок-клевер. На конце каждого лепестка закреплены по три круглых камня, а сами линии оставлены гладкими и полированными — получается чистая графика с точечным блеском.",
     "tags": [
@@ -342,7 +356,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/clover-pendant.webp",
-    "thumbnail": "assets/thumbs/clover-pendant.webp"
+    "thumbnail": "assets/thumbs/clover-pendant.webp",
+    "priceAmd": 110000
   },
   {
     "id": "giraffe-gold-pendant",
@@ -355,7 +370,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 28 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "90 000 ֏",
     "short": "Детская подвеска с матовым корпусом и пятнышками.",
     "description": "Корпус жирафа сделан матовым, а круглые пятна, рожки и копытца — полированными, поэтому фигурка выглядит объемной. Глаз и кончики рожек отмечены темными кабошонами. Отличный подарок на рождение или первый день рождения.",
     "tags": [
@@ -365,7 +380,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/giraffe-gold-pendant.webp",
-    "thumbnail": "assets/thumbs/giraffe-gold-pendant.webp"
+    "thumbnail": "assets/thumbs/giraffe-gold-pendant.webp",
+    "priceAmd": 90000
   },
   {
     "id": "giraffe-duo-pendant",
@@ -378,7 +394,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Высота ок. 26 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "80 000 ֏",
     "short": "Ажурный силуэт мамы и малыша с одним камнем.",
     "description": "Две фигуры нарисованы одной непрерывной линией: шея мамы-жирафа превращается в контур малыша, который тянется к ней. Внутри корпуса — завитки вместо пятен, а голова малыша отмечена камнем. Подвеска-символ связи мамы и ребенка.",
     "tags": [
@@ -388,7 +404,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "pendant",
     "image": "assets/real-photos/giraffe-duo-pendant.webp",
-    "thumbnail": "assets/thumbs/giraffe-duo-pendant.webp"
+    "thumbnail": "assets/thumbs/giraffe-duo-pendant.webp",
+    "priceAmd": 80000
   },
   {
     "id": "butterfly-huggie-earrings",
@@ -401,7 +418,7 @@ window.TOVMASYAN_PRODUCTS = [
     "weight": "По расчету",
     "size": "Диаметр ок. 12 мм",
     "availability": "В наличии и под заказ",
-    "price": "Цена по запросу",
+    "price": "120 000 ֏",
     "short": "Мини-конго с бабочкой, полностью в камнях.",
     "description": "Небольшое плотное кольцо-конго с надежным щелчковым замком, а спереди — бабочка, крылья которой целиком закреплены мелкими камнями. Серьги сидят близко к мочке, не мешают и подходят для ежедневного ношения.",
     "tags": [
@@ -411,7 +428,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "earring",
     "image": "assets/real-photos/butterfly-huggie-earrings.webp",
-    "thumbnail": "assets/thumbs/butterfly-huggie-earrings.webp"
+    "thumbnail": "assets/thumbs/butterfly-huggie-earrings.webp",
+    "priceAmd": 120000
   },
   {
     "id": "tennis-classic-bracelet",
@@ -434,7 +452,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "bracelet",
     "image": "assets/real-photos/tennis-classic-bracelet.webp",
-    "thumbnail": "assets/thumbs/tennis-classic-bracelet.webp"
+    "thumbnail": "assets/thumbs/tennis-classic-bracelet.webp",
+    "priceAmd": 0
   },
   {
     "id": "laurel-marquise-bracelet",
@@ -457,7 +476,8 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "bracelet",
     "image": "assets/real-photos/laurel-marquise-bracelet.webp",
-    "thumbnail": "assets/thumbs/laurel-marquise-bracelet.webp"
+    "thumbnail": "assets/thumbs/laurel-marquise-bracelet.webp",
+    "priceAmd": 0
   },
   {
     "id": "marquise-tennis-bracelet",
@@ -480,6 +500,7 @@ window.TOVMASYAN_PRODUCTS = [
     ],
     "style": "bracelet",
     "image": "assets/real-photos/marquise-tennis-bracelet.webp",
-    "thumbnail": "assets/thumbs/marquise-tennis-bracelet.webp"
+    "thumbnail": "assets/thumbs/marquise-tennis-bracelet.webp",
+    "priceAmd": 0
   }
 ];

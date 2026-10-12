@@ -13,7 +13,7 @@
   <meta property="og:image" content="https://www.tovmasyan.army/assets/brand-logo.webp?v=28a4d69d">
   <link rel="canonical" href="https://www.tovmasyan.army/">
   <link rel="icon" href="/assets/favicon.png" type="image/png">
-  <link rel="stylesheet" href="/styles.css?v=25a833d4">
+  <link rel="stylesheet" href="/styles.css?v=06dfd1ad">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -166,7 +166,7 @@
             <p class="hero-lux__card-eyebrow">Премиальная коллекция</p>
             <h2>Браслет Laurel</h2>
             <p class="hero-lux__card-meta">Белое золото 585 · камни огранки маркиз</p>
-            <p class="hero-lux__card-price">Цена по запросу</p>
+            <p class="hero-lux__card-price"><span>Цена по запросу</span></p>
             <a class="hero-lux__card-link" href="/products/laurel-marquise-bracelet/">Смотреть</a>
           </article>
         </div>
@@ -188,7 +188,7 @@
             <p class="showcase-card__tag showcase-card__tag--accent">Новинка</p>
             <h2>Браслет Marquise Tennis</h2>
             <p>Крупные камни огранки маркиз по всей длине.</p>
-            <p class="showcase-card__price">Цена по запросу</p>
+            <p class="showcase-card__price"><span>Цена по запросу</span></p>
             <a class="showcase-card__link" href="/products/marquise-tennis-bracelet/">Открыть изделие</a>
           </div>
           <picture><source srcset="/assets/home/card-bracelet.webp" type="image/webp"><img src="/assets/home/card-bracelet.jpg" alt="Браслет Marquise Tennis TOVMASYAN Jeweler" width="1376" height="768" loading="lazy" decoding="async"></picture>
@@ -295,6 +295,8 @@
           <button class="filter-chip" type="button" data-filter="earrings">Серьги</button>
         </div>
 
+        <div class="price-switch-row price-switch-row--center"><span class="price-switch-label">Валюта</span><div data-price-switch></div></div>
+
         <div class="full-catalog-cta reveal"><a class="btn btn--gold" href="/catalog/">Открыть полный каталог 21 изделие</a><a class="btn btn--glass" href="/custom/">Заказать по своему эскизу</a></div>
 
         <div class="products-grid" data-products-grid>
@@ -305,7 +307,7 @@
               <h3><a href="/products/cross-grand-rose/">Крестик Grand</a></h3>
               <p>Крупный ажурный крест из красного золота в паве.</p>
               <div class="product-card__bottom">
-                <span>Цена по запросу</span>
+                <span data-price-amd="140000">140 000 ֏</span>
                 <a href="/products/cross-grand-rose/" class="order-link">Подробнее</a>
               </div>
             </div>
@@ -318,7 +320,7 @@
               <h3><a href="/products/halo-necklace/">Колье Halo</a></h3>
               <p>Крупный круглый камень в обрамлении halo.</p>
               <div class="product-card__bottom">
-                <span>Цена по запросу</span>
+                <span data-price-amd="100000">100 000 ֏</span>
                 <a href="/products/halo-necklace/" class="order-link">Подробнее</a>
               </div>
             </div>
@@ -344,7 +346,7 @@
               <h3><a href="/products/butterfly-huggie-earrings/">Серьги Butterfly Huggie</a></h3>
               <p>Мини-конго с бабочкой, полностью в камнях.</p>
               <div class="product-card__bottom">
-                <span>Цена по запросу</span>
+                <span data-price-amd="120000">120 000 ֏</span>
                 <a href="/products/butterfly-huggie-earrings/" class="order-link">Подробнее</a>
               </div>
             </div>
@@ -357,7 +359,7 @@
               <h3><a href="/products/fleur-necklace/">Колье Fleur</a></h3>
               <p>Цветок из пяти лепестков, полностью покрытых камнями.</p>
               <div class="product-card__bottom">
-                <span>Цена по запросу</span>
+                <span data-price-amd="100000">100 000 ֏</span>
                 <a href="/products/fleur-necklace/" class="order-link">Подробнее</a>
               </div>
             </div>
@@ -370,7 +372,7 @@
               <h3><a href="/products/giraffe-gold-pendant/">Подвеска Жирафик</a></h3>
               <p>Детская подвеска с матовым корпусом и пятнышками.</p>
               <div class="product-card__bottom">
-                <span>Цена по запросу</span>
+                <span data-price-amd="90000">90 000 ֏</span>
                 <a href="/products/giraffe-gold-pendant/" class="order-link">Подробнее</a>
               </div>
             </div>
@@ -504,8 +506,8 @@
             <p>Да. Отправьте фото, пример, эскиз или описание идеи — обсудим материал, размер и стоимость.</p>
           </details>
           <details>
-            <summary>Почему указана «Цена по запросу»?</summary>
-            <p>Стоимость зависит от веса, пробы, камней и сложности работы, поэтому цену мы рассчитываем индивидуально.</p>
+            <summary>В какой валюте указаны цены?</summary>
+            <p>Основная цена указана в драмах. Нажмите USD, EUR или RUB рядом с каталогом — цены пересчитаются по текущему курсу. Для изделий без цены стоимость рассчитываем индивидуально.</p>
           </details>
           <details>
             <summary>Где находится TOVMASYAN Jeweler?</summary>
@@ -599,6 +601,7 @@
   <script src="/firebase-config.js?v=76fa85ca"></script>
   <script src="/gold-rates.js?v=844f6623" defer></script>
     <script src="/i18n.js?v=eb4ea2cc" defer></script>
+  <script src="/prices.js?v=2835927a" defer></script>
   <script type="module" src="/auth.js?v=bb5773fe"></script>
 </body>
 </html>
