@@ -21,10 +21,20 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
       return id && productById.has(id) ? `/products/${id}/` : '/catalog/';
     }
 
+    const FALLBACK_IMG = '/assets/brand-logo-small.webp?v=88dd0bdf';
+
+    function priceOf(item) {
+      const product = productById.get(item.productId || item.id);
+      const amd = product && product.priceAmd;
+      if (amd) return `<span data-price-amd="${amd}">${product.price}</span>`;
+      return product?.price || item.price || item.categoryLabel || 'Цена по запросу';
+    }
+
     function imageUrl(item) {
       const id = item.productId || item.id;
       const product = productById.get(id);
-      return toAbs(item.image || product?.thumbnail || product?.image || 'assets/brand-logo-small.webp?v=88dd0bdf');
+      const src = product?.thumbnail || product?.image || item.image || '';
+      return src ? toAbs(src) : FALLBACK_IMG;
     }
 
     function loginView() {
@@ -50,6 +60,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
           <div class="account-stats">
             <div><strong>${favorites.length}</strong><span>избранных изделий</span></div>
             <div><strong>${orders.length}</strong><span>заявок и заказов</span></div>
+            <div><strong data-member-discount>−3%</strong><span>скидка зарегистрированным</span></div>
             <div><strong>Google</strong><span>защищённый вход</span></div>
           </div>
           <div class="account-columns">
@@ -92,7 +103,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
           </div>
           ${invitedBy && !mine
             ? `<p class="referral-status is-on">Ваша скидка ${ref.DISCOUNT}% активна по приглашению ${invitedBy}. Назовите её при заказе.</p>`
-            : '<p class="referral-status">Скидка появится здесь, как только вы придёте по приглашению друга.</p>'}
+            : `<p class="referral-status is-on">Ваша скидка ${ref.MEMBER_DISCOUNT}% как зарегистрированному клиенту уже действует. По приглашению друга она станет ${ref.DISCOUNT}%.</p>`}
         </section>`;
     }
 
@@ -104,8 +115,8 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
       if (!items.length) return '<div class="empty-account-state"><p>Пока нет избранных изделий. Откройте каталог и нажмите звёздочку на понравившемся украшении.</p></div>';
       return `<div class="account-items">${items.map((item) => `
         <article class="account-item">
-          <img src="${imageUrl(item)}" alt="${item.name || 'Изделие'}" loading="lazy" decoding="async">
-          <div><h4>${item.name || 'Изделие'}</h4><p>${item.categoryLabel || item.price || 'Цена по запросу'}</p><a href="${productUrl(item)}">Смотреть</a></div>
+          <img src="${imageUrl(item)}" alt="${item.name || 'Изделие'}" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='/assets/brand-logo-small.webp?v=88dd0bdf';this.classList.add('is-fallback')">
+          <div><h4>${item.name || 'Изделие'}</h4><p>${priceOf(item)}</p><a href="${productUrl(item)}">Смотреть</a></div>
           <button class="favorite-btn is-active" data-favorite-product="${item.productId || item.id}" aria-label="Удалить из избранного">★</button>
         </article>`).join('')}</div>`;
     }

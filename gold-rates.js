@@ -459,9 +459,9 @@
     if (boardToggle) {
       boardToggle.setAttribute('aria-expanded', String(open));
       boardToggle.classList.toggle('is-active', open);
-      boardToggle.setAttribute('aria-label', open ? 'Скрыть график' : 'Показать график');
+      boardToggle.setAttribute('aria-label', open ? 'Свернуть таблицу и график' : 'Показать все пробы и график');
     }
-    if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Скрыть график' : 'График';
+    if (boardToggleLabel) boardToggleLabel.textContent = open ? 'Свернуть' : 'Подробнее';
     if (!animate) {
       boardPanel.style.transition = 'none';
       requestAnimationFrame(() => { boardPanel.style.transition = ''; });

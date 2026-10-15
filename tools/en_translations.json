@@ -437,7 +437,7 @@
   "Смотреть": "View",
   "Авторские изделия из золота": "Signature gold pieces",
   "Элегантные формы ручной работы для любого повода.": "Elegant handmade shapes for every occasion.",
-  "Подробнее": "Learn more",
+  "Подробнее": "More",
   "Новинка": "New arrival",
   "Открыть изделие": "Open the piece",
   "Свадебная линия": "Bridal line",
@@ -639,5 +639,7 @@
   "Например: крестик, колье, браслет": "For example: cross, necklace, bracelet",
   "TOVMASYAN Jeweler — золотые украшения, Ереван": "TOVMASYAN Jeweler — gold jewellery, Yerevan",
   "В какой валюте указаны цены?": "What currency are the prices in?",
-  "Основная цена указана в драмах. Нажмите USD, EUR или RUB рядом с каталогом — цены пересчитаются по текущему курсу. Для изделий без цены стоимость рассчитываем индивидуально.": "Prices are shown in Armenian drams. Tap USD, EUR or RUB next to the catalogue and they are converted at the current rate. For pieces without a price we calculate the cost individually."
+  "Основная цена указана в драмах. Нажмите USD, EUR или RUB рядом с каталогом — цены пересчитаются по текущему курсу. Для изделий без цены стоимость рассчитываем индивидуально.": "Prices are shown in Armenian drams. Tap USD, EUR or RUB next to the catalogue and they are converted at the current rate. For pieces without a price we calculate the cost individually.",
+  "Показать все пробы и график": "Show all purities and the chart",
+  "Свернуть таблицу и график": "Collapse the table and chart"
 }

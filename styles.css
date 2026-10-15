@@ -1410,7 +1410,7 @@ details p {
   }
 }
 
-@media (max-width: 1080px) {
+@media (max-width: 1180px) {
   .site-header {
     border-radius: 32px;
   }
@@ -3967,3 +3967,74 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
 .btn--wa .wa-icon { width: 1.1em; height: 1.1em; fill: currentColor; }
 .referral-card .account-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .referral-card .account-actions .btn--wa { flex: 0 0 auto; width: auto; padding-left: 22px; padding-right: 22px; }
+
+/* Гостевой вход */
+.auth-gate__guest { margin-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.btn--guest { width: 100%; max-width: 320px; }
+.auth-gate__guest-note { margin: 0; font-size: 0.82rem; color: var(--muted-2); text-align: center; }
+.auth-gate__close {
+  position: absolute; top: 12px; right: 14px;
+  width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--line); border-radius: 50%;
+  background: transparent; color: var(--muted);
+  font-size: 1.5rem; line-height: 1; cursor: pointer;
+  transition: color .2s ease, border-color .2s ease;
+}
+.auth-gate__close:hover { color: var(--gold); border-color: var(--gold-2); }
+.auth-gate__panel { position: relative; }
+
+/* Армянские подписи длиннее — прячем меню в бургер раньше, чтобы ничего не вылезало */
+@media (max-width: 1440px) {
+  html[lang="hy"] .main-nav {
+    position: fixed;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: 24px;
+    background: rgba(22, 16, 13, 0.94);
+    border: 1px solid var(--line);
+    box-shadow: 0 20px 60px rgba(23, 19, 16, 0.21);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    transition: opacity .25s ease, visibility .25s ease, transform .25s ease;
+  }
+  html[lang="hy"] .main-nav.is-open { opacity: 1; visibility: visible; transform: translateY(0); }
+  html[lang="hy"] .main-nav a { padding: 14px 16px; }
+  html[lang="hy"] .menu-toggle { display: inline-flex; }
+  html[lang="hy"] .icon-link { display: none; }
+}
+
+/* Страховка: содержимое шапки никогда не выходит за её скругленную рамку */
+.site-header { overflow: hidden; }
+.site-header > * { min-width: 0; }
+.header-actions { flex-wrap: nowrap; }
+.menu-toggle { flex: 0 0 auto; }
+
+/* Табло курсов: свернуто наполовину, стрелка раскрывает полностью */
+.rate-board .rate-table-wrap {
+  position: relative;
+  max-height: 212px;
+  overflow: hidden;
+  transition: max-height .45s cubic-bezier(.22,.61,.36,1);
+}
+.rate-board .rate-table-wrap::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 86px;
+  background: linear-gradient(180deg, rgba(7, 5, 4, 0) 0%, rgba(7, 5, 4, .82) 62%, rgba(7, 5, 4, .98) 100%);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity .35s ease;
+}
+.rate-board.is-open .rate-table-wrap { max-height: 760px; overflow: auto; }
+.rate-board.is-open .rate-table-wrap::after { opacity: 0; }
+.rate-expand__arrow { transition: transform .35s ease; }
+.rate-board.is-open .rate-expand__arrow { transform: rotate(180deg); }
+.rate-board:not(.is-open) .rate-board__foot { margin-top: 2px; }
+@media (max-width: 720px) {
+  .rate-board .rate-table-wrap { max-height: 196px; }
+  .rate-board.is-open .rate-table-wrap { max-height: 900px; }
+}

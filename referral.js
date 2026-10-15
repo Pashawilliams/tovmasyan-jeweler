@@ -1,6 +1,7 @@
 /* Реферальная программа TOVMASYAN Jeweler: персональный код, скидка 4%. */
 (() => {
-  const DISCOUNT = 4;
+  const DISCOUNT = 4;          // по приглашению друга
+  const MEMBER_DISCOUNT = 3;   // просто за регистрацию
   const REF_KEY = 'tovmasyan_ref';
   const REF_TTL = 180 * 24 * 60 * 60 * 1000;   // приглашение действует полгода
   const PREFIX = 'TOV';
@@ -46,8 +47,22 @@
     return `${location.origin}/?ref=${code}`;
   }
 
-  function promoNote(code) {
-    return `\n\nПромокод: ${code} (скидка ${DISCOUNT}%)`;
+  function signedIn() {
+    const a = window.TovmasyanAuth;
+    return Boolean(a && a.getUser && a.getUser());
+  }
+
+  // какая скидка сейчас действует: приглашение (4%) важнее регистрации (3%)
+  function activeDiscount() {
+    if (readRef()) return { percent: DISCOUNT, kind: 'invite', code: readRef() };
+    if (signedIn()) return { percent: MEMBER_DISCOUNT, kind: 'member', code: myCode() };
+    return { percent: 0, kind: 'none', code: '' };
+  }
+
+  function promoNote(code, percent, kind) {
+    const value = percent || DISCOUNT;
+    const reason = kind === 'member' ? 'зарегистрированный клиент' : 'приглашение';
+    return `\n\nПромокод: ${code} (скидка ${value}% — ${reason})`;
   }
 
   /* ---------- приглашение из ссылки ---------- */
@@ -75,16 +90,17 @@
 
   /* ---------- промокод в сообщениях WhatsApp ---------- */
   function decorateWhatsApp() {
-    const code = readRef() || myCode();
-    if (!code) return;
-    const note = promoNote(code);
+    const info = activeDiscount();
+    const code = info.code;
+    if (!code || !info.percent) return;
+    const note = promoNote(code, info.percent, info.kind);
     document.querySelectorAll('a[href*="wa.me/"]').forEach((a) => {
       if (a.dataset.refDone === code) return;
       try {
         const url = new URL(a.href);
         const text = url.searchParams.get('text');
         if (!text) { a.dataset.refDone = code; return; }
-        const clean = text.replace(/\n\nПромокод: TOV[A-Z0-9]{5} \(скидка \d+%\)/g, '');
+        const clean = text.replace(/\n\nПромокод: TOV[A-Z0-9]{5} \(скидка \d+%[^)]*\)/g, '');
         url.searchParams.set('text', clean + note);
         a.href = url.toString();
         a.dataset.refDone = code;
@@ -121,6 +137,8 @@
 
   window.TovmasyanReferral = {
     DISCOUNT,
+    MEMBER_DISCOUNT,
+    activeDiscount,
     codeForUid,
     myCode,
     inviteLink,

@@ -59,6 +59,8 @@
       checking: 'Проверяем вход…',
       langTitle: 'Выберите язык сайта',
       langText: 'Ընտրեք կայքի լեզուն',
+      guest: 'Войти как гость',
+      guestNote: 'Можно смотреть каталог без регистрации — аккаунт создадите позже.',
       loggedIn: 'Вы вошли через Google',
       loggedOut: 'Вы вышли из аккаунта'
     },
@@ -73,6 +75,8 @@
       checking: 'Ստուգում ենք մուտքը…',
       langTitle: 'Ընտրեք կայքի լեզուն',
       langText: 'Выберите язык сайта',
+      guest: 'Մուտք որպես հյուր',
+      guestNote: 'Կարող եք դիտել կատալոգը առանց գրանցման — հաշիվը կստեղծեք ավելի ուշ։',
       loggedIn: 'Դուք մուտք գործեցիք Google-ով',
       loggedOut: 'Դուք դուրս եկաք հաշվից'
     },
@@ -87,6 +91,8 @@
       checking: 'Checking your sign-in\u2026',
       langTitle: 'Choose the site language',
       langText: 'Выберите язык сайта',
+      guest: 'Continue as a guest',
+      guestNote: 'You can browse the catalogue without signing up — create an account later.',
       loggedIn: 'You are signed in with Google',
       loggedOut: 'You have signed out'
     }
@@ -259,6 +265,24 @@
 
   /* ---------------------------------------------------------- auth gate */
 
+  /* ------------------------------------------------------- гостевой режим */
+  const guestKey = 'tovmasyan_guest_mode';
+  function isGuest() {
+    try { return localStorage.getItem(guestKey) === '1'; } catch (error) { return false; }
+  }
+  function setGuest(on) {
+    try {
+      if (on) localStorage.setItem(guestKey, '1');
+      else localStorage.removeItem(guestKey);
+    } catch (error) { /* ignore */ }
+  }
+  function continueAsGuest() {
+    setGuest(true);
+    closeModal();
+    updateHeaderState();
+    document.dispatchEvent(new CustomEvent('tovmasyan:guest-mode', { detail: { guest: true } }));
+  }
+
   function createGate() {
     if (document.querySelector('[data-auth-gate]')) return;
     const gate = document.createElement('div');
@@ -267,6 +291,7 @@
     gate.innerHTML = `
       <div class="auth-gate__bg" aria-hidden="true"></div>
       <div class="auth-gate__panel" role="dialog" aria-modal="true" aria-labelledby="auth-gate-title">
+        <button type="button" class="auth-gate__close" data-auth-guest-close aria-label="Закрыть">&times;</button>
         <div class="auth-gate__brand">
           <img src="${assetPrefix}assets/brand-logo.webp?v=28a4d69d" alt="TOVMASYAN Jeweler" width="112" height="112">
         </div>
@@ -274,6 +299,10 @@
         <h2 id="auth-gate-title" data-gate-title>${t('gateTitle')}</h2>
         <p class="auth-gate__text" data-gate-text>${t('gateText')}</p>
         <div class="auth-gate__action">${googleButton(t('signIn') === 'Մուտք' ? 'Մուտք Google-ով' : 'Войти через Google')}</div>
+        <div class="auth-gate__guest">
+          <button type="button" class="btn btn--glass btn--guest" data-auth-guest data-gate-guest-btn>${t('guest')}</button>
+          <p class="auth-gate__guest-note" data-gate-guest-note>${t('guestNote')}</p>
+        </div>
         <p class="auth-message" data-auth-message></p>
         <p class="auth-gate__note" data-gate-note>${t('gateNote')}</p>
         <div class="auth-gate__langs">
@@ -285,6 +314,13 @@
     document.body.appendChild(gate);
   }
 
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('[data-auth-guest], [data-auth-guest-close]')) {
+      event.preventDefault();
+      continueAsGuest();
+    }
+  });
+
   function updateGate() {
     if (!configured) return;
     createGate();
@@ -294,6 +330,10 @@
     gate.querySelector('[data-gate-title]').textContent = t('gateTitle');
     gate.querySelector('[data-gate-text]').textContent = t('gateText');
     gate.querySelector('[data-gate-note]').textContent = t('gateNote');
+    const guestBtn = gate.querySelector('[data-gate-guest-btn]');
+    if (guestBtn) guestBtn.textContent = t('guest');
+    const guestNote = gate.querySelector('[data-gate-guest-note]');
+    if (guestNote) guestNote.textContent = t('guestNote');
     const btnLabel = gate.querySelector('.gsi-material-button-contents');
     if (btnLabel) {
       const googleLabel = { hy: 'Մուտք Google-ով', en: 'Sign in with Google', ru: 'Войти через Google' };
@@ -304,7 +344,7 @@
     const hasSessionHint = localStorage.getItem(sessionHintKey) === '1';
     // While Firebase restores the session we must not flash the gate at a user
     // who is already signed in — only brand-new visitors see it immediately.
-    const locked = !currentUser && (authResolved || !hasSessionHint);
+    const locked = !currentUser && !isGuest() && (authResolved || !hasSessionHint);
     gate.classList.toggle('is-open', locked);
     gate.classList.toggle('is-checking', locked && !authResolved);
     document.body.classList.toggle('auth-locked', locked);
@@ -455,6 +495,7 @@
     try {
       setAuthMessage('', 'info');
       justLoggedIn = true;
+      setGuest(false);
       const provider = new firebase.GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
       await firebase.signInWithPopup(auth, provider);
@@ -857,6 +898,8 @@
     flushPending,
     getLang,
     setLang,
+    isGuest,
+    continueAsGuest,
     googleButton,
     get initError() { return initError; }
   };
