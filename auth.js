@@ -572,6 +572,41 @@
     }
   };
 
+
+  /* ---- профиль пользователя (реферальная программа и настройки) ---- */
+  function profileKey() { return `tovmasyan_profile_${scope()}`; }
+
+  async function saveProfile(data) {
+    if (!currentUser || !data) return false;
+    const merged = { ...localGet(profileKey(), {}), ...data };
+    localSet(profileKey(), merged);
+    if (!cloudOn()) return false;
+    try {
+      await withTimeout(firebase.setDoc(firebase.doc(db, 'users', currentUser.uid), {
+        ...data, updatedAt: firebase.serverTimestamp()
+      }, { merge: true }));
+      return true;
+    } catch (error) {
+      console.warn('Cannot save profile:', error?.message || error);
+      return false;
+    }
+  }
+
+  async function loadProfile() {
+    if (!currentUser) return {};
+    const local = localGet(profileKey(), {});
+    if (!cloudOn() || !firebase.getDoc) return local;
+    try {
+      const snap = await withTimeout(firebase.getDoc(firebase.doc(db, 'users', currentUser.uid)));
+      const remote = snap && snap.exists && snap.exists() ? snap.data() : {};
+      const merged = { ...local, ...remote };
+      localSet(profileKey(), merged);
+      return merged;
+    } catch (error) {
+      return local;
+    }
+  }
+
   let unsubscribeFavorites = null;
 
   function cloudOn() {
@@ -815,6 +850,8 @@
     listFavorites,
     listOrders,
     saveOrder,
+    saveProfile,
+    loadProfile,
     updateFavoriteButtons,
     syncFavorites,
     flushPending,
