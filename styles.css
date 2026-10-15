@@ -4008,9 +4008,11 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
   html[lang="hy"] .icon-link { display: none; }
 }
 
-/* Страховка: содержимое шапки никогда не выходит за её скругленную рамку */
-.site-header { overflow: hidden; }
+/* Страховка: содержимое шапки не выходит за её скругленную рамку,
+   но выпадающее меню при этом не обрезается */
+.site-header { overflow: visible; }
 .site-header > * { min-width: 0; }
+.site-header .main-nav:not(.is-open) { pointer-events: none; }
 .header-actions { flex-wrap: nowrap; }
 .menu-toggle { flex: 0 0 auto; }
 
@@ -4038,3 +4040,13 @@ a[data-whatsapp].btn { display: inline-flex; align-items: center; gap: 7px; just
   .rate-board .rate-table-wrap { max-height: 196px; }
   .rate-board.is-open .rate-table-wrap { max-height: 900px; }
 }
+
+/* Выпадающее меню: непрозрачный фон и поверх остального содержимого */
+.main-nav.is-open,
+html[lang="hy"] .main-nav.is-open {
+  z-index: 120;
+  background: #130d0a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .6);
+  backdrop-filter: blur(6px);
+}
+.site-header { z-index: 100; }
