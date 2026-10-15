@@ -4050,3 +4050,11 @@ html[lang="hy"] .main-nav.is-open {
   backdrop-filter: blur(6px);
 }
 .site-header { z-index: 100; }
+
+/* Кнопка «Войти» должна быть видна и на телефоне (гость может зарегистрироваться позже) */
+@media (max-width: 760px) {
+  .header-actions .btn.auth-signin-btn { display: inline-flex; padding: 8px 13px; font-size: 12px; }
+}
+@media (max-width: 430px) {
+  .header-actions .btn.auth-signin-btn { padding: 7px 11px; font-size: 11px; }
+}
