@@ -24,17 +24,43 @@ ROOT = Path(__file__).resolve().parent.parent
 REAL = ROOT / 'assets' / 'real-photos'
 THUMBS = ROOT / 'assets' / 'thumbs'
 PRODUCTS_DIR = ROOT / 'products'
-TEMPLATE_SRC = PRODUCTS_DIR / 'diamond-star-pendant' / 'index.html'
+TEMPLATE_ID = 'cross-classic'
+TEMPLATE_SRC = PRODUCTS_DIR / TEMPLATE_ID / 'index.html'
 
 AVAIL = 'В наличии и под заказ'
+AUD_TR = {
+    'Женская коллекция': dict(hy='Կանացի հավաքածու', en='Women’s collection'),
+    'Мужская коллекция': dict(hy='Տղամարդու հավաքածու', en='Men’s collection'),
+    'Коллекция унисекс': dict(hy='Unisex հավաքածու', en='Unisex collection'),
+    'Детская коллекция': dict(hy='Մանկական հավաքածու', en='Kids’ collection'),
+    'Помолвочная коллекция': dict(hy='Նշանադրության հավաքածու', en='Bridal collection'),
+}
+AUD_LABEL = {
+    'women': 'Женская коллекция',
+    'men': 'Мужская коллекция',
+    'unisex': 'Коллекция унисекс',
+    'kids': 'Детская коллекция',
+    'bridal': 'Помолвочная коллекция',
+}
 WEIGHT = 'По расчету'
 PRICE = 'Цена по запросу'
+
+
+PRICE_AMD = {'cross-lumiere': 110000, 'cross-petale': 130000, 'cross-royal': 110000, 'cross-infinity': 100000, 'cross-grand-rose': 140000, 'cross-classic': 100000, 'papillon-necklace': 80000, 'fleur-necklace': 100000, 'duo-papillon-necklace': 120000, 'halo-necklace': 100000, 'arc-marquise-necklace': 140000, 'butterfly-glow-pendant': 80000, 'butterfly-trio-pendant': 40000, 'laurel-circle-pendant': 130000, 'clover-pendant': 110000, 'giraffe-gold-pendant': 90000, 'giraffe-duo-pendant': 80000, 'butterfly-huggie-earrings': 120000}
+
+
+def price_of(pid):
+    amd = PRICE_AMD.get(pid)
+    if not amd:
+        return PRICE, 0
+    return f"{amd:,}".replace(',', '\u00a0') + ' \u058f', amd
 
 
 # ------------------------------------------------------------------ картинки
 def build_images():
     for p in PRODUCTS:
-        src = Image.open(U.format(p['src'])).convert('RGB')
+        path = p['src'] if isinstance(p['src'], str) else U.format(p['src'])
+        src = Image.open(path).convert('RGB')
         big = src.copy()
         if big.width > 1100:
             big = big.resize((1100, round(big.height * 1100 / big.width)), Image.LANCZOS)
@@ -60,12 +86,15 @@ def build_data():
             'category': p['cat'],
             'categoryLabel': p['label'],
             'collection': p['col'],
+            'audience': p.get('aud', 'women'),
+            'audienceLabel': AUD_LABEL[p.get('aud', 'women')],
             'material': p['mat'],
             'stones': p['st'],
             'weight': WEIGHT,
             'size': p['size'],
             'availability': AVAIL,
-            'price': PRICE,
+            'price': price_of(p['id'])[0],
+            'priceAmd': price_of(p['id'])[1],
             'short': p['short']['ru'],
             'description': p['desc']['ru'],
             'tags': p['tags']['ru'],
@@ -101,9 +130,14 @@ def related_html(item, items):
     return ''.join(out)
 
 
+def price_html(item):
+    amd = item.get('priceAmd')
+    return f'<span data-price-amd="{amd}">{item["price"]}</span>' if amd else item['price']
+
+
 def build_pages(items):
     tpl = TEMPLATE_SRC.read_text(encoding='utf-8')
-    # вырезаем изменяемые куски шаблона
+    base = next(i for i in items if i['id'] == TEMPLATE_ID)
     old_related = re.search(r'<div class="products-grid">.*?</div></div>\n    </section>', tpl, re.S).group(0)
 
     keep = {p['id'] for p in PRODUCTS}
@@ -116,35 +150,28 @@ def build_pages(items):
 
     for item in items:
         t = tpl
-        t = t.replace('Подвеска Diamond Star — TOVMASYAN Jeweler', f'{item["name"]} — TOVMASYAN Jeweler')
+        t = t.replace(base['id'], item['id'])
+        t = t.replace(base['name'], item['name'])
         t = re.sub(r'<meta name="description" content="[^"]*">',
                    f'<meta name="description" content="{item["short"]} {item["material"]}. TOVMASYAN Jeweler, Ереван.">', t, count=1)
-        t = t.replace('https://www.tovmasyan.army/products/diamond-star-pendant/',
-                      f'https://www.tovmasyan.army/products/{item["id"]}/')
-        t = t.replace('/assets/real-photos/diamond-star-pendant.webp', f'/assets/real-photos/{item["id"]}.webp')
-        t = t.replace('alt="Подвеска Diamond Star — TOVMASYAN Jeweler"', f'alt="{item["name"]} — TOVMASYAN Jeweler"')
-        t = t.replace('<p class="eyebrow">Stella</p>', f'<p class="eyebrow">{item["collection"]}</p>')
-        t = t.replace('<h1>Подвеска Diamond Star</h1>', f'<h1>{item["name"]}</h1>')
+        t = t.replace(f'<p class="eyebrow">{base["collection"]}</p>', f'<p class="eyebrow">{item["collection"]}</p>')
         t = re.sub(r'<p class="product-detail__lead">.*?</p>',
                    f'<p class="product-detail__lead">{item["description"]}</p>', t, count=1, flags=re.S)
         t = re.sub(r'<div class="product-tags product-tags--large">.*?</div>',
                    '<div class="product-tags product-tags--large">'
                    + ''.join(f'<span>{x}</span>' for x in item['tags']) + '</div>', t, count=1, flags=re.S)
         specs = (f'<div><dt>Категория</dt><dd>{item["categoryLabel"]}</dd></div>\n'
+                 f'            <div><dt>Коллекция</dt><dd>{item["audienceLabel"]}</dd></div>\n'
                  f'            <div><dt>Материал</dt><dd>{item["material"]}</dd></div>\n'
                  f'            <div><dt>Камни</dt><dd>{item["stones"]}</dd></div>\n'
                  f'            <div><dt>Вес</dt><dd>{item["weight"]}</dd></div>\n'
                  f'            <div><dt>Размер</dt><dd>{item["size"]}</dd></div>\n'
                  f'            <div><dt>Наличие</dt><dd>{item["availability"]}</dd></div>\n'
-                 f'            <div><dt>Стоимость</dt><dd>{item["price"]}</dd></div>')
-        t = re.sub(r'<div><dt>Категория</dt>.*?<dd>Цена по запросу</dd></div>', specs, t, count=1, flags=re.S)
-        t = t.replace('data-favorite-product="diamond-star-pendant"', f'data-favorite-product="{item["id"]}"')
-        t = t.replace('data-save-order="diamond-star-pendant"', f'data-save-order="{item["id"]}"')
-        t = t.replace('Меня интересует изделие: Подвеска Diamond Star.',
-                      f'Меня интересует изделие: {item["name"]}.')
+                 f'            <div><dt>Стоимость</dt><dd>{price_html(item)}</dd></div>\n          </dl>')
+        t = re.sub(r'<div><dt>Категория</dt>.*?</dl>', specs, t, count=1, flags=re.S)
         new_related = ('<div class="products-grid">' + related_html(item, items)
                        + '</div></div>\n    </section>')
-        t = t.replace(old_related, new_related)
+        t = re.sub(r'<div class="products-grid">.*?</div></div>\n    </section>', lambda m: new_related, t, count=1, flags=re.S)
 
         (PRODUCTS_DIR / item['id']).mkdir(parents=True, exist_ok=True)
         (PRODUCTS_DIR / item['id'] / 'index.html').write_text(t, encoding='utf-8')
@@ -182,6 +209,8 @@ def build_translations():
     for lang in ('hy', 'en'):
         f = ROOT / f'tools/{lang}_translations.json'
         d = json.loads(f.read_text(encoding='utf-8'))
+        for ru, tr in AUD_TR.items():
+            d[ru] = tr[lang]
         for ru, tr in COMMON.items():
             d[ru] = tr[lang]
         for p in PRODUCTS:

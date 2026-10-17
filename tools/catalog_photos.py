@@ -288,3 +288,25 @@ COMMON = {
     'Fleur': dict(hy='Fleur', en='Fleur'),
     'Little Gold': dict(hy='Little Gold', en='Little Gold'),
 }
+
+
+# ---------------------------------------------------------------------------
+# Принадлежность к коллекции для изделий, добавленных раньше
+AUD_OLD = {
+    'cross-lumiere': 'unisex', 'cross-petale': 'women', 'cross-royal': 'unisex',
+    'cross-infinity': 'women', 'cross-grand-rose': 'unisex', 'cross-classic': 'unisex',
+    'papillon-necklace': 'women', 'fleur-necklace': 'women', 'duo-papillon-necklace': 'women',
+    'halo-necklace': 'women', 'arc-marquise-necklace': 'women',
+    'butterfly-glow-pendant': 'women', 'butterfly-trio-pendant': 'women',
+    'laurel-circle-pendant': 'women', 'clover-pendant': 'women',
+    'giraffe-gold-pendant': 'kids', 'giraffe-duo-pendant': 'kids',
+    'butterfly-huggie-earrings': 'women',
+    'tennis-classic-bracelet': 'women', 'laurel-marquise-bracelet': 'women',
+    'marquise-tennis-bracelet': 'women',
+}
+for _p in PRODUCTS:
+    _p.setdefault('aud', AUD_OLD.get(_p['id'], 'women'))
+
+# новые изделия по фотографиям клиента
+from new_products import NEW as _NEW  # noqa: E402
+PRODUCTS += _NEW

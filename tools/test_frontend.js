@@ -71,7 +71,7 @@ function tap(dom, el) {
   ready(dom);
   d = dom.window.document;
   const A = dom.window.TovmasyanAuth;
-  check('catalog renders 21 cards', d.querySelectorAll('[data-catalog-products] .product-card').length === 21);
+  check('catalog renders 60 cards', d.querySelectorAll('[data-catalog-products] .product-card').length === 60);
   check('catalog images absolute', [...d.querySelectorAll('[data-catalog-products] img')].every((i) => i.getAttribute('src').startsWith('/assets/')));
   const star = d.querySelector('[data-favorite-product]');
   check('star button exists on card', !!star);
@@ -100,7 +100,7 @@ function tap(dom, el) {
   ready(dom);
   d = dom.window.document;
   const mediaLinks = [...d.querySelectorAll('.product-card__media')];
-  check('every card media is a link', mediaLinks.length === 21 && mediaLinks.every((a) => a.tagName === 'A' && /^\/products\/.+\/$/.test(a.getAttribute('href'))));
+  check('every card media is a link', mediaLinks.length === 60 && mediaLinks.every((a) => a.tagName === 'A' && /^\/products\/.+\/$/.test(a.getAttribute('href'))));
   let defaultPrevented = false;
   const link = mediaLinks[0];
   link.addEventListener('click', (e) => { defaultPrevented = e.defaultPrevented; });

@@ -9,15 +9,17 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
 
   const searchInput = document.querySelector('[data-catalog-search]');
   const categorySelect = document.querySelector('[data-catalog-category]');
+  const audienceSelect = document.querySelector('[data-catalog-audience]');
   const sortSelect = document.querySelector('[data-catalog-sort]');
   const count = document.querySelector('[data-catalog-count]');
   const clear = document.querySelector('[data-clear-filters]');
 
   const normalize = (value) => String(value || '').toLowerCase().trim();
   const matchesCategory = (product, category) => category === 'all' || product.category.split(' ').includes(category);
+  const matchesAudience = (product, audience) => audience === 'all' || (product.audience || 'women') === audience;
   const matchesSearch = (product, query) => {
     if (!query) return true;
-    return [product.name, product.categoryLabel, product.collection, product.material, product.stones, product.short, ...(product.tags || [])]
+    return [product.name, product.categoryLabel, product.collection, product.audienceLabel, product.material, product.stones, product.short, ...(product.tags || [])]
       .some((field) => normalize(field).includes(query));
   };
 
@@ -32,7 +34,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
         </a>
         <button class="favorite-btn product-card__favorite" type="button" data-favorite-product="${product.id}" aria-label="Добавить ${product.name} в избранное">☆</button>
         <div class="product-card__body">
-          <span class="product-card__tag">${product.categoryLabel} · ${product.collection}</span>
+          <span class="product-card__tag">${product.categoryLabel} · ${product.audienceLabel || product.collection}</span>
           <h3><a href="/products/${product.id}/">${product.name}</a></h3>
           <p>${product.short}</p>
           <div class="product-tags">${tags}</div>
@@ -45,18 +47,20 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
   function render() {
     const query = normalize(searchInput?.value);
     const category = categorySelect?.value || 'all';
+    const audience = audienceSelect?.value || 'all';
     const sort = sortSelect?.value || 'default';
-    let list = products.filter((product) => matchesCategory(product, category) && matchesSearch(product, query));
+    let list = products.filter((product) => matchesCategory(product, category) && matchesAudience(product, audience) && matchesSearch(product, query));
     if (sort === 'name') list = [...list].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
     if (sort === 'category') list = [...list].sort((a, b) => a.categoryLabel.localeCompare(b.categoryLabel, 'ru'));
     grid.innerHTML = list.map(productCard).join('') || `<div class="empty-state"><h3>Ничего не найдено</h3><p>Попробуйте изменить запрос или сбросить фильтры.</p></div>`;
     if (count) count.textContent = list.length;
   }
 
-  [searchInput, categorySelect, sortSelect].forEach((el) => el && el.addEventListener('input', render));
+  [searchInput, categorySelect, audienceSelect, sortSelect].forEach((el) => el && el.addEventListener('input', render));
   clear?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     if (categorySelect) categorySelect.value = 'all';
+    if (audienceSelect) audienceSelect.value = 'all';
     if (sortSelect) sortSelect.value = 'default';
     render();
   });
@@ -64,5 +68,7 @@ function toAbs(u){ if(!u) return u; return /^(https?:|data:|\/)/.test(u) ? u : '
   const params = new URLSearchParams(window.location.search);
   const categoryParam = params.get('category');
   if (categoryParam && categorySelect) categorySelect.value = categoryParam;
+  const audienceParam = params.get('collection');
+  if (audienceParam && audienceSelect) audienceSelect.value = audienceParam;
   render();
 })();
